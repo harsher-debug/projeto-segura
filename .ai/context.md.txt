@@ -1,0 +1,27 @@
+Projeto:
+
+Segura OS
+
+Descrição:
+
+Sistema imobiliário completo.
+
+Objetivo:
+
+Substituir CRMs tradicionais.
+
+Nunca criar componentes duplicados.
+
+Sempre reutilizar componentes existentes.
+
+Sempre utilizar Design System.
+
+Nunca alterar estrutura de pastas.
+
+Sempre utilizar TypeScript.
+
+Sempre utilizar React Query.
+
+Nunca acessar banco diretamente.
+
+Toda chamada passa pelos Services.

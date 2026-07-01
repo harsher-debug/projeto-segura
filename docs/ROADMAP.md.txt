@@ -1,0 +1,75 @@
+# Roadmap
+
+## Fase 1
+
+Arquitetura
+
+Design System
+
+Banco
+
+Documentação
+
+---
+
+## Fase 2
+
+Dashboard
+
+CRM
+
+Clientes
+
+Proprietários
+
+Locatários
+
+---
+
+## Fase 3
+
+Site
+
+Busca
+
+Mapa
+
+Filtros
+
+SEO
+
+---
+
+## Fase 4
+
+Financeiro
+
+Contratos
+
+Boletos
+
+Documentos
+
+---
+
+## Fase 5
+
+Central IA
+
+Chat
+
+WhatsApp
+
+Automação
+
+Documentos
+
+Resumos
+
+Pesquisas
+
+---
+
+## Fase 6
+
+App Mobile

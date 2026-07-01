@@ -1,0 +1,40 @@
+# Arquitetura
+
+O projeto segue arquitetura modular.
+
+Nenhum módulo pode depender diretamente de outro.
+
+Toda comunicação deve acontecer através de Services.
+
+Estrutura:
+
+app/
+
+modules/
+
+shared/
+
+integrations/
+
+assets/
+
+styles/
+
+
+Dashboard
+
+CRM
+
+Properties
+
+Finance
+
+Contracts
+
+Reports
+
+Settings
+
+Website
+
+AI

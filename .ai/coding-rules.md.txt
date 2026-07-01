@@ -1,0 +1,23 @@
+Todo código deve seguir:
+
+SOLID
+
+Clean Code
+
+DRY
+
+KISS
+
+TypeScript Strict
+
+React Query
+
+Server Components quando possível.
+
+Componentes pequenos.
+
+Máximo 250 linhas por arquivo.
+
+Nunca usar any.
+
+Nunca duplicar código.

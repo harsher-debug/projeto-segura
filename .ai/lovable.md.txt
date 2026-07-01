@@ -1,0 +1,29 @@
+# Regras
+
+Sempre reutilizar componentes.
+
+Nunca criar Button novo.
+
+Nunca criar Card novo.
+
+Nunca criar Input novo.
+
+Nunca criar Modal novo.
+
+Sempre utilizar shared/ui.
+
+Sempre utilizar shared/hooks.
+
+Sempre utilizar shared/services.
+
+Sempre utilizar modules.
+
+Nunca escrever CSS inline.
+
+Sempre utilizar Tailwind.
+
+Nunca criar páginas sem Layout.
+
+Nunca criar componentes fora do módulo correto.
+
+Nunca criar lógica dentro das páginas.
