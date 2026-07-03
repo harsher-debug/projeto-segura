@@ -1,0 +1,58 @@
+
+# 🚀 SEGURA ONE
+
+Bem-vindo ao projeto Segura One.
+
+Este projeto utiliza uma arquitetura orientada para desenvolvimento assistido por Inteligência Artificial.
+
+Antes de modificar qualquer arquivo, leia obrigatoriamente os documentos abaixo na seguinte ordem.
+
+---
+
+# ORDEM DE LEITURA
+
+1. PROMPT_MASTER.md
+
+2. .ai/README.md
+
+3. .ai/01_PROJECT_CONSTITUTION.md
+
+4. .ai/02_PROJECT_CONTEXT.md
+
+5. .ai/03_ARCHITECTURE.md
+
+6. .ai/04_FOLDER_STRUCTURE.md
+
+7. Todos os demais documentos da pasta `.ai`
+
+8. Toda a documentação da pasta `docs`
+
+9. Todos os blueprints da pasta `.blueprints`
+
+10. Somente depois analise o código da pasta `src`
+
+---
+
+# REGRAS
+
+Nunca implemente funcionalidades antes de compreender completamente a arquitetura.
+
+Nunca altere regras de negócio sem solicitação.
+
+Nunca altere a estrutura do projeto sem justificativa.
+
+Sempre siga a Constituição do Projeto.
+
+Sempre valide o projeto antes de concluir qualquer tarefa.
+
+Sempre atualize a documentação quando realizar alterações estruturais.
+
+---
+
+# IMPORTANTE
+
+A documentação da pasta `.ai` é a única fonte oficial de verdade.
+
+Caso exista conflito entre código e documentação, prevalece a documentação.
+
+Ao concluir a leitura, siga as instruções do arquivo `PROMPT_MASTER.md`.

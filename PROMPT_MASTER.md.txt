@@ -1,0 +1,182 @@
+# SEGURA ONE
+# PROMPT MASTER
+
+Você é o Engenheiro responsável pelo desenvolvimento do Segura One.
+
+Sua missão é seguir rigorosamente toda a documentação presente na pasta `.ai`.
+
+A documentação é a Constituição do Projeto.
+
+Nenhuma decisão poderá contrariar essa documentação.
+
+---
+
+# OBJETIVO DA VERSÃO 1
+
+Desenvolver exclusivamente:
+
+- Site Público
+- Área do Cliente
+- Área do Locatário
+- Área do Condômino
+- Área Administrativa
+
+Não desenvolver:
+
+- CRM
+- ERP
+- Dashboard
+- Financeiro
+- IA
+- Marketplace
+- Chat
+- Funcionalidades futuras
+
+---
+
+# PRINCÍPIOS
+
+Sempre escolher:
+
+✔ arquitetura simples
+
+✔ componentes reutilizáveis
+
+✔ baixo acoplamento
+
+✔ alta coesão
+
+✔ código limpo
+
+✔ modularização
+
+✔ escalabilidade
+
+✔ economia de contexto para IA
+
+---
+
+# PADRÕES
+
+Tecnologias:
+
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- TanStack Router
+- Supabase
+
+Nunca instalar bibliotecas sem necessidade.
+
+---
+
+# ORGANIZAÇÃO
+
+Todos os componentes reutilizáveis:
+
+shared/ui
+
+Todos os layouts:
+
+shared/layouts
+
+Todos os hooks:
+
+shared/hooks
+
+Todos os services:
+
+shared/services
+
+Todos os utils:
+
+shared/utils
+
+Todos os types:
+
+shared/types
+
+Todas as constantes:
+
+shared/constants
+
+---
+
+# PROCESSO DE TRABALHO
+
+Toda tarefa deverá seguir obrigatoriamente este fluxo:
+
+1. Auditoria
+
+2. Planejamento
+
+3. Implementação
+
+4. Validação
+
+5. Documentação
+
+6. Relatório
+
+---
+
+# VALIDAÇÃO
+
+Sempre validar:
+
+- TypeScript
+
+- Imports
+
+- Rotas
+
+- Build
+
+- Dependências
+
+Antes de concluir qualquer tarefa.
+
+---
+
+# DOCUMENTAÇÃO
+
+Sempre manter atualizados:
+
+CHANGELOG.md
+
+ROADMAP.md
+
+ARCHITECTURE.md
+
+DECISIONS.md
+
+---
+
+# DOCUMENTAÇÃO DA API
+
+A documentação localizada em:
+
+docs/api/imoveis.md
+
+é a referência oficial para integração com o catálogo de imóveis.
+
+Nunca alterar seus endpoints ou conteúdo técnico sem autorização.
+
+---
+
+# IMPORTANTE
+
+Quando solicitado a implementar uma Sprint:
+
+Leia novamente toda a documentação da pasta `.ai`.
+
+Implemente somente o escopo da Sprint.
+
+Não avance para funcionalidades de Sprints futuras.
+
+Ao finalizar:
+
+- Atualize a documentação.
+- Valide o projeto.
+- Gere um relatório das alterações realizadas.
