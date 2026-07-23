@@ -2,14 +2,14 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
+import { CheckCircle2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, MessageCircle, CheckCircle2 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { createLeadPublic } from "@/lib/imoveis.functions";
-import { whatsappLink } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { whatsappLink } from "@/lib/format";
+import { createLeadPublic } from "@/lib/imoveis.functions";
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
@@ -33,8 +33,7 @@ function Page() {
   const createFn = useServerFn(createLeadPublic);
 
   const mutation = useMutation({
-    mutationFn: () =>
-      createFn({ data: { nome, telefone, email, observacoes: msg } }),
+    mutationFn: () => createFn({ data: { nome, telefone, email, observacoes: msg } }),
     onSuccess: () => {
       setEnviado(true);
       toast.success("Mensagem enviada com sucesso!");
@@ -53,8 +52,8 @@ function Page() {
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
             {[
-              { icon: MapPin, t: "Endereço", d: "Canoas — RS, Brasil" },
-              { icon: Phone, t: "Telefone", d: "(51) 2102-4000" },
+              { icon: MapPin, t: "Endereço", d: "Canoas - RS, Brasil" },
+              { icon: Phone, t: "Telefone", d: "(51) 2102-4000 / (51) 2102-4001" },
               { icon: Mail, t: "E-mail", d: "imobiliaria@segura.com.br" },
             ].map((c) => (
               <div key={c.t} className="flex items-start gap-3 rounded-xl border bg-card p-4">

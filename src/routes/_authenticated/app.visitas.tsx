@@ -22,7 +22,7 @@ function VisitasPage() {
             {(data ?? []).map((v: any) => (
               <tr key={v.id} className="border-b last:border-0">
                 <td className="p-3">{new Date(v.data_visita).toLocaleString("pt-BR")}</td>
-                <td className="p-3 text-muted-foreground">{v.imoveis?.referencia ? `Cód. ${v.imoveis.referencia}` : "—"}</td>
+                <td className="p-3 text-muted-foreground">{v.imoveis?.referencia  ? `Cód. ${v.imoveis.referencia}` : "—"}</td>
                 <td className="p-3 text-muted-foreground">{v.leads?.nome || "—"}</td>
                 <td className="p-3">{v.status}</td>
               </tr>

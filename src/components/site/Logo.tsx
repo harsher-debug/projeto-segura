@@ -1,13 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import logoImg from "@/assets/logo.jpg";
+import logoImg from "@/assets/logo-transparent.png";
+import logoFooterImg from "@/assets/logo-footer.png";
 
-export function Logo({ light = false }: { light?: boolean }) {
+export function Logo({
+  light = false,
+  className = "",
+}: {
+  light?: boolean;
+  className?: string;
+}) {
   return (
-    <Link to="/" className="flex items-center group">
+    <Link to="/" className="group flex items-center">
       <img
-        src={logoImg}
+        src={light ?logoFooterImg : logoImg}
         alt="Imobiliária Segura"
-        className={`h-10 w-auto object-contain transition-opacity group-hover:opacity-90 ${light ? "brightness-0 invert" : ""}`}
+        className={`h-14 w-auto object-contain transition-opacity group-hover:opacity-90 ${className}`}
       />
     </Link>
   );

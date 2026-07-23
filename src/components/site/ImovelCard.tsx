@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BedDouble, Bath, Car, Ruler, MapPin } from "lucide-react";
+import { Bath, BedDouble, Car, MapPin, Ruler } from "lucide-react";
 import { formatBRL, formatArea, titleCase } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 
@@ -22,6 +22,7 @@ export interface ImovelResumo {
 
 export function ImovelCard({ imovel }: { imovel: ImovelResumo }) {
   const local = [imovel.bairro, imovel.cidade].filter(Boolean).join(", ");
+
   return (
     <Link
       to="/imovel/$id"

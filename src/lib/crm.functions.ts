@@ -24,7 +24,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     }
     const tipos: Record<string, number> = {};
     for (const i of imoveisPorTipo.data ?? []) {
-      const t = i.tipo ?? "Outros";
+      const t = i.tipo || "Outros";
       tipos[t] = (tipos[t] ?? 0) + 1;
     }
 
@@ -272,7 +272,7 @@ export const upsertImovel = createServerFn({ method: "POST" })
     const { id, ...rest } = data;
     const payload = {
       ...rest,
-      fotos: rest.imagem_principal ? [rest.imagem_principal] : [],
+      fotos: rest.imagem_principal ?[rest.imagem_principal] : [],
     };
     if (id) {
       const { error } = await context.supabase.from("imoveis").update(rest).eq("id", id);

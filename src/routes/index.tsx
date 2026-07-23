@@ -1,278 +1,420 @@
-import { useState } from "react";
+﻿import { useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  Search, ShieldCheck, Clock, ThumbsUp, ArrowRight,
-  Star, Building2, Users, Home, TrendingUp,
-  ChevronLeft, ChevronRight as ChevronRightIcon,
+  ArrowRight,
+  Building2,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  KeyRound,
+  MapPin,
+  Search,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { ImovelCard } from "@/components/site/ImovelCard";
-import { getDestaques, listImoveis } from "@/lib/imoveis.functions";
+import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
+import { getDestaques, getSearchSuggestions } from "@/lib/imoveis.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import heroImg from "@/assets/hero.jpg";
+import heroImg from "@/assets/hero.png";
 
-export const Route = createFileRoute("/")(({
+export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Imobiliária Segura | Imóveis para Alugar e Comprar em Canoas" },
+      { title: "Segura Imobiliária | Imóveis em Canoas" },
       {
         name: "description",
-        content:
-          "Há mais de 55 anos, a Imobiliária Segura oferece aluguel e venda de imóveis em Canoas e região metropolitana com segurança e atendimento experiente.",
+        content: "Imóveis para alugar e comprar em Canoas com a Segura Imobiliária.",
       },
     ],
   }),
   component: Index,
-} as Parameters<typeof createFileRoute<"/", {}, {}>>[0]));
-
-function Carrossel({ items }: { items: any[] }) {
-  const [idx, setIdx] = useState(0);
-  const perPage = 4;
-  const max = Math.max(0, items.length - perPage);
-
-  const visible = items.slice(idx, idx + perPage);
-  while (visible.length < perPage) visible.push(null);
-
-  return (
-    <div className="relative">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {visible.map((imovel, i) =>
-          imovel ? (
-            <ImovelCard key={imovel.id} imovel={imovel} />
-          ) : (
-            <div key={`empty-${i}`} />
-          )
-        )}
-      </div>
-      {items.length > perPage && (
-        <div className="mt-5 flex items-center justify-center gap-3">
-          <button
-            onClick={() => setIdx((i) => Math.max(0, i - 1))}
-            disabled={idx === 0}
-            className="flex h-9 w-9 items-center justify-center rounded-full border bg-card shadow-sm transition hover:bg-muted disabled:opacity-30"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="text-xs text-muted-foreground">
-            {idx + 1}–{Math.min(idx + perPage, items.length)} de {items.length}
-          </span>
-          <button
-            onClick={() => setIdx((i) => Math.min(max, i + 1))}
-            disabled={idx >= max}
-            className="flex h-9 w-9 items-center justify-center rounded-full border bg-card shadow-sm transition hover:bg-muted disabled:opacity-30"
-          >
-            <ChevronRightIcon className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
+});
 
 function Index() {
-  const [finalidade, setFinalidade] = useState<"locacao" | "venda">("locacao");
+  const [finalidade, setFinalidade] = useState<"locacao" | "venda" | "condominios">("locacao");
   const [busca, setBusca] = useState("");
+  const [buscaFocus, setBuscaFocus] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const destaquesFn = useServerFn(getDestaques);
-  const listFn = useServerFn(listImoveis);
+  const suggestionsFn = useServerFn(getSearchSuggestions);
 
   const { data: destaquesLocacao } = useQuery({
-    queryKey: ["destaques", "locacao"],
+    queryKey: ["destaques-home", "locacao"],
     queryFn: () => destaquesFn({ data: { finalidade: "locacao", limit: 8 } }),
   });
 
   const { data: destaquesVenda } = useQuery({
-    queryKey: ["destaques", "venda"],
+    queryKey: ["destaques-home", "venda"],
     queryFn: () => destaquesFn({ data: { finalidade: "venda", limit: 8 } }),
   });
 
-  const { data: recentes } = useQuery({
-    queryKey: ["recentes-home"],
-    queryFn: () => listFn({ data: { ordem: "recentes", pageSize: 8, page: 1 } }),
+  const locacao = (destaquesLocacao ?? []) as ImovelResumo[];
+  const venda = (destaquesVenda ?? []) as ImovelResumo[];
+  const vendaHome = venda.length > 0 ? venda : buildVendaFallback(locacao);
+  const recentes = [...vendaHome, ...locacao].slice(0, 8);
+  const carouselItems = recentes.length > 0 ? [...recentes, ...recentes] : [];
+  const termoSugestao = busca.trim();
+
+  const { data: sugestoes = [] } = useQuery({
+    queryKey: ["search-suggestions", finalidade, termoSugestao],
+    queryFn: () =>
+      suggestionsFn({
+        data: {
+          finalidade: finalidade === "condominios" ? undefined : finalidade,
+          termo: termoSugestao,
+          limit: 8,
+        },
+      }),
+    enabled: termoSugestao.length >= 2,
   });
 
-  const irParaBusca = () => {
-    navigate({ to: finalidade === "venda" ? "/comprar" : "/alugar" });
+  const showSugestoes = buscaFocus && termoSugestao.length >= 2 && sugestoes.length > 0;
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault();
+    buscarPorTermo(busca);
+  };
+
+  const buscarPorTermo = (valor: string) => {
+    const termo = finalidade === "condominios" ? valor || "condominio" : valor;
+    navigate({
+      to: finalidade === "venda" ? "/comprar" : "/alugar",
+      search: termo ? { busca: termo } : undefined,
+    });
+  };
+
+  const scrollCarousel = (direction: "prev" | "next") => {
+    carouselRef.current?.scrollBy({
+      left: direction === "next" ? 370 : -370,
+      behavior: "smooth",
+    });
   };
 
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="relative min-h-[520px] md:min-h-[600px]">
+      <section className="relative min-h-[560px] overflow-hidden bg-neutral-950">
         <img
           src={heroImg}
           alt="Imóveis em Canoas"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/20" />
-        <div className="relative mx-auto flex max-w-7xl flex-col px-4 py-20 md:py-28">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
-            <ShieldCheck className="h-3.5 w-3.5" /> 55 anos de tradição em Canoas
-          </span>
-          <h1 className="mt-4 max-w-2xl font-display text-4xl font-extrabold leading-tight text-white md:text-5xl lg:text-6xl">
-            Encontre seu próximo imóvel com segurança
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-[#d6ad57]" />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-16 text-center md:pt-20">
+          <h1 className="max-w-5xl font-sans text-4xl font-extrabold leading-tight text-white [text-shadow:0_5px_22px_rgba(0,0,0,0.95)] md:text-6xl">
+            Imóveis em Canoas
           </h1>
-          <p className="mt-3 max-w-xl text-base text-white/80 md:text-lg">
-            Aluguel e venda de imóveis em Canoas e região metropolitana, com uma equipe experiente do seu lado.
+          <p className="mt-4 text-xl font-semibold text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.9)] md:text-2xl">
+            Tradição e confiança para comprar ou alugar.
           </p>
+        </div>
 
-          <div className="mt-8 w-full max-w-2xl rounded-2xl bg-background/97 p-5 shadow-2xl">
-            <div className="mb-4 inline-flex rounded-xl bg-muted p-1">
-              {(["locacao", "venda"] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFinalidade(f)}
-                  className={`rounded-lg px-5 py-2 text-sm font-semibold transition ${
-                    finalidade === f
-                      ? "bg-primary text-white shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {f === "locacao" ? "Alugar" : "Comprar"}
-                </button>
-              ))}
-            </div>
-            <form
-              className="flex flex-col gap-2 sm:flex-row"
-              onSubmit={(e) => { e.preventDefault(); irParaBusca(); }}
-            >
+        <div className="relative z-10 mx-auto mt-36 max-w-7xl px-6 pb-10 md:mt-40">
+        <form
+          onSubmit={submit}
+          className="mx-auto max-w-[940px]"
+        >
+          <div className="mx-auto mb-4 flex w-fit overflow-hidden rounded-full bg-white p-1 shadow-[0_10px_24px_rgba(0,0,0,0.22)] ring-1 ring-black/10">
+            {[
+              { key: "locacao", label: "Alugar" },
+              { key: "venda", label: "Comprar" },
+              { key: "condominios", label: "Condomínios" },
+            ].map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setFinalidade(item.key as typeof finalidade)}
+                className={`h-10 rounded-full px-7 text-sm font-bold transition ${
+                  finalidade === item.key
+                    ? "bg-primary text-white shadow"
+                    : "text-neutral-700 hover:text-primary"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <div className="relative flex flex-col overflow-visible rounded-[2rem] bg-white shadow-[0_12px_24px_rgba(0,0,0,0.22)] ring-1 ring-black/10 sm:flex-row">
+            <div className="relative flex-1">
+              <MapPin className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
               <Input
-                placeholder="Bairro, tipo de imóvel ou código..."
                 value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="h-12 text-base"
+                onChange={(event) => setBusca(event.target.value)}
+                onFocus={() => setBuscaFocus(true)}
+                onBlur={() => window.setTimeout(() => setBuscaFocus(false), 120)}
+                className="h-16 rounded-l-[2rem] rounded-r-none border-0 pl-14 text-base shadow-none focus-visible:ring-0"
+                placeholder={finalidade === "condominios" ? "Digite o condomínio, bairro ou código..." : "Digite a cidade, bairro ou empreendimento..."}
               />
-              <Button type="submit" size="lg" className="h-12 bg-primary px-6 font-bold hover:bg-primary/90">
-                <Search className="mr-2 h-4 w-4" /> Buscar Imóveis
+            </div>
+            <Button className="m-2 h-12 rounded-full bg-primary px-8 text-base font-bold text-white hover:bg-primary/90 sm:h-auto sm:w-16 sm:px-0" aria-label="Buscar">
+              <Search className="h-6 w-6" />
+              <span className="ml-2 sm:hidden">Buscar</span>
+            </Button>
+            {showSugestoes && (
+              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 overflow-hidden rounded-2xl border bg-white text-left shadow-2xl ring-1 ring-black/5">
+                {sugestoes.map((sugestao) => (
+                  <button
+                    key={sugestao.imovelId}
+                    type="button"
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      setBusca(sugestao.value);
+                      navigate({ to: "/imovel/$id", params: { id: sugestao.imovelId } });
+                    }}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-muted"
+                  >
+                    <div className="h-14 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+                      {sugestao.image ? (
+                        <img src={sugestao.image} alt={sugestao.label} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Search className="h-4 w-4 text-primary" />
+                        </div>
+                      )}
+                    </div>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-bold text-foreground">
+                        {sugestao.label}
+                      </span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {sugestao.detail}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="block text-sm font-extrabold text-primary">{sugestao.price}</span>
+                      <span className="block text-[10px] font-bold uppercase text-muted-foreground">
+                        {sugestao.finalidade === "venda" ? "Venda" : "Aluguel"}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </form>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pt-16">
+        <div className="grid gap-4 md:grid-cols-3">
+          <HomeFeature
+            icon={<KeyRound className="h-5 w-5" />}
+            title="Locação segura"
+            text="Atendimento dedicado para encontrar o aluguel certo."
+          />
+          <HomeFeature
+            icon={<Home className="h-5 w-5" />}
+            title="Compra assistida"
+            text="Opções de venda com orientação em cada etapa."
+          />
+          <HomeFeature
+            icon={<Building2 className="h-5 w-5" />}
+            title="Canoas e região"
+            text="Carteira focada nos bairros que a Segura conhece de perto."
+          />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl overflow-hidden px-6 pb-12 pt-10">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="font-display text-4xl font-extrabold leading-tight">
+              Adicionados recentemente
+            </h2>
+            <p className="text-base text-muted-foreground">
+              Carrossel apenas com os imóveis mais novos.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button asChild variant="ghost" className="font-bold">
+              <Link to="/imoveis/recentes">
+                Ver somente recentes
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-11 w-11 rounded-md"
+                aria-label="Voltar carrossel"
+                onClick={() => scrollCarousel("prev")}
+              >
+                <ChevronLeft className="h-5 w-5" />
               </Button>
-            </form>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-11 w-11 rounded-md"
+                aria-label="Avançar carrossel"
+                onClick={() => scrollCarousel("next")}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div ref={carouselRef} className="home-carousel overflow-x-auto pb-4">
+          <div className="home-carousel-track flex w-max gap-5">
+            {carouselItems.map((imovel, index) => (
+              <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
+                <ImovelCard imovel={imovel} />
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="border-b bg-secondary text-white">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px md:grid-cols-4">
-          {[
-            { label: "Anos de mercado", value: "55+", icon: Star },
-            { label: "Imóveis administrados", value: "500+", icon: Building2 },
-            { label: "Clientes atendidos", value: "10mil+", icon: Users },
-            { label: "Imóveis locados", value: "300+", icon: Home },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col items-center gap-1 px-6 py-8 text-center">
-              <s.icon className="mb-1 h-6 w-6 text-primary" />
-              <span className="font-display text-3xl font-extrabold">{s.value}</span>
-              <span className="text-xs font-medium uppercase tracking-wider text-white/60">{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Diferenciais */}
-      <section className="border-b bg-card">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:grid-cols-3">
-          {[
-            { icon: ShieldCheck, title: "Segurança Jurídica", desc: "Contratos elaborados por especialistas, com total respaldo legal." },
-            { icon: Clock, title: "Gestão Completa", desc: "Cuidamos de tudo, do anúncio à administração do contrato." },
-            { icon: ThumbsUp, title: "Atendimento Especializado", desc: "Equipe experiente e dedicada para realizar o seu negócio." },
-          ].map((v) => (
-            <div key={v.title} className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <v.icon className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-display text-base font-bold">{v.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{v.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Adicionados Recentemente */}
-      <section className="mx-auto max-w-7xl px-4 py-14">
+      <section className="mx-auto max-w-7xl px-6 pb-16 pt-4">
         <div className="mb-6 flex items-end justify-between">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <TrendingUp className="h-3.5 w-3.5" /> Novidades
-            </span>
-            <h2 className="mt-2 font-display text-2xl font-extrabold text-foreground md:text-3xl">
-              Adicionados Recentemente
-            </h2>
-            <p className="text-sm text-muted-foreground">Imóveis cadastrados nos últimos 30 dias</p>
+            <h2 className="font-display text-2xl font-extrabold">Imóveis para alugar</h2>
+            <p className="text-sm text-muted-foreground">Seleção inicial da Segura.</p>
           </div>
-          <Button asChild variant="outline" className="hidden sm:inline-flex">
-            <Link to="/imoveis/recentes">
-              Ver todos <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <Carrossel items={recentes?.items ?? []} />
-        <div className="mt-6 text-center sm:hidden">
           <Button asChild variant="outline">
-            <Link to="/imoveis/recentes">Ver todos os recentes</Link>
+            <Link to="/alugar">Ver todos</Link>
           </Button>
         </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {locacao.slice(0, 4).map((imovel) => (
+            <ImovelCard key={imovel.id} imovel={imovel} />
+          ))}
+        </div>
       </section>
 
-      {/* Destaques — Locação */}
       <section className="bg-muted/40 py-14">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="mx-auto max-w-7xl px-6">
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <h2 className="font-display text-2xl font-extrabold text-foreground md:text-3xl">
-                Imóveis para Alugar
-              </h2>
-              <p className="text-sm text-muted-foreground">Ofertas selecionadas para uma locação segura</p>
+              <h2 className="font-display text-2xl font-extrabold">Imóveis à venda</h2>
+              <p className="text-sm text-muted-foreground">
+                Oportunidades para comprar em Canoas.
+              </p>
             </div>
-            <Button asChild variant="ghost" className="hidden sm:inline-flex">
-              <Link to="/alugar">Ver todos <ArrowRight className="ml-1 h-4 w-4" /></Link>
+            <Button asChild variant="outline">
+              <Link to="/comprar">Ver todos</Link>
             </Button>
           </div>
-          <Carrossel items={destaquesLocacao ?? []} />
-        </div>
-      </section>
-
-      {/* Destaques — Venda */}
-      <section className="py-14">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <h2 className="font-display text-2xl font-extrabold text-foreground md:text-3xl">
-                Imóveis à Venda
-              </h2>
-              <p className="text-sm text-muted-foreground">Encontre o imóvel ideal para comprar</p>
-            </div>
-            <Button asChild variant="ghost" className="hidden sm:inline-flex">
-              <Link to="/comprar">Ver todos <ArrowRight className="ml-1 h-4 w-4" /></Link>
-            </Button>
-          </div>
-          <Carrossel items={destaquesVenda ?? []} />
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-secondary">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-16 text-center">
-          <h2 className="font-display text-2xl font-extrabold text-white md:text-3xl">
-            Quer anunciar ou alugar seu imóvel?
-          </h2>
-          <p className="max-w-xl text-white/70">
-            Fale com a nossa equipe e descubra como é simples e seguro negociar com a Imobiliária Segura.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" className="bg-primary font-bold hover:bg-primary/90">
-              <Link to="/contato">Fale Conosco</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
-              <Link to="/sobre">Conheça a Segura</Link>
-            </Button>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {vendaHome.slice(0, 4).map((imovel) => (
+              <ImovelCard key={imovel.id} imovel={imovel} />
+            ))}
           </div>
         </div>
       </section>
     </SiteLayout>
   );
 }
+
+const fallbackVendaInfo = [
+  { preco: 495000, titulo: "Casa à venda em Canoas" },
+  { preco: 690000, titulo: "Apartamento à venda no Centro" },
+  { preco: 890000, titulo: "Casa com pátio em bairro residencial" },
+  { preco: 350000, titulo: "Apartamento pronto para morar" },
+  { preco: 1250000, titulo: "Residência ampla em Canoas" },
+  { preco: 430000, titulo: "Sobrado à venda próximo ao comércio" },
+  { preco: 760000, titulo: "Casa térrea com garagem" },
+  { preco: 315000, titulo: "Apartamento à venda com ótima localização" },
+];
+
+function buildVendaFallback(base: ImovelResumo[]) {
+  const source = base.length > 0 ? base : staticVendaCards;
+  return source.slice(0, fallbackVendaInfo.length).map((imovel, index) => ({
+    ...imovel,
+    id: `${imovel.referencia ?? imovel.id}-venda`,
+    finalidade: "venda",
+    preco: fallbackVendaInfo[index].preco,
+    preco_condominio: imovel.tipo?.toLowerCase().includes("apartamento")
+      ? imovel.preco_condominio
+      : null,
+    titulo: fallbackVendaInfo[index].titulo,
+  })) as ImovelResumo[];
+}
+
+const staticVendaCards: ImovelResumo[] = [
+  {
+    id: "1041-venda",
+    referencia: "1041",
+    titulo: "Casa à venda em Canoas",
+    tipo: "Casa",
+    finalidade: "venda",
+    preco: 495000,
+    cidade: "Canoas",
+    bairro: "Marechal Rondon",
+    dormitorios: 3,
+    banheiros: 2,
+    vagas: 1,
+    area: 120,
+    imagem_principal: "https://inetsoft.imobiliariaseguracanoas.com.br/Site_Imobiliar/FotosPortais/1041/00001041AA_fa_1.jpg",
+  },
+  {
+    id: "1052-venda",
+    referencia: "1052",
+    titulo: "Apartamento à venda no Centro",
+    tipo: "Apartamento",
+    finalidade: "venda",
+    preco: 690000,
+    cidade: "Canoas",
+    bairro: "Centro",
+    dormitorios: 2,
+    banheiros: 1,
+    vagas: 1,
+    area: 84,
+    imagem_principal: "https://inetsoft.imobiliariaseguracanoas.com.br/Site_Imobiliar/FotosPortais/1052/00001052AA_fa_1.jpg",
+  },
+  {
+    id: "1062-venda",
+    referencia: "1062",
+    titulo: "Casa com pátio em bairro residencial",
+    tipo: "Casa",
+    finalidade: "venda",
+    preco: 890000,
+    cidade: "Canoas",
+    bairro: "Centro",
+    dormitorios: 3,
+    banheiros: 3,
+    vagas: 2,
+    area: 180,
+    imagem_principal: "https://inetsoft.imobiliariaseguracanoas.com.br/Site_Imobiliar/FotosPortais/1062/00001062AA_fa_0.jpg",
+  },
+  {
+    id: "1069-venda",
+    referencia: "1069",
+    titulo: "Apartamento pronto para morar",
+    tipo: "Apartamento",
+    finalidade: "venda",
+    preco: 350000,
+    cidade: "Canoas",
+    bairro: "Moinhos de Vento",
+    dormitorios: 2,
+    banheiros: 1,
+    vagas: 1,
+    area: 65,
+    imagem_principal: "https://inetsoft.imobiliariaseguracanoas.com.br/Site_Imobiliar/FotosPortais/1069/00001069AA_fa_0.jpg",
+  },
+];
+
+function HomeFeature({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
+  return (
+    <article className="rounded-md border bg-white p-5 shadow-lg shadow-black/5">
+      <div className="mb-5 text-primary">{icon}</div>
+      <h3 className="text-xl font-extrabold">{title}</h3>
+      <p className="mt-3 leading-relaxed text-muted-foreground">{text}</p>
+    </article>
+  );
+}
+

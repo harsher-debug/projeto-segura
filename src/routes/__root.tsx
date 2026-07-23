@@ -23,6 +23,24 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 
+function hasSupabaseEnv() {
+  const hasValue = (value: unknown) =>
+    typeof value === "string" &&
+    value.trim() !== "" &&
+    value !== "undefined" &&
+    value !== "null";
+
+  return hasValue(
+    import.meta.env.VITE_SUPABASE_URL ||
+      import.meta.env.SUPABASE_URL ||
+      (typeof process !== "undefined" && process.env.SUPABASE_URL),
+  ) && hasValue(
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+      import.meta.env.SUPABASE_PUBLISHABLE_KEY ||
+      (typeof process !== "undefined" && process.env.SUPABASE_PUBLISHABLE_KEY),
+  );
+}
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -136,6 +154,8 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!hasSupabaseEnv()) return;
+
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED")
         return;

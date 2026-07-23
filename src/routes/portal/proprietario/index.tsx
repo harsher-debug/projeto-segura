@@ -62,7 +62,7 @@ function ProprietarioDashboard() {
     },
     {
       label: "Receita Estimada",
-      value: data?.stats.receitaEstimada != null ? formatBRL(data.stats.receitaEstimada) : "—",
+      value: data?.stats.receitaEstimada != null  ? formatBRL(data.stats.receitaEstimada) : "—",
       icon: DollarSign,
       color: "text-purple-600 bg-purple-50",
     },
@@ -93,7 +93,7 @@ function ProprietarioDashboard() {
               </div>
             </div>
             <p className="mt-3 font-display text-3xl font-extrabold text-foreground">
-              {isLoading ? <span className="animate-pulse text-muted-foreground">...</span> : c.value}
+              {isLoading  ? <span className="animate-pulse text-muted-foreground">...</span> : c.value}
             </p>
           </div>
         ))}
@@ -157,7 +157,7 @@ function ProprietarioDashboard() {
             {(data?.imoveis ?? []).slice(0, 4).map((im) => (
               <div key={im.id} className="flex items-center gap-3 px-5 py-3.5">
                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  {im.imagem_principal ? (
+                  {im.imagem_principal  ? (
                     <img src={im.imagem_principal} alt={im.titulo} className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full items-center justify-center">
@@ -171,7 +171,7 @@ function ProprietarioDashboard() {
                     {im.bairro} · Cód. {im.referencia}
                   </p>
                 </div>
-                <StatusBadge status={im.ativo ? "ativo" : "vago"} />
+                <StatusBadge status={im.ativo ?"ativo" : "vago"} />
               </div>
             ))}
             {isLoading && (

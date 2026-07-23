@@ -22,7 +22,7 @@ function PropostasPage() {
           <tbody>
             {(data ?? []).map((p: any) => (
               <tr key={p.id} className="border-b last:border-0">
-                <td className="p-3 text-muted-foreground">{p.imoveis?.referencia ? `Cód. ${p.imoveis.referencia}` : "—"}</td>
+                <td className="p-3 text-muted-foreground">{p.imoveis?.referencia  ? `Cód. ${p.imoveis.referencia}` : "—"}</td>
                 <td className="p-3 text-muted-foreground">{p.leads?.nome || "—"}</td>
                 <td className="p-3 font-medium">{formatBRL(p.valor)}</td>
                 <td className="p-3">{p.status}</td>

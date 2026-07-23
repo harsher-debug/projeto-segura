@@ -49,8 +49,8 @@ function LeadsPage() {
               <tr key={l.id} className="border-b last:border-0">
                 <td className="p-3 font-medium">{l.nome}</td>
                 <td className="p-3 text-muted-foreground">{l.telefone || l.email || "—"}</td>
-                <td className="p-3 text-muted-foreground">{l.imoveis?.referencia ? `Cód. ${l.imoveis.referencia}` : "—"}</td>
-                <td className="p-3">{l.valor_estimado ? formatBRL(l.valor_estimado) : "—"}</td>
+                <td className="p-3 text-muted-foreground">{l.imoveis?.referencia  ? `Cód. ${l.imoveis.referencia}` : "—"}</td>
+                <td className="p-3">{l.valor_estimado  ? formatBRL(l.valor_estimado) : "—"}</td>
                 <td className="p-3">
                   <Select value={l.status} onValueChange={(v) => mutStatus.mutate({ id: l.id, status: v as any })}>
                     <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>

@@ -2,13 +2,30 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  Users, Building2, CalendarDays, FileText,
-  TrendingUp, DollarSign, Bell, ArrowUpRight,
-  CheckCircle2, Clock, XCircle, BarChart3,
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  FileText,
+  TrendingUp,
+  Users,
+  XCircle,
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell,
-  LineChart, Line, CartesianGrid,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { getDashboardStats } from "@/lib/crm.functions";
 import { formatBRL } from "@/lib/format";
@@ -26,7 +43,7 @@ const funilLabels: Record<string, { label: string; color: string }> = {
   perdido: { label: "Perdidos", color: "bg-red-400" },
 };
 
-// Dados de receita simulados para o gráfico (substituir por dados reais)
+// Dados de receita simulados para o gráfico (substituir por dados reais).
 const receitaMensal = [
   { mes: "Jan", valor: 18400 },
   { mes: "Fev", valor: 21200 },
@@ -79,7 +96,6 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Cabeçalho */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-extrabold text-foreground">
@@ -105,10 +121,9 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Alerta de itens pendentes */}
       {(data?.visitasAgendadas ?? 0) > 0 && (
         <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <Bell className="h-4 w-4 text-amber-600 shrink-0" />
+          <Bell className="h-4 w-4 shrink-0 text-amber-600" />
           <p className="text-sm text-amber-800">
             Você tem <strong>{data?.visitasAgendadas}</strong> visitas agendadas nos próximos dias.{" "}
             <Link to="/app/visitas" className="font-semibold underline">
@@ -118,31 +133,30 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Cards de KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <div key={c.label} className="rounded-xl border bg-card p-5 shadow-sm">
+        {cards.map((card) => (
+          <div key={card.label} className="rounded-xl border bg-card p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {c.label}
+                {card.label}
               </span>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${c.color}`}>
-                <c.icon className="h-4 w-4" />
+              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${card.color}`}>
+                <card.icon className="h-4 w-4" />
               </div>
             </div>
             <p className="mt-3 font-display text-3xl font-extrabold text-foreground">
-              {isLoading
-                ? <span className="animate-pulse text-muted-foreground text-xl">...</span>
-                : (c.value ?? "—")}
+              {isLoading ? (
+                <span className="animate-pulse text-xl text-muted-foreground">...</span>
+              ) : (
+                card.value ?? "—"
+              )}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">{c.trend}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{card.trend}</p>
           </div>
         ))}
       </div>
 
-      {/* Gráficos */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Funil de Conversão */}
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -157,15 +171,16 @@ function Dashboard() {
             </Link>
           </div>
           <div className="space-y-3">
-            {Object.entries(funilLabels).map(([k, { label, color }]) => {
-              const val = data?.funil?.[k] ?? 0;
-              const pct = Math.round((val / maxFunil) * 100);
+            {Object.entries(funilLabels).map(([key, { label, color }]) => {
+              const value = data?.funil?.[key] ?? 0;
+              const pct = Math.round((value / maxFunil) * 100);
+
               return (
-                <div key={k}>
+                <div key={key}>
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <span className="font-medium">{label}</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold">{val}</span>
+                      <span className="font-bold">{value}</span>
                       <span className="text-xs text-muted-foreground">({pct}%)</span>
                     </div>
                   </div>
@@ -181,7 +196,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Receita Mensal */}
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-primary" />
@@ -196,10 +210,10 @@ function Dashboard() {
                   tick={{ fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `R$${(Number(value) / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
-                  formatter={(v: number) => [formatBRL(v), "Receita"]}
+                  formatter={(value: number) => [formatBRL(value), "Receita"]}
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
                 />
                 <Line
@@ -215,7 +229,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Imóveis por Tipo */}
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-primary" />
@@ -238,12 +251,12 @@ function Dashboard() {
                   tickLine={false}
                 />
                 <Tooltip
-                  formatter={(v: number) => [v, "Imóveis"]}
+                  formatter={(value: number) => [value, "Imóveis"]}
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
                 />
                 <Bar dataKey="total" radius={[0, 6, 6, 0]}>
-                  {(data?.porTipo ?? []).map((_, i) => (
-                    <Cell key={i} fill="var(--color-primary)" opacity={1 - i * 0.1} />
+                  {(data?.porTipo ?? []).map((_, index) => (
+                    <Cell key={index} fill="var(--color-primary)" opacity={1 - index * 0.1} />
                   ))}
                 </Bar>
               </BarChart>
@@ -251,7 +264,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Status dos Leads - Resumo */}
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -261,19 +273,19 @@ function Dashboard() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Novos", key: "novo", icon: Clock, color: "text-blue-600 bg-blue-50" },
-              { label: "Fechados", key: "fechado", icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50" },
-              { label: "Em Contato", key: "contato", icon: Users, color: "text-violet-600 bg-violet-50" },
-              { label: "Perdidos", key: "perdido", icon: XCircle, color: "text-red-500 bg-red-50" },
-            ].map((s) => (
-              <div key={s.key} className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${s.color}`}>
-                  <s.icon className="h-4 w-4" />
+              { label: "Novos", key: "novo", icon: Clock, color: "bg-blue-50 text-blue-600" },
+              { label: "Fechados", key: "fechado", icon: CheckCircle2, color: "bg-emerald-50 text-emerald-600" },
+              { label: "Em Contato", key: "contato", icon: Users, color: "bg-violet-50 text-violet-600" },
+              { label: "Perdidos", key: "perdido", icon: XCircle, color: "bg-red-50 text-red-500" },
+            ].map((status) => (
+              <div key={status.key} className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${status.color}`}>
+                  <status.icon className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                  <p className="text-xs text-muted-foreground">{status.label}</p>
                   <p className="font-display text-xl font-bold">
-                    {data?.funil?.[s.key] ?? 0}
+                    {data?.funil?.[status.key] ?? 0}
                   </p>
                 </div>
               </div>

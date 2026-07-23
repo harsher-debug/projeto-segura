@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { SlidersHorizontal, Loader2 } from "lucide-react";
-import { listImoveis, getFacets } from "@/lib/imoveis.functions";
+import { Loader2, SlidersHorizontal } from "lucide-react";
+import { getFacets, getSearchSuggestions, listImoveis } from "@/lib/imoveis.functions";
 import { ImovelCard } from "./ImovelCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,11 +55,14 @@ export function ListingPage({
 }) {
   const [filtros, setFiltros] = useState<Filtros>(emptyFiltros);
   const [buscaInput, setBuscaInput] = useState("");
+  const [buscaFocus, setBuscaFocus] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 12;
+  const navigate = useNavigate();
 
   const listFn = useServerFn(listImoveis);
   const facetsFn = useServerFn(getFacets);
+  const suggestionsFn = useServerFn(getSearchSuggestions);
 
   const { data: facets } = useQuery({
     queryKey: ["facets", finalidade],
@@ -66,7 +70,7 @@ export function ListingPage({
   });
 
   const set = (key: keyof Filtros, value: string) => {
-    setFiltros((f) => ({ ...f, [key]: value }));
+    setFiltros((filtroAtual) => ({ ...filtroAtual, [key]: value }));
     setPage(1);
   };
 
@@ -91,6 +95,22 @@ export function ListingPage({
       }),
   });
 
+  const termoSugestao = buscaInput.trim();
+  const { data: sugestoes = [] } = useQuery({
+    queryKey: ["listing-search-suggestions", finalidade, termoSugestao],
+    queryFn: () =>
+      suggestionsFn({
+        data: {
+          finalidade,
+          termo: termoSugestao,
+          limit: 8,
+        },
+      }),
+    enabled: termoSugestao.length >= 2,
+  });
+
+  const showSugestoes = buscaFocus && termoSugestao.length >= 2 && sugestoes.length > 0;
+
   const totalPages = useMemo(
     () => (data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1),
     [data],
@@ -110,39 +130,39 @@ export function ListingPage({
           <SlidersHorizontal className="h-4 w-4 text-primary" /> Filtros
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          <Select value={filtros.cidade} onValueChange={(v) => set("cidade", v)}>
+          <Select value={filtros.cidade} onValueChange={(value) => set("cidade", value)}>
             <SelectTrigger><SelectValue placeholder="Cidade" /></SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Todas as cidades</SelectItem>
-              {facets?.cidades.map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
+              {facets?.cidades.map((cidade) => (
+                <SelectItem key={cidade} value={cidade}>{cidade}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={filtros.bairro} onValueChange={(v) => set("bairro", v)}>
+          <Select value={filtros.bairro} onValueChange={(value) => set("bairro", value)}>
             <SelectTrigger><SelectValue placeholder="Bairro" /></SelectTrigger>
             <SelectContent className="max-h-72">
               <SelectItem value={ALL}>Todos os bairros</SelectItem>
-              {facets?.bairros.map((b) => (
-                <SelectItem key={b} value={b}>{b}</SelectItem>
+              {facets?.bairros.map((bairro) => (
+                <SelectItem key={bairro} value={bairro}>{bairro}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={filtros.tipo} onValueChange={(v) => set("tipo", v)}>
+          <Select value={filtros.tipo} onValueChange={(value) => set("tipo", value)}>
             <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
             <SelectContent className="max-h-72">
               <SelectItem value={ALL}>Todos os tipos</SelectItem>
-              {facets?.tipos.map((t) => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
+              {facets?.tipos.map((tipo) => (
+                <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select
             value={filtros.dormitorios}
-            onValueChange={(v) => set("dormitorios", v)}
+            onValueChange={(value) => set("dormitorios", value)}
           >
             <SelectTrigger><SelectValue placeholder="Dormitórios" /></SelectTrigger>
             <SelectContent>
@@ -153,7 +173,7 @@ export function ListingPage({
             </SelectContent>
           </Select>
 
-          <Select value={filtros.vagas} onValueChange={(v) => set("vagas", v)}>
+          <Select value={filtros.vagas} onValueChange={(value) => set("vagas", value)}>
             <SelectTrigger><SelectValue placeholder="Vagas" /></SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL}>Vagas</SelectItem>
@@ -163,7 +183,7 @@ export function ListingPage({
             </SelectContent>
           </Select>
 
-          <Select value={filtros.ordem} onValueChange={(v) => set("ordem", v)}>
+          <Select value={filtros.ordem} onValueChange={(value) => set("ordem", value)}>
             <SelectTrigger><SelectValue placeholder="Ordenar" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="recentes">Mais recentes</SelectItem>
@@ -172,18 +192,63 @@ export function ListingPage({
             </SelectContent>
           </Select>
         </div>
+
         <form
-          className="mt-3 flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
+          className="mt-3 flex flex-col gap-2 sm:flex-row"
+          onSubmit={(event) => {
+            event.preventDefault();
             set("busca", buscaInput);
           }}
         >
-          <Input
-            placeholder="Buscar por código, bairro ou palavra-chave..."
-            value={buscaInput}
-            onChange={(e) => setBuscaInput(e.target.value)}
-          />
+          <div className="relative flex-1">
+            <Input
+              placeholder="Buscar por código, rua, bairro ou cidade..."
+              value={buscaInput}
+              onChange={(event) => setBuscaInput(event.target.value)}
+              onFocus={() => setBuscaFocus(true)}
+              onBlur={() => window.setTimeout(() => setBuscaFocus(false), 120)}
+            />
+            {showSugestoes && (
+              <div className="absolute left-0 right-0 top-[calc(100%+0.35rem)] z-30 overflow-hidden rounded-xl border bg-white shadow-xl ring-1 ring-black/5">
+                {sugestoes.map((sugestao) => (
+                  <button
+                    key={sugestao.imovelId}
+                    type="button"
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      setBuscaInput(sugestao.value);
+                      navigate({ to: "/imovel/$id", params: { id: sugestao.imovelId } });
+                    }}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-muted"
+                  >
+                    <span className="h-14 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+                      {sugestao.image ? (
+                        <img src={sugestao.image} alt={sugestao.label} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-xs font-bold text-primary">
+                          {sugestao.referencia || "SEG"}
+                        </span>
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-bold text-foreground">
+                        {sugestao.label}
+                      </span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {sugestao.detail}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="block text-sm font-extrabold text-primary">{sugestao.price}</span>
+                      <span className="block text-[10px] font-bold uppercase text-muted-foreground">
+                        {sugestao.finalidade === "venda" ? "Venda" : "Aluguel"}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <Button type="submit">Buscar</Button>
           <Button
             type="button"

@@ -1,242 +1,155 @@
 import { useState } from "react";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowRight, IdCard, Lock, Shield, User } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/site/Logo";
+import { Header } from "@/components/site/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Users, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/entrar")({
-  head: () => ({ meta: [{ title: "Área do Cliente | Imobiliária Segura" }] }),
+  head: () => ({ meta: [{ title: "Área do Cliente | Segura Imobiliária" }] }),
   component: EntrarPage,
 });
 
-type Perfil = "locatario" | "proprietario" | "admin";
-
-const PERFIS: { id: Perfil; label: string; desc: string; icon: React.ElementType; color: string }[] = [
-  {
-    id: "locatario",
-    label: "Locatário",
-    desc: "Acesse boletos, contrato e chamados",
-    icon: Users,
-    color: "border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400",
-  },
-  {
-    id: "proprietario",
-    label: "Proprietário",
-    desc: "Gerencie seus imóveis e repasses",
-    icon: Building2,
-    color: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-400",
-  },
-  {
-    id: "admin",
-    label: "Equipe / Admin",
-    desc: "Painel administrativo completo",
-    icon: ShieldCheck,
-    color: "border-purple-200 bg-purple-50 text-purple-700 hover:border-purple-400",
-  },
-];
-
-const destinos: Record<Perfil, string> = {
-  locatario: "/portal/locatario",
-  proprietario: "/portal/proprietario",
-  admin: "/app/dashboard",
-};
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
 
 function EntrarPage() {
-  const [perfil, setPerfil] = useState<Perfil | null>(null);
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
+  const [documento, setDocumento] = useState("");
   const [senha, setSenha] = useState("");
-  const [nome, setNome] = useState("");
-  const [showSenha, setShowSenha] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!perfil) return;
-    setLoading(true);
-    try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password: senha,
-          options: {
-            emailRedirectTo: window.location.origin + destinos[perfil],
-            data: { nome, perfil },
-          },
-        });
-        if (error) throw error;
-        toast.success("Conta criada! Você já pode acessar.");
-        navigate({ to: destinos[perfil] });
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-        if (error) throw error;
-        navigate({ to: destinos[perfil] });
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erro ao autenticar.");
-    } finally {
-      setLoading(false);
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (documento.trim().toLowerCase() === "admin" && senha === "0000") {
+      setLoading(true);
+      window.localStorage.setItem("segura_cliente_nome", "Admin");
+      window.localStorage.setItem("segura_cliente_tipo", "admin");
+      window.setTimeout(() => {
+        setLoading(false);
+        navigate({ to: "/portal/locatario" });
+      }, 250);
+      return;
     }
+
+    if (onlyDigits(documento).length < 11) {
+      toast.error("Informe um CPF ou CNPJ válido.");
+      return;
+    }
+    if (!senha) {
+      toast.error("Informe a senha cadastrada no BXP.");
+      return;
+    }
+
+    setLoading(true);
+    window.localStorage.setItem("segura_cliente_nome", "Cliente");
+    window.localStorage.removeItem("segura_cliente_tipo");
+    window.setTimeout(() => {
+      setLoading(false);
+      navigate({ to: "/portal/locatario" });
+    }, 350);
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-secondary via-secondary/90 to-secondary/70">
-      {/* Lateral decorativa */}
-      <div className="hidden flex-col justify-between p-10 lg:flex lg:w-2/5 xl:w-1/3">
-        <Logo light />
-        <div>
-          <blockquote className="text-lg font-medium text-white/90 leading-relaxed">
-            "Há mais de 55 anos cuidando do seu patrimônio com segurança e transparência."
-          </blockquote>
-          <p className="mt-3 text-sm text-white/60">Imobiliária Segura · Canoas, RS</p>
-        </div>
-        <div className="space-y-2">
-          {["Segurança Jurídica", "Transparência Financeira", "Atendimento Especializado"].map((t) => (
-            <div key={t} className="flex items-center gap-2 text-sm text-white/70">
-              <ShieldCheck className="h-4 w-4 text-primary" /> {t}
+    <div className="min-h-screen bg-white">
+      <Header />
+      <main className="grid min-h-[calc(100vh-70px)] lg:grid-cols-2">
+        <section className="relative hidden overflow-hidden bg-gradient-to-br from-primary via-red-600 to-slate-950 p-8 text-white lg:flex lg:flex-col">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(0,0,0,0.45),transparent_35%)]" />
+          <div className="relative z-10 flex h-full flex-col justify-between">
+            <div className="flex items-center gap-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
+                <Shield className="h-5 w-5" />
+              </span>
+              <span className="text-xl font-extrabold">Segura Imobiliária</span>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Formulário */}
-      <div className="flex flex-1 items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">
-          <div className="rounded-2xl bg-card p-8 shadow-2xl">
-            <div className="flex justify-center lg:hidden mb-6">
+            <div className="max-w-lg">
+              <h1 className="font-display text-5xl font-extrabold leading-tight">
+                Área exclusiva para clientes BXP.
+              </h1>
+              <p className="mt-5 text-lg font-medium text-white/85">
+                O acesso só é liberado para CPF ou CNPJ cadastrado no sistema da imobiliária.
+              </p>
+            </div>
+
+            <p className="text-sm text-white/65">© 2026 Segura Imobiliária</p>
+          </div>
+        </section>
+
+        <section className="flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-md">
+            <div className="mb-10 lg:hidden">
               <Logo />
             </div>
+            <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+              Validação local para teste
+            </span>
+            <h2 className="mt-7 font-display text-3xl font-extrabold text-neutral-950">
+              Acesse sua área do cliente
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+              Use CPF/CNPJ e senha BXP ou entre com o acesso local de administrador.
+            </p>
 
-            {!perfil ? (
-              /* Seleção de Perfil */
+            <form className="mt-8 space-y-5" onSubmit={submit}>
               <div>
-                <h1 className="font-display text-2xl font-extrabold text-center">
-                  Área do Cliente
-                </h1>
-                <p className="mt-2 text-center text-sm text-muted-foreground">
-                  Selecione como deseja acessar
-                </p>
-                <div className="mt-6 space-y-3">
-                  {PERFIS.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setPerfil(p.id)}
-                      className={`flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all ${p.color}`}
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/70">
-                        <p.icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{p.label}</p>
-                        <p className="text-xs opacity-75">{p.desc}</p>
-                      </div>
-                    </button>
-                  ))}
+                <Label htmlFor="documento" className="text-sm font-semibold text-neutral-900">
+                  CPF, CNPJ ou usuário
+                </Label>
+                <div className="relative mt-2">
+                  <IdCard className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                  <Input
+                    id="documento"
+                    value={documento}
+                    onChange={(event) => setDocumento(event.target.value)}
+                    placeholder="Digite admin para acesso local"
+                    className="h-11 rounded-md border-red-300 pl-11 focus-visible:ring-primary"
+                    autoComplete="username"
+                  />
                 </div>
-                <p className="mt-6 text-center">
-                  <Link to="/" className="text-xs text-muted-foreground hover:text-primary">
-                    ← Voltar ao site
-                  </Link>
-                </p>
               </div>
-            ) : (
-              /* Formulário de Login */
+
               <div>
-                <button
-                  onClick={() => setPerfil(null)}
-                  className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  ← Voltar
-                </button>
-                <h1 className="font-display text-2xl font-extrabold">
-                  {mode === "login" ? "Entrar" : "Criar conta"}
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Acesso como{" "}
-                  <span className="font-semibold text-foreground">
-                    {PERFIS.find((p) => p.id === perfil)?.label}
-                  </span>
-                </p>
-
-                <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-                  {mode === "signup" && (
-                    <div>
-                      <Label htmlFor="nome">Nome completo</Label>
-                      <Input
-                        id="nome"
-                        value={nome}
-                        onChange={(e) => setNome(e.target.value)}
-                        placeholder="Seu nome"
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="seu@email.com"
-                      required
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="senha">Senha</Label>
-                      {mode === "login" && (
-                        <button type="button" className="text-xs text-primary hover:underline">
-                          Esqueci a senha
-                        </button>
-                      )}
-                    </div>
-                    <div className="relative mt-1">
-                      <Input
-                        id="senha"
-                        type={showSenha ? "text" : "password"}
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        placeholder="••••••••"
-                        required
-                        minLength={6}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowSenha(!showSenha)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                    {loading ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta"}
-                  </Button>
-                </form>
-
-                <p className="mt-5 text-center text-sm text-muted-foreground">
-                  {mode === "login" ? "Não tem conta?" : "Já tem conta?"}{" "}
-                  <button
-                    className="font-semibold text-primary"
-                    onClick={() => setMode(mode === "login" ? "signup" : "login")}
-                  >
-                    {mode === "login" ? "Criar agora" : "Entrar"}
-                  </button>
-                </p>
+                <Label htmlFor="senha" className="text-sm font-semibold text-neutral-900">
+                  Senha
+                </Label>
+                <div className="relative mt-2">
+                  <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                  <Input
+                    id="senha"
+                    type="password"
+                    value={senha}
+                    onChange={(event) => setSenha(event.target.value)}
+                    placeholder="Senha cadastrada ou 0000"
+                    className="h-11 rounded-md pl-11"
+                    autoComplete="current-password"
+                  />
+                </div>
               </div>
-            )}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-11 w-full rounded-md bg-primary text-sm font-bold text-white hover:bg-primary/90"
+              >
+                <User className="mr-2 h-4 w-4" />
+                {loading ?"Validando..." : "Entrar"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </form>
+
+            <p className="mt-6 text-center text-xs text-neutral-500">
+              Acesso local de teste: usuário admin e senha 0000.
+            </p>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

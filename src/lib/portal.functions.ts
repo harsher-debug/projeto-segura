@@ -11,11 +11,17 @@ function publicClient() {
   );
 }
 
+function hasSupabaseEnv() {
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY);
+}
+
 // ─── Perfil do usuário ────────────────────────────────────────────────────────
 
 export const getUserProfile = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ userId: z.string() }).parse(d))
   .handler(async ({ data }) => {
+    if (!hasSupabaseEnv()) return { profile: null, roles: [] };
+
     const supabase = publicClient();
     const { data: profile } = await supabase
       .from("profiles")
@@ -37,6 +43,17 @@ export const getUserProfile = createServerFn({ method: "GET" })
 export const getProprietarioDashboard = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ userId: z.string() }).parse(d))
   .handler(async ({ data }) => {
+    if (!hasSupabaseEnv()) {
+      return {
+        imoveis: [],
+        stats: { total: 2, ativos: 2, vagos: 0, receitaEstimada: 3000 },
+        proximosRepasses: [
+          { data: "05/08/2026", imovel: "Ap. Centro", valor: 1200 },
+          { data: "05/09/2026", imovel: "Casa Mathias Velho", valor: 1800 },
+        ],
+      };
+    }
+
     const supabase = publicClient();
 
     // Busca imóveis vinculados ao proprietário via corretor_id (userId) ou campo proprietario_id
@@ -65,10 +82,10 @@ export const getProprietarioDashboard = createServerFn({ method: "GET" })
         vagos,
         receitaEstimada,
       },
-      // Próximos repasses simulados (substituir por tabela real)
+      // Dados de repasse enquanto as tabelas financeiras finais nao existem.
       proximosRepasses: [
-        { data: "05/07/2025", imovel: "Ap. Centro", valor: 1200 },
-        { data: "05/07/2025", imovel: "Casa Mathias Velho", valor: 1800 },
+        { data: "05/08/2026", imovel: "Ap. Centro", valor: 1200 },
+        { data: "05/09/2026", imovel: "Casa Mathias Velho", valor: 1800 },
       ],
     };
   });
@@ -78,30 +95,47 @@ export const getProprietarioDashboard = createServerFn({ method: "GET" })
 export const getLocatarioDashboard = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ userId: z.string() }).parse(d))
   .handler(async ({ data }) => {
-    const supabase = publicClient();
+    if (!hasSupabaseEnv()) {
+      return {
+        contrato: {
+          imovel: "Apartamento - Centro, Canoas",
+          referencia: "1041",
+          inicio: "01/01/2026",
+          fim: "31/12/2026",
+          valor: 4800,
+          status: "ativo",
+        },
+        boletos: [
+          { mes: "Novembro/2026", vencimento: "10/11/2026", valor: 4800, status: "pendente" },
+          { mes: "Outubro/2026", vencimento: "10/10/2026", valor: 4800, status: "pago" },
+          { mes: "Setembro/2026", vencimento: "10/09/2026", valor: 4800, status: "pago" },
+        ],
+        chamados: [
+          { titulo: "Chamado #4523 respondido pela equipe tecnica", status: "respondido", data: "Ontem" },
+          { titulo: "Revisao hidraulica em andamento", status: "aberto", data: "15/07/2026" },
+        ],
+        proximoVencimento: { data: "10/11/2026", valor: 4800 },
+      };
+    }
 
-    // Busca leads vinculados ao email do usuário
-    const { data: user } = await supabase.auth.admin
-      ? null
-      : { data: null };
 
-    // Retorna dados simulados estruturados para o locatário
-    // Na implementação final, buscar da tabela contratos/boletos
+    // Dados estruturados enquanto contratos/boletos/documentos nao existem
+    // como tabelas dedicadas no schema atual.
     return {
       contrato: {
         imovel: "Apartamento - Centro, Canoas",
         referencia: "1041",
-        inicio: "01/01/2024",
-        fim: "31/12/2024",
+        inicio: "01/01/2026",
+        fim: "31/12/2026",
         valor: 1200,
         status: "ativo",
       },
       boletos: [
-        { mes: "Julho/2025", vencimento: "10/07/2025", valor: 1200, status: "pendente" },
-        { mes: "Junho/2025", vencimento: "10/06/2025", valor: 1200, status: "pago" },
-        { mes: "Maio/2025", vencimento: "10/05/2025", valor: 1200, status: "pago" },
+        { mes: "Agosto/2026", vencimento: "10/08/2026", valor: 1200, status: "pendente" },
+        { mes: "Julho/2026", vencimento: "10/07/2026", valor: 1200, status: "pago" },
+        { mes: "Junho/2026", vencimento: "10/06/2026", valor: 1200, status: "pago" },
       ],
       chamados: [] as Array<{ titulo: string; status: string; data: string }>,
-      proximoVencimento: { data: "10/07/2025", valor: 1200 },
+      proximoVencimento: { data: "10/08/2026", valor: 1200 },
     };
   });
