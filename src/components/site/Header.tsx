@@ -17,7 +17,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#d6ad57]/35 bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-sm">
       <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between px-6">
         <Logo light className="h-14" />
 
@@ -68,8 +68,10 @@ export function Header() {
         </button>
       </div>
 
+      <div className="h-[3px] w-full bg-[#d6ad57] shadow-[0_1px_6px_rgba(214,173,87,0.55)]" />
+
       {open && (
-        <div className="border-t border-[#d6ad57]/35 bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-lg md:hidden">
+        <div className="bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-lg md:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col divide-y divide-white/10 px-6">
             {navItems.map((item) => (
               <Link
