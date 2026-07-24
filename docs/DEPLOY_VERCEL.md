@@ -24,6 +24,14 @@ SUPABASE_PUBLISHABLE_KEY=
 BXP_API_BASE_URL=
 ```
 
+Tambem funciona com os nomes que o painel do Supabase sugere para Next.js:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+BXP_API_BASE_URL=
+```
+
 Opcional, apenas para scripts administrativos fora do frontend publico:
 
 ```bash

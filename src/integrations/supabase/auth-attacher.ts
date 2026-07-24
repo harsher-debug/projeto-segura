@@ -9,8 +9,8 @@ function hasSupabaseEnv() {
     value !== 'undefined' &&
     value !== 'null';
 
-  return hasValue(import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL) &&
-    hasValue(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.SUPABASE_PUBLISHABLE_KEY);
+  return hasValue(import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL) &&
+    hasValue(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || import.meta.env.SUPABASE_PUBLISHABLE_KEY);
 }
 
 // Must be registered as a global `functionMiddleware` in `src/start.ts`; otherwise

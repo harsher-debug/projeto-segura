@@ -7,8 +7,8 @@ import rawImoveis from "../../segura-imoveis.json";
 
 function publicClient() {
   return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
+    supabaseUrl()!,
+    supabasePublishableKey()!,
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
 }
@@ -16,7 +16,15 @@ function publicClient() {
 type LocalImovel = Database["public"]["Tables"]["imoveis"]["Row"];
 
 function hasSupabaseEnv() {
-  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY);
+  return Boolean(supabaseUrl() && supabasePublishableKey());
+}
+
+function supabaseUrl() {
+  return process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+}
+
+function supabasePublishableKey() {
+  return process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 }
 
 function bxpBaseUrl() {
