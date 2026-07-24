@@ -442,6 +442,18 @@ type MapPropertyPoint = {
   precise: boolean;
 };
 
+type MapPropertyCluster = {
+  id: string;
+  ids: string[];
+  count: number;
+  lat: number;
+  lng: number;
+  title: string;
+  bairro: string;
+  cidade: string;
+  precise: boolean;
+};
+
 const regionPositions: Record<string, { lat: number; lng: number }> = {
   centro: { lat: -29.9178, lng: -51.1801 },
   "marechal rondon": { lat: -29.9103, lng: -51.1697 },
@@ -585,6 +597,57 @@ function buildMapPoints(items: ImovelResumo[]): MapPropertyPoint[] {
   });
 }
 
+function clusterGridSize(zoom: number) {
+  if (zoom >= 18) return 0.00016;
+  if (zoom >= 17) return 0.00036;
+  if (zoom >= 16) return 0.00072;
+  return 0.00125;
+}
+
+function buildMapPointClusters(points: MapPropertyPoint[], zoom: number): MapPropertyCluster[] {
+  const gridSize = clusterGridSize(zoom);
+  const groups = new Map<string, MapPropertyCluster & { latTotal: number; lngTotal: number }>();
+
+  for (const point of points) {
+    const gridLat = Math.round(point.lat / gridSize);
+    const gridLng = Math.round(point.lng / gridSize);
+    const key = `${gridLat}:${gridLng}`;
+    const current = groups.get(key);
+
+    if (current) {
+      current.ids.push(point.id);
+      current.count += 1;
+      current.latTotal += point.lat;
+      current.lngTotal += point.lng;
+      current.lat = current.latTotal / current.count;
+      current.lng = current.lngTotal / current.count;
+      current.precise = current.precise && point.precise;
+    } else {
+      groups.set(key, {
+        id: key,
+        ids: [point.id],
+        count: 1,
+        lat: point.lat,
+        lng: point.lng,
+        latTotal: point.lat,
+        lngTotal: point.lng,
+        title: point.title,
+        bairro: point.bairro,
+        cidade: point.cidade,
+        precise: point.precise,
+      });
+    }
+  }
+
+  return [...groups.values()].map(({ latTotal, lngTotal, ...cluster }) => cluster);
+}
+
+function markerSize(count: number): [number, number] {
+  if (count >= 100) return [62, 40];
+  if (count >= 10) return [48, 40];
+  return [40, 40];
+}
+
 function SearchMap({
   regions,
   points,
@@ -690,25 +753,35 @@ function SearchMap({
       const bounds: LatLngExpression[] = [];
 
       if (zoom >= 15) {
-        points.forEach((point) => {
-          const selected = selectedItemIds.includes(point.id);
+        const clusters = buildMapPointClusters(points, zoom);
+        clusters.forEach((cluster) => {
+          const selected = cluster.ids.some((id) => selectedItemIds.includes(id));
           const icon: DivIcon = L.divIcon({
             className: "",
             html: `<button class="segura-map-marker segura-map-marker-property ${selected ? "is-selected" : ""}" type="button">
-              <span>1</span>
+              <span>${cluster.count}</span>
             </button>`,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
+            iconSize: markerSize(cluster.count),
+            iconAnchor: [markerSize(cluster.count)[0] / 2, 20],
           });
-          const position: LatLngExpression = [point.lat, point.lng];
+          const position: LatLngExpression = [cluster.lat, cluster.lng];
+          const popupContent = cluster.count === 1
+            ? `<strong>${cluster.title}</strong><br>${cluster.bairro}, ${cluster.cidade}${
+                cluster.precise ? "" : "<br><small>Posição aproximada por bairro</small>"
+              }`
+            : `<strong>${cluster.count} imóveis nesta área</strong><br>${cluster.bairro}, ${cluster.cidade}`;
           const marker = L.marker(position, { icon })
             .addTo(map)
-            .bindPopup(
-              `<strong>${point.title}</strong><br>${point.bairro}, ${point.cidade}${
-                point.precise ? "" : "<br><small>Posição aproximada por bairro</small>"
-              }`,
-            )
-            .on("click", () => onSelectItem(point.id));
+            .bindPopup(popupContent)
+            .on("click", () => {
+              if (cluster.count === 1) {
+                onSelectItem(cluster.ids[0]);
+                return;
+              }
+
+              onViewportChange([], cluster.ids);
+              map.setView(position, Math.min(map.getZoom() + 1, 18), { animate: true });
+            });
 
           markersRef.current.push(marker);
           bounds.push(position);
@@ -721,8 +794,8 @@ function SearchMap({
             html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
               <span>${region.count}</span>
             </button>`,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
+            iconSize: markerSize(region.count),
+            iconAnchor: [markerSize(region.count)[0] / 2, 20],
           });
           const position: LatLngExpression = [region.lat, region.lng];
           const marker = L.marker(position, { icon })

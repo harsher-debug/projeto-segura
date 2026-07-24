@@ -165,14 +165,14 @@
   .segura-map-marker {
     display: flex;
     height: 34px;
-    width: 34px;
+    min-width: 34px;
     align-items: center;
     justify-content: center;
     border-radius: 999px;
     border: 2px solid #fff;
     background: #fff;
     color: #111;
-    padding: 0;
+    padding: 0 9px;
     box-shadow: 0 8px 18px rgb(0 0 0 / 24%);
     font-family: var(--font-sans);
     line-height: 1;
@@ -200,8 +200,8 @@
 
   .segura-map-marker-property {
     height: 34px;
-    width: 34px;
-    padding: 0;
+    min-width: 34px;
+    padding: 0 9px;
     background: #fff;
     color: #111;
     border-color: #fff;
