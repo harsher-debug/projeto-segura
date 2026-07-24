@@ -865,11 +865,6 @@ function SearchMap({
 
   return (
     <div className={fullHeight ? "relative flex h-full min-h-[620px] flex-col overflow-hidden bg-card" : "overflow-hidden rounded-xl border bg-card shadow-sm"}>
-      {fullHeight && (
-        <div className="pointer-events-none absolute left-4 top-4 z-[401] rounded-full bg-white/95 px-4 py-2 text-xs font-extrabold text-primary shadow-lg ring-1 ring-black/10">
-          {totalMapItems} imÃ³veis no mapa
-        </div>
-      )}
       <div className={fullHeight ? "hidden" : "flex items-center justify-between border-b px-4 py-3"}>
         <div>
           <h2 className="text-sm font-extrabold text-foreground">Mapa por região</h2>
