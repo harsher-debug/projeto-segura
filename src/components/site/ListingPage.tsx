@@ -58,6 +58,7 @@ export function ListingPage({
   const [filtros, setFiltros] = useState<Filtros>(emptyFiltros);
   const [buscaInput, setBuscaInput] = useState("");
   const [buscaFocus, setBuscaFocus] = useState(false);
+  const [mapVisibleRegions, setMapVisibleRegions] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 12;
   const navigate = useNavigate();
@@ -143,6 +144,19 @@ export function ListingPage({
     () => buildMapRegions(((mapData?.items ?? []) as ImovelResumo[])),
     [mapData],
   );
+
+  const visibleRegionKeys = useMemo(
+    () => new Set(mapVisibleRegions.map(regionKey)),
+    [mapVisibleRegions],
+  );
+
+  const mapFilteredItems = useMemo(() => {
+    const items = ((mapData?.items ?? []) as ImovelResumo[]);
+    if (visibleRegionKeys.size === 0 || visibleRegionKeys.size >= mapRegions.length) return null;
+    return items.filter((imovel) => visibleRegionKeys.has(regionKey(imovel.bairro || imovel.cidade || "Canoas")));
+  }, [mapData, mapRegions.length, visibleRegionKeys]);
+
+  const displayItems = mapFilteredItems ?? ((data?.items ?? []) as ImovelResumo[]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -294,20 +308,24 @@ export function ListingPage({
 
       <div className="mb-4 flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          {data ? `${data.total} imóveis encontrados` : "Carregando..."}
+          {mapFilteredItems
+            ? `${mapFilteredItems.length} imóveis nesta área do mapa`
+            : data
+              ? `${data.total} imóveis encontrados`
+              : "Carregando..."}
         </span>
         {isFetching && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
         <div>
-          {data && data.items.length === 0 ? (
+          {data && displayItems.length === 0 ? (
             <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
               Nenhum imóvel encontrado com esses filtros.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {(data?.items ?? []).map((imovel) => (
+              {displayItems.map((imovel) => (
                 <ImovelCard key={imovel.id} imovel={imovel as never} />
               ))}
             </div>
@@ -323,7 +341,7 @@ export function ListingPage({
         </aside>
       </div>
 
-      {totalPages > 1 && (
+      {!mapFilteredItems && totalPages > 1 && (
         <Pagination className="mt-8">
           <PaginationContent>
             <PaginationItem>
@@ -445,14 +463,21 @@ function SearchMap({
   regions,
   selectedRegion,
   onSelectRegion,
+  onVisibleRegionsChange,
 }: {
   regions: MapRegion[];
   selectedRegion: string;
   onSelectRegion: (bairro: string) => void;
+  onVisibleRegionsChange: (regions: string[]) => void;
 }) {
   const mapRef = useRef<LeafletMap | null>(null);
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const regionsRef = useRef<MapRegion[]>(regions);
+
+  useEffect(() => {
+    regionsRef.current = regions;
+  }, [regions]);
 
   useEffect(() => {
     let mounted = true;
@@ -475,6 +500,16 @@ function SearchMap({
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }).addTo(map);
+
+      const syncVisibleRegions = () => {
+        const bounds = map.getBounds();
+        const visible = regionsRef.current
+          .filter((region) => bounds.contains([region.lat, region.lng]))
+          .map((region) => region.bairro);
+        onVisibleRegionsChange(visible);
+      };
+
+      map.on("moveend zoomend", syncVisibleRegions);
 
       mapRef.current = map;
     }
@@ -535,6 +570,14 @@ function SearchMap({
       } else {
         map.setView([-29.918, -51.18], 13);
       }
+
+      window.setTimeout(() => {
+        if (cancelled) return;
+        const visible = regions
+          .filter((region) => map.getBounds().contains([region.lat, region.lng]))
+          .map((region) => region.bairro);
+        onVisibleRegionsChange(visible);
+      }, 260);
     }
 
     updateMarkers();
