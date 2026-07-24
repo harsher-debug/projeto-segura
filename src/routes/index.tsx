@@ -259,7 +259,7 @@ function Index() {
           </div>
         </div>
 
-        <div ref={carouselRef} className="home-carousel overflow-x-auto pb-4">
+        <div ref={carouselRef} className="home-carousel overflow-hidden pb-4">
           <div className="home-carousel-track flex w-max gap-5">
             {carouselItems.map((imovel, index) => (
               <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
