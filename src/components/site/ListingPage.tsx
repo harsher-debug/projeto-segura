@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DivIcon, LatLngExpression, Map as LeafletMap, Marker } from "leaflet";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -59,6 +59,7 @@ export function ListingPage({
   const [buscaInput, setBuscaInput] = useState("");
   const [buscaFocus, setBuscaFocus] = useState(false);
   const [mapVisibleRegions, setMapVisibleRegions] = useState<string[]>([]);
+  const [mapSelectionMode, setMapSelectionMode] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 12;
   const navigate = useNavigate();
@@ -74,6 +75,8 @@ export function ListingPage({
 
   const set = (key: keyof Filtros, value: string) => {
     setFiltros((filtroAtual) => ({ ...filtroAtual, [key]: value }));
+    setMapVisibleRegions([]);
+    setMapSelectionMode(false);
     setPage(1);
   };
 
@@ -99,14 +102,13 @@ export function ListingPage({
   });
 
   const { data: mapData } = useQuery({
-    queryKey: ["imoveis-map", finalidade, apenasRecentes, filtros],
+    queryKey: ["imoveis-map", finalidade, apenasRecentes, filtros.cidade, filtros.tipo, filtros.dormitorios, filtros.vagas, filtros.busca, filtros.ordem],
     queryFn: () =>
       listFn({
         data: {
           finalidade,
           apenasRecentes,
           cidade: filtros.cidade === ALL ? undefined : filtros.cidade,
-          bairro: filtros.bairro === ALL ? undefined : filtros.bairro,
           tipo: filtros.tipo === ALL ? undefined : filtros.tipo,
           dormitorios:
             filtros.dormitorios === ALL ? undefined : Number(filtros.dormitorios),
@@ -114,7 +116,7 @@ export function ListingPage({
           busca: filtros.busca || undefined,
           ordem: filtros.ordem as "recentes" | "menor_preco" | "maior_preco",
           page: 1,
-          pageSize: 48,
+          pageSize: 500,
         },
       }),
   });
@@ -152,11 +154,23 @@ export function ListingPage({
 
   const mapFilteredItems = useMemo(() => {
     const items = ((mapData?.items ?? []) as ImovelResumo[]);
-    if (visibleRegionKeys.size === 0 || visibleRegionKeys.size >= mapRegions.length) return null;
+    if (!mapSelectionMode || visibleRegionKeys.size === 0 || visibleRegionKeys.size >= mapRegions.length) return null;
     return items.filter((imovel) => visibleRegionKeys.has(regionKey(imovel.bairro || imovel.cidade || "Canoas")));
-  }, [mapData, mapRegions.length, visibleRegionKeys]);
+  }, [mapData, mapRegions.length, mapSelectionMode, visibleRegionKeys]);
 
   const displayItems = mapFilteredItems ?? ((data?.items ?? []) as ImovelResumo[]);
+
+  const handleMapRegionSelect = useCallback((bairro: string) => {
+    setMapVisibleRegions([bairro]);
+    setMapSelectionMode(true);
+    setPage(1);
+  }, []);
+
+  const handleMapVisibleRegionsChange = useCallback((regions: string[]) => {
+    setMapVisibleRegions(regions);
+    setMapSelectionMode(true);
+    setPage(1);
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -298,6 +312,8 @@ export function ListingPage({
             onClick={() => {
               setFiltros(emptyFiltros);
               setBuscaInput("");
+              setMapVisibleRegions([]);
+              setMapSelectionMode(false);
               setPage(1);
             }}
           >
@@ -335,8 +351,9 @@ export function ListingPage({
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <SearchMap
             regions={mapRegions}
-            selectedRegion={filtros.bairro === ALL ? "" : filtros.bairro}
-            onSelectRegion={(bairro) => set("bairro", bairro)}
+            selectedRegion={mapVisibleRegions.length === 1 ? mapVisibleRegions[0] : filtros.bairro === ALL ? "" : filtros.bairro}
+            onSelectRegion={handleMapRegionSelect}
+            onVisibleRegionsChange={handleMapVisibleRegionsChange}
           />
         </aside>
       </div>
@@ -474,6 +491,7 @@ function SearchMap({
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const regionsRef = useRef<MapRegion[]>(regions);
+  const regionSignatureRef = useRef("");
 
   useEffect(() => {
     regionsRef.current = regions;
@@ -523,7 +541,7 @@ function SearchMap({
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [onVisibleRegionsChange]);
 
   useEffect(() => {
     let cancelled = false;
@@ -563,28 +581,35 @@ function SearchMap({
         bounds.push(position);
       });
 
-      if (bounds.length === 1) {
-        map.setView(bounds[0], 14, { animate: true });
-      } else if (bounds.length > 1) {
-        map.fitBounds(bounds, { padding: [34, 34], maxZoom: 14 });
-      } else {
-        map.setView([-29.918, -51.18], 13);
+      const signature = regions.map((region) => `${region.bairro}:${region.count}`).join("|");
+      const signatureChanged = signature !== regionSignatureRef.current;
+      if (signatureChanged) {
+        regionSignatureRef.current = signature;
+        if (bounds.length === 1) {
+          map.setView(bounds[0], 14, { animate: true });
+        } else if (bounds.length > 1) {
+          map.fitBounds(bounds, { padding: [34, 34], maxZoom: 14 });
+        } else {
+          map.setView([-29.918, -51.18], 13);
+        }
       }
 
-      window.setTimeout(() => {
-        if (cancelled) return;
-        const visible = regions
-          .filter((region) => map.getBounds().contains([region.lat, region.lng]))
-          .map((region) => region.bairro);
-        onVisibleRegionsChange(visible);
-      }, 260);
+      if (signatureChanged) {
+        window.setTimeout(() => {
+          if (cancelled) return;
+          const visible = regions
+            .filter((region) => map.getBounds().contains([region.lat, region.lng]))
+            .map((region) => region.bairro);
+          onVisibleRegionsChange(visible);
+        }, 260);
+      }
     }
 
     updateMarkers();
     return () => {
       cancelled = true;
     };
-  }, [regions, selectedRegion, onSelectRegion]);
+  }, [regions, selectedRegion, onSelectRegion, onVisibleRegionsChange]);
 
   return (
     <div className="overflow-hidden rounded-xl border bg-card shadow-sm">

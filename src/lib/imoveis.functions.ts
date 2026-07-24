@@ -318,7 +318,7 @@ const filterSchema = z.object({
   ordem: z.enum(["recentes", "menor_preco", "maior_preco"]).optional(),
   apenasRecentes: z.boolean().optional(),
   page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).max(48).default(12),
+  pageSize: z.number().int().min(1).max(500).default(12),
 });
 
 export type ImovelFiltro = z.infer<typeof filterSchema>;
