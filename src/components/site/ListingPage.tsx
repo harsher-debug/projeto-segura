@@ -598,10 +598,10 @@ function buildMapPoints(items: ImovelResumo[]): MapPropertyPoint[] {
 }
 
 function clusterGridSize(zoom: number) {
-  if (zoom >= 18) return 0.00016;
-  if (zoom >= 17) return 0.00036;
-  if (zoom >= 16) return 0.00072;
-  return 0.00125;
+  if (zoom >= 18) return 0.00042;
+  if (zoom >= 17) return 0.0009;
+  if (zoom >= 16) return 0.00155;
+  return 0.0024;
 }
 
 function buildMapPointClusters(points: MapPropertyPoint[], zoom: number): MapPropertyCluster[] {
