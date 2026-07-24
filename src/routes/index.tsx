@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -55,7 +55,7 @@ function Index() {
   const venda = (destaquesVenda ?? []) as ImovelResumo[];
   const vendaHome = venda.length > 0 ? venda : buildVendaFallback(locacao);
   const recentes = [...vendaHome, ...locacao].slice(0, 8);
-  const carouselItems = recentes;
+  const carouselItems = recentes.length > 0 ? [...recentes, ...recentes] : [];
   const termoSugestao = busca.trim();
 
   const { data: sugestoes = [] } = useQuery({
@@ -92,6 +92,22 @@ function Index() {
       behavior: "smooth",
     });
   };
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel || recentes.length === 0) return;
+
+    const step = () => {
+      const resetPoint = carousel.scrollWidth / 2;
+      if (carousel.scrollLeft >= resetPoint - 390) {
+        carousel.scrollTo({ left: 0 });
+      }
+      carousel.scrollBy({ left: 370, behavior: "smooth" });
+    };
+
+    const timer = window.setInterval(step, 1200);
+    return () => window.clearInterval(timer);
+  }, [recentes.length]);
 
   return (
     <SiteLayout>
@@ -260,14 +276,10 @@ function Index() {
         </div>
 
         <div ref={carouselRef} className="home-carousel overflow-hidden pb-4">
-          <div className="home-carousel-track flex w-max">
-            {[0, 1].map((group) => (
-              <div key={group} className="home-carousel-group flex shrink-0 gap-5 pr-5">
-                {carouselItems.map((imovel) => (
-                  <div key={`${group}-${imovel.id}`} className="w-[320px] shrink-0 md:w-[340px]">
-                    <ImovelCard imovel={imovel} />
-                  </div>
-                ))}
+          <div className="flex w-max gap-5">
+            {carouselItems.map((imovel, index) => (
+              <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
+                <ImovelCard imovel={imovel} />
               </div>
             ))}
           </div>
