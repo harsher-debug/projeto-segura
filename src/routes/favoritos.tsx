@@ -14,6 +14,7 @@ import {
   getFavoriteItems,
   saveFavoriteContact,
 } from "@/lib/public-favorites";
+import { registerFavoriteAccess } from "@/lib/favorite-access.functions";
 import { getImovel, listImoveis } from "@/lib/imoveis.functions";
 
 export const Route = createFileRoute("/favoritos")({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/favoritos")({
 function Page() {
   const listFn = useServerFn(listImoveis);
   const detailFn = useServerFn(getImovel);
+  const registerAccessFn = useServerFn(registerFavoriteAccess);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [savedItems, setSavedItems] = useState<ImovelResumo[]>([]);
   const [contactReady, setContactReady] = useState(false);
@@ -81,7 +83,7 @@ function Page() {
       .filter(Boolean) as ImovelResumo[];
   }, [data?.items, detailItems, favoriteIds, savedItems]);
 
-  const handleContact = (event: FormEvent<HTMLFormElement>) => {
+  const handleContact = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const cleanEmail = email.trim();
     const cleanPhone = telefone.trim();
@@ -90,6 +92,15 @@ function Page() {
       return;
     }
     saveFavoriteContact({ email: cleanEmail, telefone: cleanPhone });
+    registerAccessFn({
+      data: {
+        email: cleanEmail,
+        telefone: cleanPhone,
+        localizacao: await getBrowserLocation(),
+      },
+    }).catch(() => {
+      console.error("[Favoritos] Nao foi possivel registrar o acesso.");
+    });
     setContactReady(true);
     toast.success("Favoritos liberados neste navegador.");
   };
@@ -187,4 +198,24 @@ function Page() {
       </main>
     </SiteLayout>
   );
+}
+
+function getBrowserLocation() {
+  if (typeof navigator === "undefined" || !navigator.geolocation) {
+    return Promise.resolve(undefined);
+  }
+
+  return new Promise<{ latitude: number; longitude: number; precisao?: number } | undefined>((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          precisao: position.coords.accuracy,
+        });
+      },
+      () => resolve(undefined),
+      { enableHighAccuracy: false, maximumAge: 300000, timeout: 3500 },
+    );
+  });
 }
