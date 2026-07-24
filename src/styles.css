@@ -1,7 +1,6 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -160,60 +159,5 @@
 
   .home-carousel::-webkit-scrollbar {
     display: none;
-  }
-
-  .segura-map-marker {
-    display: flex;
-    height: 34px;
-    min-width: 34px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    border: 2px solid #fff;
-    background: #fff;
-    color: #111;
-    padding: 0 9px;
-    box-shadow: 0 8px 18px rgb(0 0 0 / 24%);
-    font-family: var(--font-sans);
-    line-height: 1;
-    cursor: pointer;
-    transition: transform 160ms ease, background-color 160ms ease;
-  }
-
-  .segura-map-marker:hover,
-  .segura-map-marker.is-selected {
-    background: #df1622;
-    color: #fff;
-    transform: translateY(-2px);
-  }
-
-  .segura-map-marker span {
-    font-size: 14px;
-    font-weight: 900;
-  }
-
-  .segura-map-marker small {
-    font-size: 10px;
-    font-weight: 800;
-    white-space: nowrap;
-  }
-
-  .segura-map-marker-property {
-    height: 34px;
-    min-width: 34px;
-    padding: 0 9px;
-    background: #fff;
-    color: #111;
-    border-color: #fff;
-  }
-
-  .segura-map-marker-property:hover,
-  .segura-map-marker-property.is-selected {
-    background: #df1622;
-    color: #fff;
-  }
-
-  .segura-map-marker-property span {
-    font-size: 14px;
   }
 }

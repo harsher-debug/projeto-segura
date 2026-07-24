@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { DivIcon, LatLngExpression, Map as LeafletMap, Marker } from "leaflet";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -648,6 +647,43 @@ function markerSize(count: number): [number, number] {
   return [40, 40];
 }
 
+type GoogleMapsApi = typeof google.maps;
+type GoogleMarker = google.maps.Marker;
+type GoogleInfoWindow = google.maps.InfoWindow;
+
+declare global {
+  interface Window {
+    googleMapsReady?: () => void;
+  }
+}
+
+let googleMapsPromise: Promise<GoogleMapsApi> | null = null;
+
+function loadGoogleMaps(apiKey: string) {
+  if (typeof window === "undefined") return Promise.reject(new Error("Google Maps precisa do navegador."));
+  if (window.google?.maps) return Promise.resolve(window.google.maps);
+
+  googleMapsPromise ??= new Promise<GoogleMapsApi>((resolve, reject) => {
+    const existingScript = document.querySelector<HTMLScriptElement>("script[data-segura-google-maps]");
+    window.googleMapsReady = () => {
+      if (window.google?.maps) resolve(window.google.maps);
+      else reject(new Error("Google Maps não carregou corretamente."));
+    };
+
+    if (existingScript) return;
+
+    const script = document.createElement("script");
+    script.dataset.seguraGoogleMaps = "true";
+    script.async = true;
+    script.defer = true;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&callback=googleMapsReady`;
+    script.onerror = () => reject(new Error("Não foi possível carregar o Google Maps."));
+    document.head.appendChild(script);
+  });
+
+  return googleMapsPromise;
+}
+
 function SearchMap({
   regions,
   points,
@@ -665,13 +701,18 @@ function SearchMap({
   onSelectItem: (id: string) => void;
   onViewportChange: (regions: string[], itemIds: string[]) => void;
 }) {
-  const mapRef = useRef<LeafletMap | null>(null);
+  const googleMapsApiKey = ((import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) || "").trim();
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const mapsRef = useRef<GoogleMapsApi | null>(null);
+  const infoWindowRef = useRef<GoogleInfoWindow | null>(null);
   const mapElementRef = useRef<HTMLDivElement | null>(null);
-  const markersRef = useRef<Marker[]>([]);
+  const markersRef = useRef<GoogleMarker[]>([]);
   const regionsRef = useRef<MapRegion[]>(regions);
   const pointsRef = useRef<MapPropertyPoint[]>(points);
   const regionSignatureRef = useRef("");
   const [zoom, setZoom] = useState(13);
+  const [mapsReady, setMapsReady] = useState(false);
+  const [mapError, setMapError] = useState("");
 
   useEffect(() => {
     regionsRef.current = regions;
@@ -686,130 +727,169 @@ function SearchMap({
 
     async function setupMap() {
       if (!mapElementRef.current || mapRef.current || typeof window === "undefined") return;
+      if (!googleMapsApiKey) {
+        setMapError("Configure VITE_GOOGLE_MAPS_API_KEY para carregar o Google Maps.");
+        return;
+      }
 
-      const L = await import("leaflet");
-      if (!mounted || !mapElementRef.current) return;
+      try {
+        const maps = await loadGoogleMaps(googleMapsApiKey);
+        if (!mounted || !mapElementRef.current) return;
 
-      const map = L.map(mapElementRef.current, {
-        center: [-29.918, -51.18],
-        zoom: 13,
-        minZoom: 11,
-        maxZoom: 18,
-        zoomControl: true,
-        scrollWheelZoom: true,
-      });
+        const map = new maps.Map(mapElementRef.current, {
+          center: { lat: -29.918, lng: -51.18 },
+          zoom: 13,
+          minZoom: 11,
+          maxZoom: 18,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          clickableIcons: true,
+        });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map);
+        const syncVisibleRegions = () => {
+          const bounds = map.getBounds();
+          if (!bounds) return;
+          const currentZoom = map.getZoom() ?? 13;
+          setZoom(currentZoom);
+          if (currentZoom >= 15) {
+            const visibleItems = pointsRef.current
+              .filter((point) => bounds.contains({ lat: point.lat, lng: point.lng }))
+              .map((point) => point.id);
+            onViewportChange([], visibleItems);
+            return;
+          }
 
-      const syncVisibleRegions = () => {
-        const bounds = map.getBounds();
-        const currentZoom = map.getZoom();
-        setZoom(currentZoom);
-        if (currentZoom >= 15) {
-          const visibleItems = pointsRef.current
-            .filter((point) => bounds.contains([point.lat, point.lng]))
-            .map((point) => point.id);
-          onViewportChange([], visibleItems);
-          return;
-        }
+          const visibleRegions = regionsRef.current
+            .filter((region) => bounds.contains({ lat: region.lat, lng: region.lng }))
+            .map((region) => region.bairro);
+          onViewportChange(visibleRegions, []);
+        };
 
-        const visibleRegions = regionsRef.current
-          .filter((region) => bounds.contains([region.lat, region.lng]))
-          .map((region) => region.bairro);
-        onViewportChange(visibleRegions, []);
-      };
+        map.addListener("idle", syncVisibleRegions);
 
-      map.on("moveend zoomend", syncVisibleRegions);
-
-      mapRef.current = map;
+        mapsRef.current = maps;
+        infoWindowRef.current = new maps.InfoWindow();
+        mapRef.current = map;
+        setMapsReady(true);
+      } catch (error) {
+        if (!mounted) return;
+        setMapError(error instanceof Error ? error.message : "Não foi possível carregar o Google Maps.");
+      }
     }
 
     setupMap();
 
     return () => {
       mounted = false;
-      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current = [];
-      mapRef.current?.remove();
+      if (mapRef.current) google.maps.event.clearInstanceListeners(mapRef.current);
       mapRef.current = null;
+      mapsRef.current = null;
+      infoWindowRef.current?.close();
+      infoWindowRef.current = null;
     };
-  }, [onViewportChange]);
+  }, [googleMapsApiKey, onViewportChange]);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function updateMarkers() {
+    function markerIcon(count: number, selected: boolean): google.maps.Symbol {
+      const size = markerSize(count);
+      return {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: selected ? "#df1622" : "#fff",
+        fillOpacity: 1,
+        scale: size[0] / 2,
+        strokeColor: "#fff",
+        strokeOpacity: 1,
+        strokeWeight: 2,
+      };
+    }
+
+    function updateMarkers() {
       const map = mapRef.current;
-      if (!map) return;
+      const maps = mapsRef.current;
+      if (!map || !maps || !mapsReady) return;
 
-      const L = await import("leaflet");
-      if (cancelled) return;
-
-      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current = [];
 
-      const bounds: LatLngExpression[] = [];
+      const bounds = new maps.LatLngBounds();
+      let markerCount = 0;
 
       if (zoom >= 15) {
         const clusters = buildMapPointClusters(points, zoom);
         clusters.forEach((cluster) => {
           const selected = cluster.ids.some((id) => selectedItemIds.includes(id));
-          const icon: DivIcon = L.divIcon({
-            className: "",
-            html: `<button class="segura-map-marker segura-map-marker-property ${selected ? "is-selected" : ""}" type="button">
-              <span>${cluster.count}</span>
-            </button>`,
-            iconSize: markerSize(cluster.count),
-            iconAnchor: [markerSize(cluster.count)[0] / 2, 20],
-          });
-          const position: LatLngExpression = [cluster.lat, cluster.lng];
+          const position = { lat: cluster.lat, lng: cluster.lng };
           const popupContent = cluster.count === 1
             ? `<strong>${cluster.title}</strong><br>${cluster.bairro}, ${cluster.cidade}${
                 cluster.precise ? "" : "<br><small>Posição aproximada por bairro</small>"
               }`
             : `<strong>${cluster.count} imóveis nesta área</strong><br>${cluster.bairro}, ${cluster.cidade}`;
-          const marker = L.marker(position, { icon })
-            .addTo(map)
-            .bindPopup(popupContent)
-            .on("click", () => {
+
+          const marker = new maps.Marker({
+            position,
+            map,
+            icon: markerIcon(cluster.count, selected),
+            label: {
+              text: String(cluster.count),
+              color: selected ? "#fff" : "#111",
+              fontSize: "14px",
+              fontWeight: "900",
+            },
+            title: cluster.count === 1 ? cluster.title : `${cluster.count} imóveis nesta área`,
+            zIndex: selected ? 20 : 10,
+          });
+
+          marker.addListener("click", () => {
+            infoWindowRef.current?.setContent(popupContent);
+            infoWindowRef.current?.open({ map, anchor: marker });
               if (cluster.count === 1) {
                 onSelectItem(cluster.ids[0]);
                 return;
               }
 
               onViewportChange([], cluster.ids);
-              map.setView(position, Math.min(map.getZoom() + 1, 18), { animate: true });
+            map.panTo(position);
+            map.setZoom(Math.min((map.getZoom() ?? 15) + 1, 18));
             });
 
           markersRef.current.push(marker);
-          bounds.push(position);
+          bounds.extend(position);
+          markerCount += 1;
         });
       } else {
         regions.forEach((region) => {
           const selected = regionKey(selectedRegion) === regionKey(region.bairro);
-          const icon: DivIcon = L.divIcon({
-            className: "",
-            html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
-              <span>${region.count}</span>
-            </button>`,
-            iconSize: markerSize(region.count),
-            iconAnchor: [markerSize(region.count)[0] / 2, 20],
+          const position = { lat: region.lat, lng: region.lng };
+          const marker = new maps.Marker({
+            position,
+            map,
+            icon: markerIcon(region.count, selected),
+            label: {
+              text: String(region.count),
+              color: selected ? "#fff" : "#111",
+              fontSize: "14px",
+              fontWeight: "900",
+            },
+            title: `${region.count} imóveis disponíveis em ${region.bairro}`,
+            zIndex: selected ? 20 : 10,
           });
-          const position: LatLngExpression = [region.lat, region.lng];
-          const marker = L.marker(position, { icon })
-            .addTo(map)
-            .bindPopup(
-              `<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis`,
-            )
-            .on("click", () => {
+
+          marker.addListener("click", () => {
+            infoWindowRef.current?.setContent(`<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis`);
+            infoWindowRef.current?.open({ map, anchor: marker });
               onSelectRegion(region.bairro);
-              map.setView(position, 15, { animate: true });
+            map.panTo(position);
+            map.setZoom(15);
             });
 
           markersRef.current.push(marker);
-          bounds.push(position);
+          bounds.extend(position);
+          markerCount += 1;
         });
       }
 
@@ -817,20 +897,27 @@ function SearchMap({
       const signatureChanged = signature !== regionSignatureRef.current;
       if (signatureChanged) {
         regionSignatureRef.current = signature;
-        if (bounds.length === 1) {
-          map.setView(bounds[0], 14, { animate: true });
-        } else if (bounds.length > 1) {
-          map.fitBounds(bounds, { padding: [34, 34], maxZoom: 14 });
+        if (markerCount === 1) {
+          map.setCenter(bounds.getCenter());
+          map.setZoom(14);
+        } else if (markerCount > 1) {
+          map.fitBounds(bounds, 34);
+          maps.event.addListenerOnce(map, "idle", () => {
+            if ((map.getZoom() ?? 14) > 14) map.setZoom(14);
+          });
         } else {
-          map.setView([-29.918, -51.18], 13);
+          map.setCenter({ lat: -29.918, lng: -51.18 });
+          map.setZoom(13);
         }
       }
 
       if (signatureChanged) {
         window.setTimeout(() => {
           if (cancelled) return;
+          const currentBounds = map.getBounds();
+          if (!currentBounds) return;
           const visible = regions
-            .filter((region) => map.getBounds().contains([region.lat, region.lng]))
+            .filter((region) => currentBounds.contains({ lat: region.lat, lng: region.lng }))
             .map((region) => region.bairro);
           onViewportChange(visible, []);
         }, 260);
@@ -841,7 +928,7 @@ function SearchMap({
     return () => {
       cancelled = true;
     };
-  }, [points, regions, selectedItemIds, selectedRegion, zoom, onSelectItem, onSelectRegion, onViewportChange]);
+  }, [mapsReady, points, regions, selectedItemIds, selectedRegion, zoom, onSelectItem, onSelectRegion, onViewportChange]);
 
   return (
     <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -857,7 +944,11 @@ function SearchMap({
 
       <div className="relative h-[520px]">
         <div ref={mapElementRef} className="h-full w-full" />
-        {regions.length === 0 ? (
+        {mapError ? (
+          <div className="absolute inset-0 z-[401] flex items-center justify-center bg-white/90 px-8 text-center text-sm font-semibold text-muted-foreground">
+            {mapError}
+          </div>
+        ) : regions.length === 0 ? (
           <div className="absolute inset-0 z-[401] flex items-center justify-center bg-white/75 px-8 text-center text-sm text-muted-foreground">
             Ajuste os filtros para visualizar imóveis no mapa.
           </div>
