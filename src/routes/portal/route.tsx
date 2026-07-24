@@ -131,6 +131,7 @@ function PortalLayout() {
               <Link
                 key={item.to}
                 to={item.to}
+                activeOptions={{ exact: item.to !== "/favoritos" }}
                 className="flex items-center gap-3 rounded-md px-4 py-3 text-sm font-semibold text-neutral-600 transition hover:bg-neutral-50 [&.active]:bg-primary [&.active]:text-white"
               >
                 <item.icon className="h-4 w-4" />
