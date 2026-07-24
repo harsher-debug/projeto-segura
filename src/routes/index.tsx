@@ -218,11 +218,7 @@ function Index() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pt-16">
-        <HomePromoGrid
-          rentImage={locacao[0]?.imagem_principal || vendaHome[0]?.imagem_principal || heroImg}
-          saleImage={vendaHome[1]?.imagem_principal || vendaHome[0]?.imagem_principal || heroImg}
-          cityImage={heroImg}
-        />
+        <HomePromoGrid />
       </section>
 
       <section className="mx-auto max-w-7xl overflow-hidden px-6 pb-12 pt-10">
@@ -407,63 +403,78 @@ const staticVendaCards: ImovelResumo[] = [
   },
 ];
 
-function HomePromoGrid({
-  rentImage,
-  saleImage,
-  cityImage,
-}: {
-  rentImage: string;
-  saleImage: string;
-  cityImage: string;
-}) {
+function HomePromoGrid() {
   return (
     <div className="grid gap-6">
-      <article className="grid overflow-hidden rounded-md bg-[#061238] text-white shadow-xl shadow-black/10 md:grid-cols-[1fr_1.15fr]">
-        <div className="flex min-h-[260px] flex-col justify-center p-7 md:p-10">
-          <p className="text-xs font-extrabold uppercase tracking-wide text-[#d6ad57]">Segura Imobiliária</p>
-          <h2 className="mt-4 max-w-md font-display text-3xl font-extrabold leading-tight md:text-4xl">
-            Alugue com atendimento próximo e seguro em Canoas
+      <article className="grid overflow-hidden rounded-md bg-[linear-gradient(135deg,#e40016_0%,#7a1422_58%,#160c10_100%)] text-white shadow-xl shadow-black/10 md:grid-cols-[1fr_1.05fr]">
+        <div className="flex min-h-[292px] flex-col justify-center p-7 md:p-10">
+          <p className="text-xs font-extrabold uppercase tracking-wide text-[#f1c76b]">Segura Imobiliária</p>
+          <h2 className="mt-4 max-w-lg font-display text-3xl font-extrabold leading-tight md:text-4xl">
+            Escolha seu imóvel com orientação de quem conhece Canoas
           </h2>
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/78">
-            Encontre imóveis para morar bem com a orientação de quem conhece cada bairro da cidade.
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/82">
+            Atendimento local, busca por bairro, mapa interativo e acompanhamento da primeira conversa até a visita.
           </p>
           <Button asChild className="mt-6 w-fit rounded-full bg-white px-5 text-primary hover:bg-white/90">
-            <Link to="/alugar">Ver imóveis para alugar</Link>
+            <Link to="/alugar">Começar pela locação</Link>
           </Button>
         </div>
-        <div className="min-h-[260px]">
-          <img src={rentImage} alt="Imóvel para alugar em Canoas" className="h-full w-full object-cover" />
+        <div className="relative min-h-[292px] overflow-hidden bg-[#2a1013] p-8">
+          <div className="absolute inset-x-8 top-8 h-3 rounded-full bg-[#f1c76b]" />
+          <div className="absolute left-8 top-16 grid w-[72%] gap-3">
+            {["Centro", "Marechal Rondon", "Moinhos de Vento", "Nossa Senhora das Graças"].map((bairro, index) => (
+              <div key={bairro} className="flex items-center justify-between rounded-md bg-white px-4 py-3 text-sm font-extrabold text-neutral-950 shadow-lg">
+                <span>{bairro}</span>
+                <span className="rounded-full bg-primary px-3 py-1 text-xs text-white">{index + 4} imóveis</span>
+              </div>
+            ))}
+          </div>
+          <div className="absolute bottom-8 right-8 flex h-28 w-28 items-center justify-center rounded-full border-8 border-[#f1c76b] bg-white text-center text-sm font-black uppercase leading-tight text-primary shadow-xl">
+            Busca por região
+          </div>
         </div>
       </article>
 
       <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <article className="grid overflow-hidden rounded-md bg-[#e9cfe3] shadow-xl shadow-black/8 md:grid-cols-[0.95fr_1.05fr]">
+        <article className="grid overflow-hidden rounded-md bg-[#fff1cf] shadow-xl shadow-black/8 md:grid-cols-[0.95fr_1.05fr]">
           <div className="flex min-h-[250px] flex-col justify-center p-7">
             <h3 className="font-display text-3xl font-extrabold leading-none text-neutral-950">
               Alugar bem, sem complicação
             </h3>
             <p className="mt-4 text-sm font-medium leading-relaxed text-neutral-800">
-              Atendimento dedicado para encontrar o aluguel certo, com suporte da equipe Segura.
+              Filtros rápidos, imóveis organizados por região e contato direto para agendar sua visita.
             </p>
             <Button asChild className="mt-6 w-fit rounded-full px-5">
               <Link to="/alugar">Ver apartamentos para alugar</Link>
             </Button>
           </div>
-          <div className="min-h-[250px]">
-            <img src={cityImage} alt="Canoas e região atendida pela Segura" className="h-full w-full object-cover" />
+          <div className="relative min-h-[250px] bg-[#e40016] p-7 text-white">
+            <div className="rounded-md bg-white p-4 text-neutral-950 shadow-lg">
+              <p className="text-xs font-bold uppercase text-primary">Checklist de locação</p>
+              {["Bairro ideal", "Valor compatível", "Visita agendada", "Contrato acompanhado"].map((item) => (
+                <div key={item} className="mt-3 flex items-center gap-3 text-sm font-bold">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f1c76b] text-primary">✓</span>
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
         </article>
 
-        <article className="relative min-h-[250px] overflow-hidden rounded-md bg-neutral-950 text-white shadow-xl shadow-black/8">
-          <img src={saleImage} alt="Imóvel à venda em Canoas" className="absolute inset-0 h-full w-full object-cover opacity-72" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-          <div className="relative flex h-full max-w-[280px] flex-col justify-center p-7">
-            <h3 className="font-display text-2xl font-extrabold leading-tight">Casas e apartamentos à venda</h3>
+        <article className="relative min-h-[250px] overflow-hidden rounded-md bg-[#1f1214] text-white shadow-xl shadow-black/8">
+          <div className="absolute right-0 top-0 h-full w-1/2 bg-[#f1c76b]" />
+          <div className="absolute right-10 top-10 grid gap-3">
+            <div className="h-16 w-36 rounded-md bg-white shadow-lg" />
+            <div className="ml-8 h-16 w-36 rounded-md bg-primary shadow-lg" />
+            <div className="h-16 w-36 rounded-md bg-white shadow-lg" />
+          </div>
+          <div className="relative flex h-full max-w-[310px] flex-col justify-center p-7">
+            <h3 className="font-display text-2xl font-extrabold leading-tight">Comprar com mais clareza</h3>
             <p className="mt-3 text-sm leading-relaxed text-white/82">
-              Compra assistida para escolher, visitar e negociar com mais segurança.
+              Compare opções, veja a região no mapa e fale com a equipe para avançar com segurança.
             </p>
             <Button asChild variant="secondary" className="mt-6 w-fit rounded-full bg-white text-primary hover:bg-white/90">
-              <Link to="/comprar">Ver casas à venda</Link>
+              <Link to="/comprar">Ver imóveis à venda</Link>
             </Button>
           </div>
         </article>
@@ -471,4 +482,3 @@ function HomePromoGrid({
     </div>
   );
 }
-
