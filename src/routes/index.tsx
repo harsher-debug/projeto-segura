@@ -4,11 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowRight,
-  Building2,
   ChevronLeft,
   ChevronRight,
-  Home,
-  KeyRound,
   MapPin,
   Search,
 } from "lucide-react";
@@ -221,23 +218,11 @@ function Index() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pt-16">
-        <div className="grid gap-4 md:grid-cols-3">
-          <HomeFeature
-            icon={<KeyRound className="h-5 w-5" />}
-            title="Locação segura"
-            text="Atendimento dedicado para encontrar o aluguel certo."
-          />
-          <HomeFeature
-            icon={<Home className="h-5 w-5" />}
-            title="Compra assistida"
-            text="Opções de venda com orientação em cada etapa."
-          />
-          <HomeFeature
-            icon={<Building2 className="h-5 w-5" />}
-            title="Canoas e região"
-            text="Carteira focada nos bairros que a Segura conhece de perto."
-          />
-        </div>
+        <HomePromoGrid
+          rentImage={locacao[0]?.imagem_principal || vendaHome[0]?.imagem_principal || heroImg}
+          saleImage={vendaHome[1]?.imagem_principal || vendaHome[0]?.imagem_principal || heroImg}
+          cityImage={heroImg}
+        />
       </section>
 
       <section className="mx-auto max-w-7xl overflow-hidden px-6 pb-12 pt-10">
@@ -422,21 +407,68 @@ const staticVendaCards: ImovelResumo[] = [
   },
 ];
 
-function HomeFeature({
-  icon,
-  title,
-  text,
+function HomePromoGrid({
+  rentImage,
+  saleImage,
+  cityImage,
 }: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
+  rentImage: string;
+  saleImage: string;
+  cityImage: string;
 }) {
   return (
-    <article className="rounded-md border bg-white p-5 shadow-lg shadow-black/5">
-      <div className="mb-5 text-primary">{icon}</div>
-      <h3 className="text-xl font-extrabold">{title}</h3>
-      <p className="mt-3 leading-relaxed text-muted-foreground">{text}</p>
-    </article>
+    <div className="grid gap-6">
+      <article className="grid overflow-hidden rounded-md bg-[#061238] text-white shadow-xl shadow-black/10 md:grid-cols-[1fr_1.15fr]">
+        <div className="flex min-h-[260px] flex-col justify-center p-7 md:p-10">
+          <p className="text-xs font-extrabold uppercase tracking-wide text-[#d6ad57]">Segura Imobiliária</p>
+          <h2 className="mt-4 max-w-md font-display text-3xl font-extrabold leading-tight md:text-4xl">
+            Alugue com atendimento próximo e seguro em Canoas
+          </h2>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/78">
+            Encontre imóveis para morar bem com a orientação de quem conhece cada bairro da cidade.
+          </p>
+          <Button asChild className="mt-6 w-fit rounded-full bg-white px-5 text-primary hover:bg-white/90">
+            <Link to="/alugar">Ver imóveis para alugar</Link>
+          </Button>
+        </div>
+        <div className="min-h-[260px]">
+          <img src={rentImage} alt="Imóvel para alugar em Canoas" className="h-full w-full object-cover" />
+        </div>
+      </article>
+
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="grid overflow-hidden rounded-md bg-[#e9cfe3] shadow-xl shadow-black/8 md:grid-cols-[0.95fr_1.05fr]">
+          <div className="flex min-h-[250px] flex-col justify-center p-7">
+            <h3 className="font-display text-3xl font-extrabold leading-none text-neutral-950">
+              Alugar bem, sem complicação
+            </h3>
+            <p className="mt-4 text-sm font-medium leading-relaxed text-neutral-800">
+              Atendimento dedicado para encontrar o aluguel certo, com suporte da equipe Segura.
+            </p>
+            <Button asChild className="mt-6 w-fit rounded-full px-5">
+              <Link to="/alugar">Ver apartamentos para alugar</Link>
+            </Button>
+          </div>
+          <div className="min-h-[250px]">
+            <img src={cityImage} alt="Canoas e região atendida pela Segura" className="h-full w-full object-cover" />
+          </div>
+        </article>
+
+        <article className="relative min-h-[250px] overflow-hidden rounded-md bg-neutral-950 text-white shadow-xl shadow-black/8">
+          <img src={saleImage} alt="Imóvel à venda em Canoas" className="absolute inset-0 h-full w-full object-cover opacity-72" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="relative flex h-full max-w-[280px] flex-col justify-center p-7">
+            <h3 className="font-display text-2xl font-extrabold leading-tight">Casas e apartamentos à venda</h3>
+            <p className="mt-3 text-sm leading-relaxed text-white/82">
+              Compra assistida para escolher, visitar e negociar com mais segurança.
+            </p>
+            <Button asChild variant="secondary" className="mt-6 w-fit rounded-full bg-white text-primary hover:bg-white/90">
+              <Link to="/comprar">Ver casas à venda</Link>
+            </Button>
+          </div>
+        </article>
+      </div>
+    </div>
   );
 }
 
