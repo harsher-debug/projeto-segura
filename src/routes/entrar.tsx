@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, IdCard, Lock, Shield, User } from "lucide-react";
+import { ArrowRight, IdCard, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/site/Header";
 import { Logo } from "@/components/site/Logo";
@@ -62,11 +62,8 @@ function EntrarPage() {
         <section className="relative hidden overflow-hidden bg-gradient-to-br from-primary via-red-600 to-slate-950 p-8 text-white lg:flex lg:flex-col">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(0,0,0,0.45),transparent_35%)]" />
           <div className="relative z-10 flex h-full flex-col justify-between">
-            <div className="flex items-center gap-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-                <Shield className="h-5 w-5" />
-              </span>
-              <span className="text-xl font-extrabold">Segura Imobiliária</span>
+            <div>
+              <Logo light className="h-16" />
             </div>
 
             <div className="max-w-lg">
