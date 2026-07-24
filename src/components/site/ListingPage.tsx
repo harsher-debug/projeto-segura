@@ -59,6 +59,7 @@ export function ListingPage({
   const [buscaInput, setBuscaInput] = useState("");
   const [buscaFocus, setBuscaFocus] = useState(false);
   const [mapVisibleRegions, setMapVisibleRegions] = useState<string[]>([]);
+  const [mapVisibleItemIds, setMapVisibleItemIds] = useState<string[]>([]);
   const [mapSelectionMode, setMapSelectionMode] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 12;
@@ -76,6 +77,7 @@ export function ListingPage({
   const set = (key: keyof Filtros, value: string) => {
     setFiltros((filtroAtual) => ({ ...filtroAtual, [key]: value }));
     setMapVisibleRegions([]);
+    setMapVisibleItemIds([]);
     setMapSelectionMode(false);
     setPage(1);
   };
@@ -147,27 +149,50 @@ export function ListingPage({
     [mapData],
   );
 
+  const mapPoints = useMemo(
+    () => buildMapPoints(((mapData?.items ?? []) as ImovelResumo[])),
+    [mapData],
+  );
+
   const visibleRegionKeys = useMemo(
     () => new Set(mapVisibleRegions.map(regionKey)),
     [mapVisibleRegions],
   );
 
+  const visibleItemIds = useMemo(
+    () => new Set(mapVisibleItemIds),
+    [mapVisibleItemIds],
+  );
+
   const mapFilteredItems = useMemo(() => {
     const items = ((mapData?.items ?? []) as ImovelResumo[]);
+    if (!mapSelectionMode) return null;
+    if (visibleItemIds.size > 0) {
+      return items.filter((imovel) => visibleItemIds.has(imovel.id));
+    }
     if (!mapSelectionMode || visibleRegionKeys.size === 0 || visibleRegionKeys.size >= mapRegions.length) return null;
     return items.filter((imovel) => visibleRegionKeys.has(regionKey(imovel.bairro || imovel.cidade || "Canoas")));
-  }, [mapData, mapRegions.length, mapSelectionMode, visibleRegionKeys]);
+  }, [mapData, mapRegions.length, mapSelectionMode, visibleItemIds, visibleRegionKeys]);
 
   const displayItems = mapFilteredItems ?? ((data?.items ?? []) as ImovelResumo[]);
 
   const handleMapRegionSelect = useCallback((bairro: string) => {
     setMapVisibleRegions([bairro]);
+    setMapVisibleItemIds([]);
     setMapSelectionMode(true);
     setPage(1);
   }, []);
 
-  const handleMapVisibleRegionsChange = useCallback((regions: string[]) => {
+  const handleMapItemSelect = useCallback((id: string) => {
+    setMapVisibleRegions([]);
+    setMapVisibleItemIds([id]);
+    setMapSelectionMode(true);
+    setPage(1);
+  }, []);
+
+  const handleMapViewportChange = useCallback((regions: string[], itemIds: string[]) => {
     setMapVisibleRegions(regions);
+    setMapVisibleItemIds(itemIds);
     setMapSelectionMode(true);
     setPage(1);
   }, []);
@@ -313,6 +338,7 @@ export function ListingPage({
               setFiltros(emptyFiltros);
               setBuscaInput("");
               setMapVisibleRegions([]);
+              setMapVisibleItemIds([]);
               setMapSelectionMode(false);
               setPage(1);
             }}
@@ -351,9 +377,12 @@ export function ListingPage({
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <SearchMap
             regions={mapRegions}
+            points={mapPoints}
             selectedRegion={mapVisibleRegions.length === 1 ? mapVisibleRegions[0] : filtros.bairro === ALL ? "" : filtros.bairro}
+            selectedItemIds={mapVisibleItemIds}
             onSelectRegion={handleMapRegionSelect}
-            onVisibleRegionsChange={handleMapVisibleRegionsChange}
+            onSelectItem={handleMapItemSelect}
+            onViewportChange={handleMapViewportChange}
           />
         </aside>
       </div>
@@ -398,6 +427,16 @@ type MapRegion = {
   cidade: string;
   count: number;
   minPrice: number;
+  lat: number;
+  lng: number;
+};
+
+type MapPropertyPoint = {
+  id: string;
+  title: string;
+  bairro: string;
+  cidade: string;
+  price: number;
   lat: number;
   lng: number;
 };
@@ -448,6 +487,14 @@ function fallbackPosition(key: string) {
   };
 }
 
+function hashText(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) % 9973;
+  }
+  return hash;
+}
+
 function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
   const groups = new Map<string, MapRegion>();
 
@@ -476,26 +523,60 @@ function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
   return [...groups.values()].sort((a, b) => b.count - a.count);
 }
 
+function buildMapPoints(items: ImovelResumo[]): MapPropertyPoint[] {
+  return items.map((item, index) => {
+    const bairro = normalizeRegion(item.bairro || item.cidade || "Canoas");
+    const cidade = normalizeRegion(item.cidade || "Canoas");
+    const key = regionKey(bairro);
+    const base = regionPositions[key] ?? fallbackPosition(key);
+    const hash = hashText(`${item.id}-${item.referencia ?? ""}-${index}`);
+    const angle = (hash % 360) * (Math.PI / 180);
+    const radius = 0.00055 + ((hash % 9) * 0.00018);
+
+    return {
+      id: item.id,
+      title: titleCase(item.titulo),
+      bairro,
+      cidade,
+      price: Number(item.preco || 0),
+      lat: base.lat + Math.sin(angle) * radius,
+      lng: base.lng + Math.cos(angle) * radius,
+    };
+  });
+}
+
 function SearchMap({
   regions,
+  points,
   selectedRegion,
+  selectedItemIds,
   onSelectRegion,
-  onVisibleRegionsChange,
+  onSelectItem,
+  onViewportChange,
 }: {
   regions: MapRegion[];
+  points: MapPropertyPoint[];
   selectedRegion: string;
+  selectedItemIds: string[];
   onSelectRegion: (bairro: string) => void;
-  onVisibleRegionsChange: (regions: string[]) => void;
+  onSelectItem: (id: string) => void;
+  onViewportChange: (regions: string[], itemIds: string[]) => void;
 }) {
   const mapRef = useRef<LeafletMap | null>(null);
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const regionsRef = useRef<MapRegion[]>(regions);
+  const pointsRef = useRef<MapPropertyPoint[]>(points);
   const regionSignatureRef = useRef("");
+  const [zoom, setZoom] = useState(13);
 
   useEffect(() => {
     regionsRef.current = regions;
   }, [regions]);
+
+  useEffect(() => {
+    pointsRef.current = points;
+  }, [points]);
 
   useEffect(() => {
     let mounted = true;
@@ -521,10 +602,20 @@ function SearchMap({
 
       const syncVisibleRegions = () => {
         const bounds = map.getBounds();
-        const visible = regionsRef.current
+        const currentZoom = map.getZoom();
+        setZoom(currentZoom);
+        if (currentZoom >= 15) {
+          const visibleItems = pointsRef.current
+            .filter((point) => bounds.contains([point.lat, point.lng]))
+            .map((point) => point.id);
+          onViewportChange([], visibleItems);
+          return;
+        }
+
+        const visibleRegions = regionsRef.current
           .filter((region) => bounds.contains([region.lat, region.lng]))
           .map((region) => region.bairro);
-        onVisibleRegionsChange(visible);
+        onViewportChange(visibleRegions, []);
       };
 
       map.on("moveend zoomend", syncVisibleRegions);
@@ -541,7 +632,7 @@ function SearchMap({
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [onVisibleRegionsChange]);
+  }, [onViewportChange]);
 
   useEffect(() => {
     let cancelled = false;
@@ -558,28 +649,53 @@ function SearchMap({
 
       const bounds: LatLngExpression[] = [];
 
-      regions.forEach((region) => {
-        const selected = regionKey(selectedRegion) === regionKey(region.bairro);
-        const icon: DivIcon = L.divIcon({
-          className: "",
-          html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
-            <span>${region.count}</span>
-            <small>${formatBRL(region.minPrice)}</small>
-          </button>`,
-          iconSize: [92, 46],
-          iconAnchor: [46, 23],
-        });
-        const position: LatLngExpression = [region.lat, region.lng];
-        const marker = L.marker(position, { icon })
-          .addTo(map)
-          .bindPopup(
-            `<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis<br>Desde ${formatBRL(region.minPrice)}`,
-          )
-          .on("click", () => onSelectRegion(region.bairro));
+      if (zoom >= 15) {
+        points.forEach((point) => {
+          const selected = selectedItemIds.includes(point.id);
+          const icon: DivIcon = L.divIcon({
+            className: "",
+            html: `<button class="segura-map-marker segura-map-marker-property ${selected ? "is-selected" : ""}" type="button">
+              <span>${formatBRL(point.price)}</span>
+            </button>`,
+            iconSize: [92, 34],
+            iconAnchor: [46, 17],
+          });
+          const position: LatLngExpression = [point.lat, point.lng];
+          const marker = L.marker(position, { icon })
+            .addTo(map)
+            .bindPopup(`<strong>${point.title}</strong><br>${point.bairro}, ${point.cidade}<br>${formatBRL(point.price)}`)
+            .on("click", () => onSelectItem(point.id));
 
-        markersRef.current.push(marker);
-        bounds.push(position);
-      });
+          markersRef.current.push(marker);
+          bounds.push(position);
+        });
+      } else {
+        regions.forEach((region) => {
+          const selected = regionKey(selectedRegion) === regionKey(region.bairro);
+          const icon: DivIcon = L.divIcon({
+            className: "",
+            html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
+              <span>${region.count}</span>
+              <small>${formatBRL(region.minPrice)}</small>
+            </button>`,
+            iconSize: [92, 46],
+            iconAnchor: [46, 23],
+          });
+          const position: LatLngExpression = [region.lat, region.lng];
+          const marker = L.marker(position, { icon })
+            .addTo(map)
+            .bindPopup(
+              `<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis<br>Desde ${formatBRL(region.minPrice)}`,
+            )
+            .on("click", () => {
+              onSelectRegion(region.bairro);
+              map.setView(position, 15, { animate: true });
+            });
+
+          markersRef.current.push(marker);
+          bounds.push(position);
+        });
+      }
 
       const signature = regions.map((region) => `${region.bairro}:${region.count}`).join("|");
       const signatureChanged = signature !== regionSignatureRef.current;
@@ -600,7 +716,7 @@ function SearchMap({
           const visible = regions
             .filter((region) => map.getBounds().contains([region.lat, region.lng]))
             .map((region) => region.bairro);
-          onVisibleRegionsChange(visible);
+          onViewportChange(visible, []);
         }, 260);
       }
     }
@@ -609,7 +725,7 @@ function SearchMap({
     return () => {
       cancelled = true;
     };
-  }, [regions, selectedRegion, onSelectRegion, onVisibleRegionsChange]);
+  }, [points, regions, selectedItemIds, selectedRegion, zoom, onSelectItem, onSelectRegion, onViewportChange]);
 
   return (
     <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
