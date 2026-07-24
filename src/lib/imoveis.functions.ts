@@ -32,6 +32,7 @@ function hasBxpEnv() {
 }
 
 type BxpImovel = {
+  [key: string]: unknown;
   codigo: string;
   negociacao: "venda" | "locacao";
   tipo_imovel: string | null;
@@ -104,6 +105,64 @@ function buildDescricaoImovel(item: {
   ].filter(Boolean).join(" ");
 }
 
+function readNumberValue(value: unknown) {
+  if (value == null || value === "") return null;
+  const normalized = typeof value === "string" ? value.replace(",", ".").trim() : value;
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : null;
+}
+
+function readNestedObject(source: Record<string, unknown>, key: string) {
+  const value = source[key];
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function readCoordinate(
+  source: Record<string, unknown>,
+  keys: string[],
+  nestedKeys: string[],
+) {
+  for (const key of keys) {
+    const value = readNumberValue(source[key]);
+    if (value != null) return value;
+  }
+
+  for (const nestedKey of nestedKeys) {
+    const nested = readNestedObject(source, nestedKey);
+    if (!nested) continue;
+    for (const key of keys) {
+      const value = readNumberValue(nested[key]);
+      if (value != null) return value;
+    }
+  }
+
+  return null;
+}
+
+function readLatitude(source: Record<string, unknown>) {
+  return readCoordinate(source, ["latitude", "lat", "geo_lat", "coord_lat", "coordenada_latitude"], [
+    "coordenadas",
+    "coordenada",
+    "geo",
+    "localizacao",
+    "localização",
+    "endereco",
+  ]);
+}
+
+function readLongitude(source: Record<string, unknown>) {
+  return readCoordinate(source, ["longitude", "lng", "lon", "long", "geo_lng", "coord_lng", "coordenada_longitude"], [
+    "coordenadas",
+    "coordenada",
+    "geo",
+    "localizacao",
+    "localização",
+    "endereco",
+  ]);
+}
+
 function mapBxpImovel(item: BxpImovel): LocalImovel {
   const referencia = String(item.codigo);
   const finalidade = item.negociacao === "venda" ?"venda" : "locacao";
@@ -127,6 +186,8 @@ function mapBxpImovel(item: BxpImovel): LocalImovel {
     mobiliado: false,
     destaque: false,
     imagem_principal: item.imagem_principal,
+    latitude: readLatitude(item),
+    longitude: readLongitude(item),
     fotos: item.imagem_principal ?[item.imagem_principal] : [],
     descricao: normalizeText([item.descricao, item.subtitulo, item.endereco, item.logradouro, item.rua].filter(Boolean).join(" ")),
     corretor_nome: null,
@@ -240,6 +301,8 @@ function localRows(): LocalImovel[] {
       mobiliado: Boolean(item.mobiliado),
       destaque: Boolean(item.destaque),
       imagem_principal: item.imagem_principal == null ? null : String(item.imagem_principal),
+      latitude: readLatitude(item),
+      longitude: readLongitude(item),
       fotos: item.imagem_principal ? [String(item.imagem_principal)] : [],
       descricao: normalizeText(String(item.descricao ?? item.endereco ?? item.logradouro ?? item.rua ?? item.titulo ?? "")),
       corretor_nome: item.corretor_nome == null ? null : normalizeText(String(item.corretor_nome)),

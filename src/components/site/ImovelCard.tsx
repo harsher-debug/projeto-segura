@@ -18,6 +18,8 @@ export interface ImovelResumo {
   vagas?: number | null;
   area?: number | null;
   imagem_principal?: string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
 }
 
 export function ImovelCard({ imovel }: { imovel: ImovelResumo }) {

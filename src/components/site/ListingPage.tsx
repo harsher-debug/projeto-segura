@@ -439,6 +439,7 @@ type MapPropertyPoint = {
   price: number;
   lat: number;
   lng: number;
+  precise: boolean;
 };
 
 const regionPositions: Record<string, { lat: number; lng: number }> = {
@@ -495,19 +496,57 @@ function hashText(value: string) {
   return hash;
 }
 
-function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
-  const groups = new Map<string, MapRegion>();
+function readMapCoordinate(value: unknown) {
+  if (value == null || value === "") return null;
+  const normalized = typeof value === "string" ? value.replace(",", ".").trim() : value;
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : null;
+}
 
-  for (const item of items) {
+function hasRealMapPosition(item: ImovelResumo) {
+  const lat = readMapCoordinate(item.latitude);
+  const lng = readMapCoordinate(item.longitude);
+  return lat != null && lng != null && lat >= -35 && lat <= -25 && lng >= -58 && lng <= -48;
+}
+
+function getMapPosition(item: ImovelResumo, index: number) {
+  const lat = readMapCoordinate(item.latitude);
+  const lng = readMapCoordinate(item.longitude);
+  if (hasRealMapPosition(item) && lat != null && lng != null) {
+    return { lat, lng, precise: true };
+  }
+
+  const bairro = normalizeRegion(item.bairro || item.cidade || "Canoas");
+  const key = regionKey(bairro);
+  const base = regionPositions[key] ?? fallbackPosition(key);
+  const hash = hashText(`${item.id}-${item.referencia ?? ""}-${index}`);
+  const angle = (hash % 360) * (Math.PI / 180);
+  const radius = 0.00055 + ((hash % 9) * 0.00018);
+
+  return {
+    lat: base.lat + Math.sin(angle) * radius,
+    lng: base.lng + Math.cos(angle) * radius,
+    precise: false,
+  };
+}
+
+function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
+  const groups = new Map<string, MapRegion & { latTotal: number; lngTotal: number }>();
+
+  for (const [index, item] of items.entries()) {
     const bairro = normalizeRegion(item.bairro || item.cidade || "Canoas");
     const cidade = normalizeRegion(item.cidade || "Canoas");
     const key = regionKey(bairro);
-    const position = regionPositions[key] ?? fallbackPosition(key);
+    const position = getMapPosition(item, index);
     const current = groups.get(key);
 
     if (current) {
       current.count += 1;
       current.minPrice = Math.min(current.minPrice, Number(item.preco || 0));
+      current.latTotal += position.lat;
+      current.lngTotal += position.lng;
+      current.lat = current.latTotal / current.count;
+      current.lng = current.lngTotal / current.count;
     } else {
       groups.set(key, {
         bairro,
@@ -516,22 +555,22 @@ function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
         minPrice: Number(item.preco || 0),
         lat: position.lat,
         lng: position.lng,
+        latTotal: position.lat,
+        lngTotal: position.lng,
       });
     }
   }
 
-  return [...groups.values()].sort((a, b) => b.count - a.count);
+  return [...groups.values()]
+    .map(({ latTotal, lngTotal, ...region }) => region)
+    .sort((a, b) => b.count - a.count);
 }
 
 function buildMapPoints(items: ImovelResumo[]): MapPropertyPoint[] {
   return items.map((item, index) => {
     const bairro = normalizeRegion(item.bairro || item.cidade || "Canoas");
     const cidade = normalizeRegion(item.cidade || "Canoas");
-    const key = regionKey(bairro);
-    const base = regionPositions[key] ?? fallbackPosition(key);
-    const hash = hashText(`${item.id}-${item.referencia ?? ""}-${index}`);
-    const angle = (hash % 360) * (Math.PI / 180);
-    const radius = 0.00055 + ((hash % 9) * 0.00018);
+    const position = getMapPosition(item, index);
 
     return {
       id: item.id,
@@ -539,8 +578,9 @@ function buildMapPoints(items: ImovelResumo[]): MapPropertyPoint[] {
       bairro,
       cidade,
       price: Number(item.preco || 0),
-      lat: base.lat + Math.sin(angle) * radius,
-      lng: base.lng + Math.cos(angle) * radius,
+      lat: position.lat,
+      lng: position.lng,
+      precise: position.precise,
     };
   });
 }
@@ -663,7 +703,11 @@ function SearchMap({
           const position: LatLngExpression = [point.lat, point.lng];
           const marker = L.marker(position, { icon })
             .addTo(map)
-            .bindPopup(`<strong>${point.title}</strong><br>${point.bairro}, ${point.cidade}<br>${formatBRL(point.price)}`)
+            .bindPopup(
+              `<strong>${point.title}</strong><br>${point.bairro}, ${point.cidade}<br>${formatBRL(point.price)}${
+                point.precise ? "" : "<br><small>Posição aproximada por bairro</small>"
+              }`,
+            )
             .on("click", () => onSelectItem(point.id));
 
           markersRef.current.push(marker);
