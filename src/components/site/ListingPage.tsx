@@ -695,16 +695,16 @@ function SearchMap({
           const icon: DivIcon = L.divIcon({
             className: "",
             html: `<button class="segura-map-marker segura-map-marker-property ${selected ? "is-selected" : ""}" type="button">
-              <span>${formatBRL(point.price)}</span>
+              <span>Imóvel</span>
             </button>`,
-            iconSize: [92, 34],
-            iconAnchor: [46, 17],
+            iconSize: [74, 34],
+            iconAnchor: [37, 17],
           });
           const position: LatLngExpression = [point.lat, point.lng];
           const marker = L.marker(position, { icon })
             .addTo(map)
             .bindPopup(
-              `<strong>${point.title}</strong><br>${point.bairro}, ${point.cidade}<br>${formatBRL(point.price)}${
+              `<strong>${point.title}</strong><br>${point.bairro}, ${point.cidade}${
                 point.precise ? "" : "<br><small>Posição aproximada por bairro</small>"
               }`,
             )
@@ -720,16 +720,16 @@ function SearchMap({
             className: "",
             html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
               <span>${region.count}</span>
-              <small>${formatBRL(region.minPrice)}</small>
+              <small>imóveis</small>
             </button>`,
-            iconSize: [92, 46],
-            iconAnchor: [46, 23],
+            iconSize: [78, 46],
+            iconAnchor: [39, 23],
           });
           const position: LatLngExpression = [region.lat, region.lng];
           const marker = L.marker(position, { icon })
             .addTo(map)
             .bindPopup(
-              `<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis<br>Desde ${formatBRL(region.minPrice)}`,
+              `<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis`,
             )
             .on("click", () => {
               onSelectRegion(region.bairro);
