@@ -6,6 +6,7 @@ import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authenticateLocalAdmin, saveLocalAdminSession } from "@/lib/admin-auth";
 import { authenticateLocalPortalUser, saveLocalPortalSession } from "@/lib/portal-auth";
 
 export const Route = createFileRoute("/entrar")({
@@ -25,6 +26,17 @@ function EntrarPage() {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    const localAdmin = authenticateLocalAdmin(documento, senha);
+    if (localAdmin) {
+      setLoading(true);
+      saveLocalAdminSession(localAdmin);
+      window.setTimeout(() => {
+        setLoading(false);
+        navigate({ to: "/app/dashboard" });
+      }, 250);
+      return;
+    }
 
     const localUser = authenticateLocalPortalUser(documento, senha);
     if (localUser) {
@@ -110,7 +122,7 @@ function EntrarPage() {
                     id="documento"
                     value={documento}
                     onChange={(event) => setDocumento(event.target.value)}
-                    placeholder="Digite admin1, admin2, admin3 ou admin4"
+                    placeholder="Digite adminsite, admin1, admin2, admin3 ou admin4"
                     className="h-11 rounded-md border-red-300 pl-11 focus-visible:ring-primary"
                     autoComplete="username"
                   />
@@ -147,7 +159,7 @@ function EntrarPage() {
             </form>
 
             <p className="mt-6 text-center text-xs text-neutral-500">
-              Acessos locais: admin1, admin2, admin3 e admin4. Senha: 123456.
+              Admin site: adminsite. Clientes: admin1, admin2, admin3 e admin4. Senha: 123456.
             </p>
           </div>
         </section>

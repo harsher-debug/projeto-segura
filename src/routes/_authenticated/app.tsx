@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/site/Logo";
+import { clearLocalAdminSession, getLocalAdminSession } from "@/lib/admin-auth";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
@@ -50,7 +51,9 @@ function AppLayout() {
   const navigate = useNavigate();
 
   const sair = async () => {
-    await supabase.auth.signOut();
+    const localAdmin = getLocalAdminSession();
+    clearLocalAdminSession();
+    if (!localAdmin) await supabase.auth.signOut();
     navigate({ to: "/" });
   };
 
