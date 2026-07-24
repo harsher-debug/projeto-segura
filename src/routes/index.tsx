@@ -472,7 +472,7 @@ function HomePromoGrid() {
           </div>
         </article>
 
-        <article className="rounded-md border bg-[#fff7e5] p-7 text-neutral-950 shadow-lg shadow-black/5">
+        <article className="rounded-md border bg-white p-7 text-neutral-950 shadow-lg shadow-black/5">
           <h3 className="font-display text-2xl font-extrabold leading-tight">Compre com apoio local</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Conheça oportunidades em Canoas com orientação para escolher, visitar e negociar com mais segurança.
