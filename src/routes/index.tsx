@@ -55,7 +55,7 @@ function Index() {
   const venda = (destaquesVenda ?? []) as ImovelResumo[];
   const vendaHome = venda.length > 0 ? venda : buildVendaFallback(locacao);
   const recentes = [...vendaHome, ...locacao].slice(0, 8);
-  const carouselItems = recentes.length > 0 ? [...recentes, ...recentes, ...recentes] : [];
+  const carouselItems = recentes;
   const termoSugestao = busca.trim();
 
   const { data: sugestoes = [] } = useQuery({
@@ -260,10 +260,14 @@ function Index() {
         </div>
 
         <div ref={carouselRef} className="home-carousel overflow-hidden pb-4">
-          <div className="home-carousel-track flex w-max gap-5">
-            {carouselItems.map((imovel, index) => (
-              <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
-                <ImovelCard imovel={imovel} />
+          <div className="home-carousel-track flex w-max">
+            {[0, 1].map((group) => (
+              <div key={group} className="home-carousel-group flex shrink-0 gap-5 pr-5">
+                {carouselItems.map((imovel) => (
+                  <div key={`${group}-${imovel.id}`} className="w-[320px] shrink-0 md:w-[340px]">
+                    <ImovelCard imovel={imovel} />
+                  </div>
+                ))}
               </div>
             ))}
           </div>
