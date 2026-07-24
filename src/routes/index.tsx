@@ -55,7 +55,7 @@ function Index() {
   const venda = (destaquesVenda ?? []) as ImovelResumo[];
   const vendaHome = venda.length > 0 ? venda : buildVendaFallback(locacao);
   const recentes = [...vendaHome, ...locacao].slice(0, 8);
-  const carouselItems = recentes.length > 0 ? [...recentes, ...recentes] : [];
+  const carouselItems = recentes.length > 0 ? [...recentes, ...recentes, ...recentes] : [];
   const termoSugestao = busca.trim();
 
   const { data: sugestoes = [] } = useQuery({
