@@ -164,16 +164,16 @@
 
   .segura-map-marker {
     display: flex;
-    min-width: 84px;
-    flex-direction: column;
+    height: 34px;
+    width: 34px;
     align-items: center;
-    gap: 1px;
+    justify-content: center;
     border-radius: 999px;
     border: 2px solid #fff;
-    background: #df1622;
-    color: #fff;
-    padding: 6px 10px;
-    box-shadow: 0 10px 24px rgb(0 0 0 / 22%);
+    background: #fff;
+    color: #111;
+    padding: 0;
+    box-shadow: 0 8px 18px rgb(0 0 0 / 24%);
     font-family: var(--font-sans);
     line-height: 1;
     cursor: pointer;
@@ -182,12 +182,13 @@
 
   .segura-map-marker:hover,
   .segura-map-marker.is-selected {
-    background: #7a1422;
+    background: #df1622;
+    color: #fff;
     transform: translateY(-2px);
   }
 
   .segura-map-marker span {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 900;
   }
 
@@ -198,11 +199,12 @@
   }
 
   .segura-map-marker-property {
-    min-width: 78px;
-    padding: 7px 10px;
+    height: 34px;
+    width: 34px;
+    padding: 0;
     background: #fff;
-    color: #df1622;
-    border-color: #df1622;
+    color: #111;
+    border-color: #fff;
   }
 
   .segura-map-marker-property:hover,
@@ -212,6 +214,6 @@
   }
 
   .segura-map-marker-property span {
-    font-size: 12px;
+    font-size: 14px;
   }
 }

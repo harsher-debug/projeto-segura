@@ -695,10 +695,10 @@ function SearchMap({
           const icon: DivIcon = L.divIcon({
             className: "",
             html: `<button class="segura-map-marker segura-map-marker-property ${selected ? "is-selected" : ""}" type="button">
-              <span>Imóvel</span>
+              <span>1</span>
             </button>`,
-            iconSize: [74, 34],
-            iconAnchor: [37, 17],
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
           });
           const position: LatLngExpression = [point.lat, point.lng];
           const marker = L.marker(position, { icon })
@@ -720,10 +720,9 @@ function SearchMap({
             className: "",
             html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
               <span>${region.count}</span>
-              <small>imóveis</small>
             </button>`,
-            iconSize: [78, 46],
-            iconAnchor: [39, 23],
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
           });
           const position: LatLngExpression = [region.lat, region.lng];
           const marker = L.marker(position, { icon })
