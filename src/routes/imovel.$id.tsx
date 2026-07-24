@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Hash,
+  Heart,
   Home,
   Mail,
   MapPin,
@@ -27,6 +28,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { ImovelCard } from "@/components/site/ImovelCard";
 import { createLeadPublic, getDestaques, getImovel } from "@/lib/imoveis.functions";
 import { formatArea, formatBRL, normalizeText, titleCase, whatsappLink } from "@/lib/format";
+import { isFavorite, toggleFavorite } from "@/lib/public-favorites";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -264,6 +266,7 @@ function Page() {
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <PriceBox
+              imovelId={imovel.id}
               finalidade={imovel.finalidade}
               preco={imovel.preco}
               condominio={imovel.preco_condominio}
@@ -386,6 +389,7 @@ function InfoPanel({ children, icon, title }: { children: React.ReactNode; icon?
 function PriceBox({
   condominio,
   finalidade,
+  imovelId,
   iptu,
   mensagem,
   preco,
@@ -393,11 +397,27 @@ function PriceBox({
 }: {
   condominio?: number | null;
   finalidade: string;
+  imovelId: string;
   iptu?: number | null;
   mensagem: string;
   preco: number;
   total: number;
 }) {
+  const [favorited, setFavorited] = useState(false);
+
+  useEffect(() => {
+    setFavorited(isFavorite(imovelId));
+    const sync = () => setFavorited(isFavorite(imovelId));
+    window.addEventListener("segura:favorites-change", sync);
+    return () => window.removeEventListener("segura:favorites-change", sync);
+  }, [imovelId]);
+
+  const handleFavorite = () => {
+    const saved = toggleFavorite(imovelId);
+    setFavorited(saved);
+    toast.success(saved ? "Imóvel salvo nos favoritos." : "Imóvel removido dos favoritos.");
+  };
+
   return (
     <div className="rounded-sm border bg-white p-4 text-sm shadow-sm">
       <h3 className="mb-3 font-bold text-foreground">{copy.valores}</h3>
@@ -413,8 +433,9 @@ function PriceBox({
           <MessageCircle className="mr-2 h-4 w-4" /> {copy.whatsapp}
         </a>
       </Button>
-      <Button type="button" variant="outline" className="mt-2 w-full">
-        {copy.favoritos}
+      <Button type="button" variant="outline" className="mt-2 w-full" onClick={handleFavorite}>
+        <Heart className={favorited ? "mr-2 h-4 w-4 fill-primary text-primary" : "mr-2 h-4 w-4"} />
+        {favorited ? "Remover dos favoritos" : copy.favoritos}
       </Button>
     </div>
   );
