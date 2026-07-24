@@ -38,7 +38,7 @@ export function ImovelCard({ imovel }: { imovel: ImovelResumo }) {
   }, [imovel.id]);
 
   const handleFavorite = () => {
-    const saved = toggleFavorite(imovel.id);
+    const saved = toggleFavorite(imovel.id, imovel);
     setFavorited(saved);
     toast.success(saved ? "Imóvel salvo nos favoritos." : "Imóvel removido dos favoritos.");
   };

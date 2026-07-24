@@ -8,8 +8,13 @@ import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getFavoriteContact, getFavoriteIds, saveFavoriteContact } from "@/lib/public-favorites";
-import { listImoveis } from "@/lib/imoveis.functions";
+import {
+  getFavoriteContact,
+  getFavoriteIds,
+  getFavoriteItems,
+  saveFavoriteContact,
+} from "@/lib/public-favorites";
+import { getImovel, listImoveis } from "@/lib/imoveis.functions";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({ meta: [{ title: "Favoritos | Imobiliária Segura" }] }),
@@ -18,8 +23,11 @@ export const Route = createFileRoute("/favoritos")({
 
 function Page() {
   const listFn = useServerFn(listImoveis);
+  const detailFn = useServerFn(getImovel);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [savedItems, setSavedItems] = useState<ImovelResumo[]>([]);
   const [contactReady, setContactReady] = useState(false);
+  const [checkingContact, setCheckingContact] = useState(true);
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
 
@@ -30,8 +38,12 @@ function Page() {
       setTelefone(contact.telefone ?? "");
       setContactReady(true);
     }
+    setCheckingContact(false);
 
-    const syncFavorites = () => setFavoriteIds(getFavoriteIds());
+    const syncFavorites = () => {
+      setFavoriteIds(getFavoriteIds());
+      setSavedItems(getFavoriteItems());
+    };
     syncFavorites();
     window.addEventListener("segura:favorites-change", syncFavorites);
     return () => window.removeEventListener("segura:favorites-change", syncFavorites);
@@ -42,10 +54,32 @@ function Page() {
     queryFn: () => listFn({ data: { page: 1, pageSize: 500 } }),
   });
 
+  const { data: detailItems = [], isFetching: isFetchingDetails } = useQuery({
+    queryKey: ["favoritos-publicos-detalhes", favoriteIds],
+    enabled: contactReady && favoriteIds.length > 0,
+    queryFn: async () => {
+      const rows = await Promise.all(
+        favoriteIds.map((id) => detailFn({ data: { id } }).catch(() => null)),
+      );
+      return rows.filter(Boolean) as ImovelResumo[];
+    },
+  });
+
   const favoritos = useMemo(() => {
-    const items = ((data?.items ?? []) as ImovelResumo[]);
-    return items.filter((imovel) => favoriteIds.includes(imovel.id));
-  }, [data?.items, favoriteIds]);
+    const merged = new Map<string, ImovelResumo>();
+    for (const item of savedItems) {
+      if (favoriteIds.includes(item.id)) merged.set(item.id, item);
+    }
+    for (const item of detailItems) {
+      if (favoriteIds.includes(item.id)) merged.set(item.id, item);
+    }
+    for (const item of ((data?.items ?? []) as ImovelResumo[])) {
+      if (favoriteIds.includes(item.id)) merged.set(item.id, item);
+    }
+    return favoriteIds
+      .map((id) => merged.get(id))
+      .filter(Boolean) as ImovelResumo[];
+  }, [data?.items, detailItems, favoriteIds, savedItems]);
 
   const handleContact = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -57,7 +91,7 @@ function Page() {
     }
     saveFavoriteContact({ email: cleanEmail, telefone: cleanPhone });
     setContactReady(true);
-    toast.success("Contato salvo. Seus favoritos estão liberados neste navegador.");
+    toast.success("Favoritos liberados neste navegador.");
   };
 
   return (
@@ -75,11 +109,15 @@ function Page() {
           </p>
         </div>
 
-        {!contactReady ? (
+        {checkingContact ? (
+          <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
+            Carregando favoritos...
+          </div>
+        ) : !contactReady ? (
           <section className="max-w-xl rounded-xl border bg-card p-6 shadow-sm">
             <h2 className="font-display text-xl font-extrabold">Acesse seus favoritos</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Informe telefone ou e-mail para mantermos seus favoritos vinculados a este navegador.
+              Informe telefone ou e-mail para liberar os favoritos neste navegador.
             </p>
             <form className="mt-5 space-y-3" onSubmit={handleContact}>
               <div className="relative">
@@ -114,7 +152,7 @@ function Page() {
                   {favoriteIds.length} {favoriteIds.length === 1 ? "imóvel salvo" : "imóveis salvos"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Contato: {[email, telefone].filter(Boolean).join(" · ")}
+                  Sua seleção fica salva neste navegador.
                 </p>
               </div>
               <Button asChild variant="outline">
@@ -122,7 +160,7 @@ function Page() {
               </Button>
             </div>
 
-            {isFetching ? (
+            {(isFetching || isFetchingDetails) && favoritos.length === 0 ? (
               <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
                 Carregando favoritos...
               </div>

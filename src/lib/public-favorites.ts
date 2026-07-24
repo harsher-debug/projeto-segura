@@ -6,6 +6,7 @@ export type FavoriteContact = {
 };
 
 const FAVORITES_KEY = "segura_favorite_imoveis";
+const FAVORITE_ITEMS_KEY = "segura_favorite_imoveis_data";
 const CONTACT_COOKIE = "segura_favorite_contact";
 const CONTACT_MAX_AGE = 60 * 60 * 24 * 180;
 
@@ -55,20 +56,45 @@ export function getFavoriteIds(): string[] {
   }
 }
 
+export function getFavoriteItems(): ImovelResumo[] {
+  if (!canUseBrowser()) return [];
+  try {
+    const items = JSON.parse(window.localStorage.getItem(FAVORITE_ITEMS_KEY) || "[]");
+    if (!Array.isArray(items)) return [];
+    return items.filter((item) => item && typeof item.id === "string" && typeof item.titulo === "string");
+  } catch {
+    return [];
+  }
+}
+
 function saveFavoriteIds(ids: string[]) {
   if (!canUseBrowser()) return;
   window.localStorage.setItem(FAVORITES_KEY, JSON.stringify([...new Set(ids)]));
   window.dispatchEvent(new CustomEvent("segura:favorites-change"));
 }
 
+function saveFavoriteItems(items: ImovelResumo[]) {
+  if (!canUseBrowser()) return;
+  const unique = new Map<string, ImovelResumo>();
+  for (const item of items) unique.set(item.id, item);
+  window.localStorage.setItem(FAVORITE_ITEMS_KEY, JSON.stringify([...unique.values()]));
+}
+
 export function isFavorite(id: string) {
   return getFavoriteIds().includes(id);
 }
 
-export function toggleFavorite(id: string) {
+export function toggleFavorite(id: string, imovel?: ImovelResumo) {
   const ids = getFavoriteIds();
+  const items = getFavoriteItems();
   const exists = ids.includes(id);
-  saveFavoriteIds(exists ? ids.filter((item) => item !== id) : [...ids, id]);
+  if (exists) {
+    saveFavoriteItems(items.filter((item) => item.id !== id));
+    saveFavoriteIds(ids.filter((item) => item !== id));
+  } else {
+    if (imovel) saveFavoriteItems([...items, imovel]);
+    saveFavoriteIds([...ids, id]);
+  }
   return !exists;
 }
 
