@@ -1,21 +1,15 @@
-import { useState } from "react";
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import {
-  Bell,
   Building2,
   CalendarDays,
-  Camera,
+  FileCheck2,
   FileText,
-  Grid3X3,
-  HelpCircle,
   Home,
   KeyRound,
   LayoutDashboard,
-  LockKeyhole,
   LogOut,
-  Menu,
-  MessageCircle,
-  Settings,
+  Receipt,
+  Search,
   User,
   Users,
 } from "lucide-react";
@@ -28,26 +22,17 @@ export const Route = createFileRoute("/_authenticated/app")({
 });
 
 const nav = [
-  { to: "/app/dashboard", label: "Painel", icon: Grid3X3 },
-  { to: "/app/leads", label: "Leads", icon: Users },
+  { to: "/app/dashboard", label: "Painel", icon: LayoutDashboard },
   { to: "/app/imoveis", label: "Imoveis", icon: Building2 },
+  { to: "/app/contratos", label: "Contratos", icon: FileText },
+  { to: "/app/boletos", label: "Boletos", icon: Receipt },
+  { to: "/app/propostas", label: "Propostas", icon: FileCheck2 },
+  { to: "/app/acessos", label: "Acessos", icon: KeyRound },
+  { to: "/app/leads", label: "Leads", icon: Users },
   { to: "/app/visitas", label: "Visitas", icon: CalendarDays },
-  { to: "/app/propostas", label: "Propostas", icon: FileText },
-];
-
-const profileItems = [
-  { label: "Deixe sua opiniao", icon: MessageCircle },
-  { label: "Suporte", icon: HelpCircle },
-  { label: "Alterar foto do perfil", icon: Camera },
-  { label: "Alterar senha", icon: LockKeyhole },
-  { label: "Preferencias", icon: Settings },
-  { label: "Ultimos acessos", icon: KeyRound },
-  { label: "Sobre", icon: Bell },
 ];
 
 function AppLayout() {
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const sair = async () => {
@@ -58,119 +43,91 @@ function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] text-neutral-900">
-      <header className="sticky top-0 z-[120] shadow-md shadow-black/15">
-        <div className="h-16 bg-[#56585b]">
-          <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-4">
-            <Link to="/app/dashboard" className="flex items-center">
-              <Logo light className="h-12" />
-            </Link>
-
-            <nav className="hidden h-full items-stretch md:flex">
-              {nav.slice(0, 1).map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className="flex items-center gap-2 border-l border-white/10 px-5 text-sm font-bold text-white transition hover:bg-black/20 [&.active]:bg-[#3d3f42]"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-              <button
-                type="button"
-                onClick={() => setProfileOpen((value) => !value)}
-                className="relative flex items-center gap-2 border-l border-white/10 px-5 text-sm font-bold text-white transition hover:bg-black/20"
-              >
-                <User className="h-4 w-4" />
-                Perfil
-              </button>
-              <button
-                type="button"
-                onClick={() => setMenuOpen((value) => !value)}
-                className="flex items-center border-l border-white/10 px-5 text-white transition hover:bg-black/20"
-                aria-label="Menu administrativo"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-            </nav>
-          </div>
+    <div className="min-h-screen bg-[#f7f5f2] text-neutral-950">
+      <aside className="fixed inset-y-0 left-0 z-[110] hidden w-[272px] border-r border-white/10 bg-[linear-gradient(180deg,#e40016_0%,#70111f_48%,#170c10_100%)] text-white shadow-2xl shadow-black/20 lg:block">
+        <div className="flex h-24 items-center border-b border-white/10 px-7">
+          <Logo light className="h-16" />
         </div>
 
-        <div className="bg-[#f00000]">
-          <div className="mx-auto flex h-12 max-w-[1600px] items-center justify-between px-4 text-white">
+        <nav className="space-y-1 px-4 py-5">
+          {nav.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-white/78 transition hover:bg-white/10 hover:text-white [&.active]:bg-white [&.active]:text-[#a50f1b]"
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-4">
+          <Link
+            to="/"
+            className="mb-2 flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
+          >
+            <Home className="h-4 w-4" />
+            Ver site
+          </Link>
+          <button
+            type="button"
+            onClick={sair}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </button>
+        </div>
+      </aside>
+
+      <div className="lg:pl-[272px]">
+        <header className="sticky top-0 z-[100] border-b border-[#e5d8bd] bg-white/92 shadow-sm backdrop-blur">
+          <div className="flex min-h-[76px] items-center justify-between gap-4 px-5 lg:px-8">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#c7a45a]">
+                Admin Segura
+              </p>
+              <h1 className="font-display text-xl font-extrabold text-neutral-950">
+                Gestao do site e atendimento
+              </h1>
+            </div>
+
+            <div className="hidden min-w-[320px] items-center gap-3 rounded-full border bg-[#f8f6f2] px-4 py-2.5 md:flex">
+              <Search className="h-4 w-4 text-neutral-400" />
+              <span className="text-sm text-neutral-500">Buscar imovel, cliente, contrato...</span>
+            </div>
+
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#f00000]">
+              <div className="hidden text-right sm:block">
+                <p className="text-sm font-extrabold">Administrador</p>
+                <p className="text-xs text-neutral-500">adminsite@segura.local</p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#a50f1b] text-white shadow-md shadow-[#a50f1b]/20">
                 <User className="h-5 w-5" />
               </div>
-              <span className="font-bold">Ola, Time Segura</span>
             </div>
-            <Link
-              to="/"
-              className="hidden text-sm font-bold underline-offset-4 hover:underline md:inline-flex"
-            >
-              Acessar site
-            </Link>
           </div>
-        </div>
+          <div className="h-1 bg-[#d6ad57]" />
 
-        {(profileOpen || menuOpen) && (
-          <div className="absolute right-0 top-16 z-[130] w-64 bg-[#56585b] py-2 text-sm text-white shadow-xl">
-            {profileOpen && (
-              <>
-                {profileItems.map((item) => (
-                  <button
-                    key={item.label}
-                    type="button"
-                    className="flex w-full items-center gap-2 px-5 py-2 text-left hover:bg-black/20"
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={sair}
-                  className="flex w-full items-center gap-2 px-5 py-2 text-left hover:bg-black/20"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </button>
-              </>
-            )}
-
-            {menuOpen && (
-              <>
-                {nav.map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-5 py-2 hover:bg-black/20"
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                ))}
-                <Link
-                  to="/"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-5 py-2 hover:bg-black/20"
-                >
-                  <Home className="h-4 w-4" />
-                  Ver site
-                </Link>
-              </>
-            )}
+          <div className="flex gap-2 overflow-x-auto px-4 py-3 lg:hidden">
+            {nav.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="inline-flex shrink-0 items-center gap-2 rounded-full border bg-white px-3 py-2 text-xs font-bold text-neutral-700 [&.active]:border-[#a50f1b] [&.active]:bg-[#a50f1b] [&.active]:text-white"
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                {item.label}
+              </Link>
+            ))}
           </div>
-        )}
-      </header>
+        </header>
 
-      <main className="min-h-[calc(100vh-112px)] bg-[linear-gradient(135deg,rgba(0,0,0,0.025)_25%,transparent_25%),linear-gradient(225deg,rgba(0,0,0,0.025)_25%,transparent_25%),linear-gradient(45deg,rgba(0,0,0,0.02)_25%,transparent_25%),linear-gradient(315deg,rgba(0,0,0,0.02)_25%,#fafafa_25%)] bg-[length:220px_220px] bg-[position:0_0,0_0,0_0,0_0]">
-        <div className="mx-auto max-w-[1600px] px-5 py-5">
+        <main className="px-5 py-6 lg:px-8">
           <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

@@ -43,6 +43,9 @@ import { Route as AuthenticatedAppPropostasRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppLeadsRouteImport } from './routes/_authenticated/app.leads'
 import { Route as AuthenticatedAppImoveisRouteImport } from './routes/_authenticated/app.imoveis'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app.dashboard'
+import { Route as AuthenticatedAppContratosRouteImport } from './routes/_authenticated/app.contratos'
+import { Route as AuthenticatedAppBoletosRouteImport } from './routes/_authenticated/app.boletos'
+import { Route as AuthenticatedAppAcessosRouteImport } from './routes/_authenticated/app.acessos'
 
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
@@ -223,6 +226,22 @@ const AuthenticatedAppDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppContratosRoute =
+  AuthenticatedAppContratosRouteImport.update({
+    id: '/contratos',
+    path: '/contratos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBoletosRoute = AuthenticatedAppBoletosRouteImport.update({
+  id: '/boletos',
+  path: '/boletos',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppAcessosRoute = AuthenticatedAppAcessosRouteImport.update({
+  id: '/acessos',
+  path: '/acessos',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -237,6 +256,9 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/imoveis/recentes': typeof ImoveisRecentesRoute
   '/imovel/$id': typeof ImovelIdRoute
+  '/app/acessos': typeof AuthenticatedAppAcessosRoute
+  '/app/boletos': typeof AuthenticatedAppBoletosRoute
+  '/app/contratos': typeof AuthenticatedAppContratosRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/imoveis': typeof AuthenticatedAppImoveisRoute
   '/app/leads': typeof AuthenticatedAppLeadsRoute
@@ -271,6 +293,9 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/imoveis/recentes': typeof ImoveisRecentesRoute
   '/imovel/$id': typeof ImovelIdRoute
+  '/app/acessos': typeof AuthenticatedAppAcessosRoute
+  '/app/boletos': typeof AuthenticatedAppBoletosRoute
+  '/app/contratos': typeof AuthenticatedAppContratosRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/imoveis': typeof AuthenticatedAppImoveisRoute
   '/app/leads': typeof AuthenticatedAppLeadsRoute
@@ -308,6 +333,9 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/imoveis/recentes': typeof ImoveisRecentesRoute
   '/imovel/$id': typeof ImovelIdRoute
+  '/_authenticated/app/acessos': typeof AuthenticatedAppAcessosRoute
+  '/_authenticated/app/boletos': typeof AuthenticatedAppBoletosRoute
+  '/_authenticated/app/contratos': typeof AuthenticatedAppContratosRoute
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/app/imoveis': typeof AuthenticatedAppImoveisRoute
   '/_authenticated/app/leads': typeof AuthenticatedAppLeadsRoute
@@ -345,6 +373,9 @@ export interface FileRouteTypes {
     | '/app'
     | '/imoveis/recentes'
     | '/imovel/$id'
+    | '/app/acessos'
+    | '/app/boletos'
+    | '/app/contratos'
     | '/app/dashboard'
     | '/app/imoveis'
     | '/app/leads'
@@ -379,6 +410,9 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/imoveis/recentes'
     | '/imovel/$id'
+    | '/app/acessos'
+    | '/app/boletos'
+    | '/app/contratos'
     | '/app/dashboard'
     | '/app/imoveis'
     | '/app/leads'
@@ -415,6 +449,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/imoveis/recentes'
     | '/imovel/$id'
+    | '/_authenticated/app/acessos'
+    | '/_authenticated/app/boletos'
+    | '/_authenticated/app/contratos'
     | '/_authenticated/app/dashboard'
     | '/_authenticated/app/imoveis'
     | '/_authenticated/app/leads'
@@ -693,10 +730,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/contratos': {
+      id: '/_authenticated/app/contratos'
+      path: '/contratos'
+      fullPath: '/app/contratos'
+      preLoaderRoute: typeof AuthenticatedAppContratosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/boletos': {
+      id: '/_authenticated/app/boletos'
+      path: '/boletos'
+      fullPath: '/app/boletos'
+      preLoaderRoute: typeof AuthenticatedAppBoletosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/acessos': {
+      id: '/_authenticated/app/acessos'
+      path: '/acessos'
+      fullPath: '/app/acessos'
+      preLoaderRoute: typeof AuthenticatedAppAcessosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAcessosRoute: typeof AuthenticatedAppAcessosRoute
+  AuthenticatedAppBoletosRoute: typeof AuthenticatedAppBoletosRoute
+  AuthenticatedAppContratosRoute: typeof AuthenticatedAppContratosRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppImoveisRoute: typeof AuthenticatedAppImoveisRoute
   AuthenticatedAppLeadsRoute: typeof AuthenticatedAppLeadsRoute
@@ -706,6 +767,9 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAcessosRoute: AuthenticatedAppAcessosRoute,
+  AuthenticatedAppBoletosRoute: AuthenticatedAppBoletosRoute,
+  AuthenticatedAppContratosRoute: AuthenticatedAppContratosRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppImoveisRoute: AuthenticatedAppImoveisRoute,
   AuthenticatedAppLeadsRoute: AuthenticatedAppLeadsRoute,

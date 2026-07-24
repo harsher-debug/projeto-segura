@@ -1,93 +1,176 @@
-import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Bell,
-  Cake,
-  FileText,
-  Grid3X3,
-  Image,
-  KeyRound,
-  Link2,
-  Mail,
-  Megaphone,
-  MessageSquare,
-  Newspaper,
-  Search,
-  Sparkles,
-} from "lucide-react";
+import { ArrowUpRight, Building2, FileCheck2, KeyRound, Receipt, TrendingUp, Users } from "lucide-react";
+import { adminAccesses, adminBills, adminContracts, adminProperties, adminProposals, brl } from "@/lib/admin-demo";
 
 export const Route = createFileRoute("/_authenticated/app/dashboard")({
   component: Dashboard,
 });
 
-const modules = [
-  { label: "Novidades", icon: Sparkles, color: "text-[#0866a8]", to: "/app/leads" },
-  { label: "Pop-ups", icon: Image, color: "text-[#67b7ad]", to: "/app/dashboard" },
-  { label: "Banners", icon: Image, color: "text-[#ff7a24]", to: "/app/dashboard" },
-  { label: "Convites de acesso", icon: KeyRound, color: "text-[#8b0e18]", to: "/app/leads" },
-  { label: "Cartao de aniversario", icon: Cake, color: "text-[#0ea5d7]", to: "/app/dashboard" },
-  { label: "Mensageiro", icon: MessageSquare, color: "text-[#00816f]", to: "/app/leads" },
-  { label: "Avisos gerais", icon: Megaphone, color: "text-[#9b0f5b]", to: "/app/propostas" },
-  { label: "Avisos e circulares", icon: Mail, color: "text-[#9b0f5b]", to: "/app/propostas" },
-  { label: "Boletim da administracao", icon: Newspaper, color: "text-[#4357c9]", to: "/app/dashboard" },
-  { label: "Encurtador de Links", icon: Link2, color: "text-[#fb5a1d]", to: "/app/dashboard" },
-  { label: "Avisos de locacao", icon: FileText, color: "text-[#9b0f5b]", to: "/app/imoveis" },
-  { label: "Imoveis do site", icon: Grid3X3, color: "text-[#d71920]", to: "/app/imoveis" },
-  { label: "Visitas", icon: Bell, color: "text-[#d6ad57]", to: "/app/visitas" },
+const stats = [
+  { label: "Imoveis publicados", value: adminProperties.length, icon: Building2, detail: "3 bairros com maior procura" },
+  { label: "Contratos ativos", value: adminContracts.filter((item) => item.status === "Ativo").length, icon: FileCheck2, detail: "1 renovacao pendente" },
+  { label: "Boletos em aberto", value: adminBills.filter((item) => item.status === "Aberto").length, icon: Receipt, detail: "R$ 3.980 previstos" },
+  { label: "Acessos liberados", value: adminAccesses.length, icon: KeyRound, detail: "Locatarios, proprietarios e sindicos" },
 ];
 
-function normalize(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 function Dashboard() {
-  const [filter, setFilter] = useState("");
-  const filteredModules = useMemo(() => {
-    const term = normalize(filter);
-    if (!term) return modules;
-    return modules.filter((item) => normalize(item.label).includes(term));
-  }, [filter]);
-
   return (
-    <div className="space-y-4">
-      <section className="rounded-md border bg-white px-7 py-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Grid3X3 className="h-6 w-6 text-neutral-700" />
-          <h1 className="font-display text-2xl font-extrabold text-neutral-800">Painel</h1>
+    <div className="space-y-6">
+      <section className="overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#e40016_0%,#8e1221_48%,#211014_100%)] p-7 text-white shadow-2xl shadow-[#8e1221]/20">
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#f2d78a]">Painel administrativo</p>
+            <h2 className="mt-3 font-display text-4xl font-extrabold leading-tight">
+              Operacao do site, clientes e carteira em tempo real.
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-white/78">
+              Simulacao completa para acompanhar imoveis publicados, propostas, boletos, contratos e acessos dos clientes.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="h-5 w-5 text-[#f2d78a]" />
+              <p className="font-display text-lg font-extrabold">Resumo de hoje</p>
+            </div>
+            <div className="mt-5 space-y-3">
+              {[
+                "2 propostas aguardando retorno",
+                "3 visitas confirmadas para esta semana",
+                "2 boletos em aberto para acompanhamento",
+              ].map((item) => (
+                <div key={item} className="rounded-xl bg-white/12 px-4 py-3 text-sm font-bold text-white/88">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <label className="relative block">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-6 w-6 -translate-y-1/2 text-neutral-300" />
-        <input
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-          placeholder="Filtrar itens"
-          className="h-12 w-full rounded-md border bg-white pl-12 pr-4 text-sm shadow-sm outline-none transition focus:border-[#d71920] focus:ring-2 focus:ring-[#d71920]/15"
-        />
-      </label>
-
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-        {filteredModules.map((item) => (
-          <Link
-            key={item.label}
-            to={item.to}
-            className="group flex h-32 flex-col items-center justify-center rounded-md border bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-[#d71920]/30 hover:shadow-lg"
-          >
-            <item.icon className={`h-11 w-11 stroke-[1.8] transition group-hover:scale-105 ${item.color}`} />
-            <span className="mt-4 text-sm font-extrabold text-neutral-950">{item.label}</span>
-          </Link>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <article key={stat.label} className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase text-neutral-500">{stat.label}</p>
+                <p className="mt-2 font-display text-4xl font-extrabold">{stat.value}</p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff5dc] text-[#a50f1b]">
+                <stat.icon className="h-5 w-5" />
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-neutral-500">{stat.detail}</p>
+          </article>
         ))}
       </section>
 
-      {!filteredModules.length && (
-        <div className="rounded-md border bg-white px-5 py-8 text-center text-sm text-neutral-500">
-          Nenhum item encontrado para esse filtro.
+      <section className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="font-display text-xl font-extrabold">Imoveis em destaque</h3>
+              <p className="text-sm text-neutral-500">Carteira simulada para gestao do site.</p>
+            </div>
+            <Link to="/app/imoveis" className="inline-flex items-center gap-1 text-sm font-bold text-[#a50f1b]">
+              Ver todos <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {adminProperties.slice(0, 4).map((property) => (
+              <Link key={property.id} to="/app/imoveis" className="group overflow-hidden rounded-xl border bg-[#fbfaf8] transition hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="aspect-[16/8] overflow-hidden bg-neutral-100">
+                  <img src={property.image} alt={property.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-[#a50f1b] px-2.5 py-1 text-xs font-bold text-white">{property.purpose}</span>
+                    <span className="text-xs font-bold text-neutral-500">Cod. {property.code}</span>
+                  </div>
+                  <h4 className="mt-3 line-clamp-1 font-display text-lg font-extrabold">{property.title}</h4>
+                  <p className="text-sm text-neutral-500">{property.neighborhood}, {property.city}</p>
+                  <p className="mt-3 text-xl font-extrabold text-[#d71920]">{brl(property.price)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </article>
+
+        <div className="space-y-5">
+          <article className="rounded-2xl border bg-white p-5 shadow-sm">
+            <h3 className="font-display text-xl font-extrabold">Propostas recentes</h3>
+            <div className="mt-4 space-y-3">
+              {adminProposals.map((proposal) => (
+                <div key={proposal.id} className="rounded-xl bg-[#fbfaf8] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-bold">{proposal.client}</p>
+                    <span className="rounded-full bg-[#fff5dc] px-2.5 py-1 text-xs font-bold text-[#8e641a]">{proposal.status}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-neutral-500">Cod. {proposal.code} - {proposal.property}</p>
+                  <p className="mt-2 font-display text-lg font-extrabold">{brl(proposal.value)}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="rounded-2xl border bg-white p-5 shadow-sm">
+            <h3 className="font-display text-xl font-extrabold">Acessos recentes</h3>
+            <div className="mt-4 space-y-3">
+              {adminAccesses.slice(0, 3).map((access) => (
+                <div key={access.name} className="flex items-center gap-3 rounded-xl bg-[#fbfaf8] p-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#a50f1b] text-sm font-extrabold text-white">
+                    {access.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold">{access.name}</p>
+                    <p className="text-xs text-neutral-500">{access.profile} - {access.lastAccess}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
         </div>
-      )}
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-2">
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-display text-xl font-extrabold">Contratos ativos</h3>
+            <Users className="h-5 w-5 text-[#a50f1b]" />
+          </div>
+          <div className="divide-y">
+            {adminContracts.map((contract) => (
+              <div key={contract.id} className="flex items-center justify-between gap-4 py-3">
+                <div>
+                  <p className="text-sm font-bold">{contract.id}</p>
+                  <p className="text-sm text-neutral-500">{contract.client} - Cod. {contract.code}</p>
+                </div>
+                <p className="font-bold">{brl(contract.value)}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-display text-xl font-extrabold">Boletos do mes</h3>
+            <Receipt className="h-5 w-5 text-[#a50f1b]" />
+          </div>
+          <div className="divide-y">
+            {adminBills.map((bill) => (
+              <div key={bill.id} className="flex items-center justify-between gap-4 py-3">
+                <div>
+                  <p className="text-sm font-bold">{bill.client}</p>
+                  <p className="text-sm text-neutral-500">{bill.property} - vence {bill.due}</p>
+                </div>
+                <span className={`rounded-full px-3 py-1 text-xs font-bold ${bill.status === "Pago" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-[#a50f1b]"}`}>
+                  {bill.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
     </div>
   );
 }
