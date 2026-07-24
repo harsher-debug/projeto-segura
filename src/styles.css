@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -159,5 +160,40 @@
 
   .home-carousel::-webkit-scrollbar {
     display: none;
+  }
+
+  .segura-map-marker {
+    display: flex;
+    min-width: 84px;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    background: #df1622;
+    color: #fff;
+    padding: 6px 10px;
+    box-shadow: 0 10px 24px rgb(0 0 0 / 22%);
+    font-family: var(--font-sans);
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 160ms ease, background-color 160ms ease;
+  }
+
+  .segura-map-marker:hover,
+  .segura-map-marker.is-selected {
+    background: #7a1422;
+    transform: translateY(-2px);
+  }
+
+  .segura-map-marker span {
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .segura-map-marker small {
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
   }
 }

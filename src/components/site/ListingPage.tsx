@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { DivIcon, LatLngExpression, Map as LeafletMap, Marker } from "leaflet";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, MapPin, SlidersHorizontal } from "lucide-react";
+import { Loader2, SlidersHorizontal } from "lucide-react";
 import { getFacets, getSearchSuggestions, listImoveis } from "@/lib/imoveis.functions";
 import { ImovelCard, type ImovelResumo } from "./ImovelCard";
 import { formatBRL, titleCase } from "@/lib/format";
@@ -362,30 +363,30 @@ type MapRegion = {
   cidade: string;
   count: number;
   minPrice: number;
-  x: number;
-  y: number;
+  lat: number;
+  lng: number;
 };
 
-const regionPositions: Record<string, { x: number; y: number }> = {
-  centro: { x: 54, y: 52 },
-  "marechal rondon": { x: 62, y: 43 },
-  "moinhos de vento": { x: 66, y: 34 },
-  "estancia velha": { x: 43, y: 33 },
-  "estância velha": { x: 43, y: 33 },
-  "nossa senhora das gracas": { x: 57, y: 28 },
-  "nossa senhora das graças": { x: 57, y: 28 },
-  "mathias velho": { x: 36, y: 54 },
-  "sao jose": { x: 48, y: 64 },
-  "são josé": { x: 48, y: 64 },
-  niteroi: { x: 68, y: 66 },
-  niterói: { x: 68, y: 66 },
-  igara: { x: 34, y: 31 },
-  "rio branco": { x: 63, y: 58 },
-  guajuviras: { x: 25, y: 47 },
-  ozenan: { x: 45, y: 44 },
-  harmonia: { x: 49, y: 40 },
-  "são luís": { x: 39, y: 67 },
-  "sao luis": { x: 39, y: 67 },
+const regionPositions: Record<string, { lat: number; lng: number }> = {
+  centro: { lat: -29.9178, lng: -51.1801 },
+  "marechal rondon": { lat: -29.9103, lng: -51.1697 },
+  "moinhos de vento": { lat: -29.9014, lng: -51.1762 },
+  "estancia velha": { lat: -29.8992, lng: -51.1904 },
+  "estância velha": { lat: -29.8992, lng: -51.1904 },
+  "nossa senhora das gracas": { lat: -29.9067, lng: -51.1627 },
+  "nossa senhora das graças": { lat: -29.9067, lng: -51.1627 },
+  "mathias velho": { lat: -29.9236, lng: -51.2025 },
+  "sao jose": { lat: -29.9332, lng: -51.1805 },
+  "são josé": { lat: -29.9332, lng: -51.1805 },
+  niteroi: { lat: -29.9358, lng: -51.1608 },
+  niterói: { lat: -29.9358, lng: -51.1608 },
+  igara: { lat: -29.8919, lng: -51.1873 },
+  "rio branco": { lat: -29.9294, lng: -51.1694 },
+  guajuviras: { lat: -29.9001, lng: -51.2265 },
+  ozenan: { lat: -29.9164, lng: -51.1907 },
+  harmonia: { lat: -29.9128, lng: -51.1851 },
+  "são luís": { lat: -29.9424, lng: -51.1901 },
+  "sao luis": { lat: -29.9424, lng: -51.1901 },
 };
 
 function normalizeRegion(value?: string | null) {
@@ -407,8 +408,8 @@ function fallbackPosition(key: string) {
   }
 
   return {
-    x: 18 + (hash % 65),
-    y: 24 + ((hash * 7) % 50),
+    lat: -29.918 + (((hash % 100) - 50) / 10000),
+    lng: -51.18 + ((((hash * 7) % 100) - 50) / 10000),
   };
 }
 
@@ -431,8 +432,8 @@ function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
         cidade,
         count: 1,
         minPrice: Number(item.preco || 0),
-        x: position.x,
-        y: position.y,
+        lat: position.lat,
+        lng: position.lng,
       });
     }
   }
@@ -449,57 +450,118 @@ function SearchMap({
   selectedRegion: string;
   onSelectRegion: (bairro: string) => void;
 }) {
+  const mapRef = useRef<LeafletMap | null>(null);
+  const mapElementRef = useRef<HTMLDivElement | null>(null);
+  const markersRef = useRef<Marker[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function setupMap() {
+      if (!mapElementRef.current || mapRef.current || typeof window === "undefined") return;
+
+      const L = await import("leaflet");
+      if (!mounted || !mapElementRef.current) return;
+
+      const map = L.map(mapElementRef.current, {
+        center: [-29.918, -51.18],
+        zoom: 13,
+        minZoom: 11,
+        maxZoom: 18,
+        zoomControl: true,
+        scrollWheelZoom: true,
+      });
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      mapRef.current = map;
+    }
+
+    setupMap();
+
+    return () => {
+      mounted = false;
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function updateMarkers() {
+      const map = mapRef.current;
+      if (!map) return;
+
+      const L = await import("leaflet");
+      if (cancelled) return;
+
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
+
+      const bounds: LatLngExpression[] = [];
+
+      regions.forEach((region) => {
+        const selected = regionKey(selectedRegion) === regionKey(region.bairro);
+        const icon: DivIcon = L.divIcon({
+          className: "",
+          html: `<button class="segura-map-marker ${selected ? "is-selected" : ""}" type="button">
+            <span>${region.count}</span>
+            <small>${formatBRL(region.minPrice)}</small>
+          </button>`,
+          iconSize: [92, 46],
+          iconAnchor: [46, 23],
+        });
+        const position: LatLngExpression = [region.lat, region.lng];
+        const marker = L.marker(position, { icon })
+          .addTo(map)
+          .bindPopup(
+            `<strong>${region.bairro}</strong><br>${region.count} imóveis disponíveis<br>Desde ${formatBRL(region.minPrice)}`,
+          )
+          .on("click", () => onSelectRegion(region.bairro));
+
+        markersRef.current.push(marker);
+        bounds.push(position);
+      });
+
+      if (bounds.length === 1) {
+        map.setView(bounds[0], 14, { animate: true });
+      } else if (bounds.length > 1) {
+        map.fitBounds(bounds, { padding: [34, 34], maxZoom: 14 });
+      } else {
+        map.setView([-29.918, -51.18], 13);
+      }
+    }
+
+    updateMarkers();
+    return () => {
+      cancelled = true;
+    };
+  }, [regions, selectedRegion, onSelectRegion]);
+
   return (
     <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div>
           <h2 className="text-sm font-extrabold text-foreground">Mapa por região</h2>
-          <p className="text-xs text-muted-foreground">Imóveis disponíveis por bairro</p>
+          <p className="text-xs text-muted-foreground">Ruas reais, zoom e imóveis por bairro</p>
         </div>
         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
           {regions.reduce((total, region) => total + region.count, 0)} imóveis
         </span>
       </div>
 
-      <div className="relative h-[520px] bg-[#eef1e8]">
-        <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(28deg,transparent_0_46%,rgba(255,255,255,0.9)_46%_48%,transparent_48%_100%),linear-gradient(118deg,transparent_0_54%,rgba(255,255,255,0.72)_54%_56%,transparent_56%_100%),linear-gradient(0deg,rgba(122,135,98,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(122,135,98,0.08)_1px,transparent_1px)] [background-size:220px_160px,260px_190px,42px_42px,42px_42px]" />
-        <div className="absolute left-[8%] top-[12%] h-[76%] w-[76%] rounded-[42%_58%_48%_52%] border-2 border-[#8aa16a]/30 bg-[#dfe8d2]/60" />
-        <div className="absolute bottom-5 left-5 rounded-md bg-white/90 px-3 py-2 text-xs font-semibold text-neutral-700 shadow-sm">
-          Canoas e região
-        </div>
-
+      <div className="relative h-[520px]">
+        <div ref={mapElementRef} className="h-full w-full" />
         {regions.length === 0 ? (
-          <div className="absolute inset-0 flex items-center justify-center px-8 text-center text-sm text-muted-foreground">
+          <div className="absolute inset-0 z-[401] flex items-center justify-center bg-white/75 px-8 text-center text-sm text-muted-foreground">
             Ajuste os filtros para visualizar imóveis no mapa.
           </div>
-        ) : (
-          regions.map((region) => {
-            const selected = regionKey(selectedRegion) === regionKey(region.bairro);
-
-            return (
-              <button
-                key={`${region.bairro}-${region.cidade}`}
-                type="button"
-                onClick={() => onSelectRegion(region.bairro)}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full px-3 py-2 text-xs font-extrabold shadow-lg ring-2 transition hover:-translate-y-[55%] hover:scale-105 ${
-                  selected
-                    ? "bg-primary text-white ring-white"
-                    : "bg-white text-primary ring-primary/20 hover:ring-primary/50"
-                }`}
-                style={{ left: `${region.x}%`, top: `${region.y}%` }}
-                title={`${region.bairro}: ${region.count} imóveis`}
-              >
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {region.count}
-                </span>
-                <span className="block whitespace-nowrap text-[10px] font-bold opacity-80">
-                  desde {formatBRL(region.minPrice)}
-                </span>
-              </button>
-            );
-          })
-        )}
+        ) : null}
       </div>
 
       <div className="max-h-48 divide-y overflow-y-auto bg-white">
