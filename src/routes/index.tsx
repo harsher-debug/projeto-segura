@@ -450,9 +450,8 @@ function HomePromoGrid() {
       </article>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <article className="rounded-md border bg-[#fff7e5] p-7 shadow-lg shadow-black/5">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-lg font-black text-white">1</span>
-          <h3 className="mt-6 font-display text-2xl font-extrabold leading-tight text-neutral-950">Alugue sem perder tempo</h3>
+        <article className="rounded-md border bg-white p-7 shadow-lg shadow-black/5">
+          <h3 className="font-display text-2xl font-extrabold leading-tight text-neutral-950">Alugue sem perder tempo</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Filtre por bairro, código ou tipo de imóvel e fale com a equipe para confirmar disponibilidade.
           </p>
@@ -462,8 +461,7 @@ function HomePromoGrid() {
         </article>
 
         <article className="rounded-md border bg-white p-7 shadow-lg shadow-black/5">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#d6ad57] text-lg font-black text-primary">2</span>
-          <h3 className="mt-6 font-display text-2xl font-extrabold leading-tight text-neutral-950">Compare antes de visitar</h3>
+          <h3 className="font-display text-2xl font-extrabold leading-tight text-neutral-950">Compare antes de visitar</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Veja valores, regiões e características antes de agendar, com imóveis organizados para comparação rápida.
           </p>
@@ -474,13 +472,12 @@ function HomePromoGrid() {
           </div>
         </article>
 
-        <article className="rounded-md border bg-[#261316] p-7 text-white shadow-lg shadow-black/10">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg font-black text-primary">3</span>
-          <h3 className="mt-6 font-display text-2xl font-extrabold leading-tight">Compre com apoio local</h3>
-          <p className="mt-3 text-sm leading-relaxed text-white/78">
+        <article className="rounded-md border bg-[#fff7e5] p-7 text-neutral-950 shadow-lg shadow-black/5">
+          <h3 className="font-display text-2xl font-extrabold leading-tight">Compre com apoio local</h3>
+          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Conheça oportunidades em Canoas com orientação para escolher, visitar e negociar com mais segurança.
           </p>
-          <Button asChild variant="secondary" className="mt-6 rounded-full bg-white px-5 text-primary hover:bg-white/90">
+          <Button asChild className="mt-6 rounded-full px-5">
             <Link to="/comprar">Ver imóveis à venda</Link>
           </Button>
         </article>
