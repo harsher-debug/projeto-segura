@@ -197,8 +197,19 @@ export function ListingPage({
     setPage(1);
   }, []);
 
+  const mapComponentProps = {
+    regions: mapRegions,
+    points: mapPoints,
+    selectedRegion: mapVisibleRegions.length === 1 ? mapVisibleRegions[0] : filtros.bairro === ALL ? "" : filtros.bairro,
+    selectedItemIds: mapVisibleItemIds,
+    onSelectRegion: handleMapRegionSelect,
+    onSelectItem: handleMapItemSelect,
+    onViewportChange: handleMapViewportChange,
+  };
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="px-4 py-8 lg:grid lg:grid-cols-[minmax(0,60vw)_minmax(420px,40vw)] lg:px-0 lg:py-0">
+      <section className="mx-auto w-full max-w-7xl lg:max-w-none lg:px-8 lg:py-8 xl:px-10">
       <div className="mb-6">
         <h1 className="font-display text-3xl font-extrabold text-foreground">
           {titulo}
@@ -210,7 +221,7 @@ export function ListingPage({
         <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <SlidersHorizontal className="h-4 w-4 text-primary" /> Filtros
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
           <Select value={filtros.cidade} onValueChange={(value) => set("cidade", value)}>
             <SelectTrigger><SelectValue placeholder="Cidade" /></SelectTrigger>
             <SelectContent>
@@ -359,7 +370,7 @@ export function ListingPage({
         {isFetching && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="space-y-6">
         <div>
           {data && displayItems.length === 0 ? (
             <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
@@ -374,16 +385,8 @@ export function ListingPage({
           )}
         </div>
 
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <SearchMap
-            regions={mapRegions}
-            points={mapPoints}
-            selectedRegion={mapVisibleRegions.length === 1 ? mapVisibleRegions[0] : filtros.bairro === ALL ? "" : filtros.bairro}
-            selectedItemIds={mapVisibleItemIds}
-            onSelectRegion={handleMapRegionSelect}
-            onSelectItem={handleMapItemSelect}
-            onViewportChange={handleMapViewportChange}
-          />
+        <aside className="lg:hidden">
+          <SearchMap {...mapComponentProps} />
         </aside>
       </div>
 
@@ -418,6 +421,13 @@ export function ListingPage({
           </PaginationContent>
         </Pagination>
       )}
+      </section>
+
+      <aside className="hidden lg:block">
+        <div className="sticky top-20 h-[calc(100vh-5rem)] border-l bg-white">
+          <SearchMap {...mapComponentProps} fullHeight />
+        </div>
+      </aside>
     </div>
   );
 }
@@ -656,6 +666,7 @@ function SearchMap({
   onSelectRegion,
   onSelectItem,
   onViewportChange,
+  fullHeight = false,
 }: {
   regions: MapRegion[];
   points: MapPropertyPoint[];
@@ -664,6 +675,7 @@ function SearchMap({
   onSelectRegion: (bairro: string) => void;
   onSelectItem: (id: string) => void;
   onViewportChange: (regions: string[], itemIds: string[]) => void;
+  fullHeight?: boolean;
 }) {
   const mapRef = useRef<LeafletMap | null>(null);
   const mapElementRef = useRef<HTMLDivElement | null>(null);
@@ -680,6 +692,12 @@ function SearchMap({
   useEffect(() => {
     pointsRef.current = points;
   }, [points]);
+
+  useEffect(() => {
+    window.setTimeout(() => {
+      mapRef.current?.invalidateSize();
+    }, 80);
+  }, [fullHeight]);
 
   useEffect(() => {
     let mounted = true;
@@ -843,9 +861,16 @@ function SearchMap({
     };
   }, [points, regions, selectedItemIds, selectedRegion, zoom, onSelectItem, onSelectRegion, onViewportChange]);
 
+  const totalMapItems = regions.reduce((total, region) => total + region.count, 0);
+
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="flex items-center justify-between border-b px-4 py-3">
+    <div className={fullHeight ? "relative flex h-full min-h-[620px] flex-col overflow-hidden bg-card" : "overflow-hidden rounded-xl border bg-card shadow-sm"}>
+      {fullHeight && (
+        <div className="pointer-events-none absolute left-4 top-4 z-[401] rounded-full bg-white/95 px-4 py-2 text-xs font-extrabold text-primary shadow-lg ring-1 ring-black/10">
+          {totalMapItems} imÃ³veis no mapa
+        </div>
+      )}
+      <div className={fullHeight ? "hidden" : "flex items-center justify-between border-b px-4 py-3"}>
         <div>
           <h2 className="text-sm font-extrabold text-foreground">Mapa por região</h2>
           <p className="text-xs text-muted-foreground">Ruas reais, zoom e imóveis por bairro</p>
@@ -855,7 +880,7 @@ function SearchMap({
         </span>
       </div>
 
-      <div className="relative h-[520px]">
+      <div className={fullHeight ? "relative min-h-[520px] flex-1" : "relative h-[520px]"}>
         <div ref={mapElementRef} className="h-full w-full" />
         {regions.length === 0 ? (
           <div className="absolute inset-0 z-[401] flex items-center justify-center bg-white/75 px-8 text-center text-sm text-muted-foreground">
@@ -864,7 +889,7 @@ function SearchMap({
         ) : null}
       </div>
 
-      <div className="max-h-48 divide-y overflow-y-auto bg-white">
+      <div className={fullHeight ? "hidden" : "max-h-48 divide-y overflow-y-auto bg-white"}>
         {regions.slice(0, 8).map((region) => (
           <button
             key={`list-${region.bairro}-${region.cidade}`}
