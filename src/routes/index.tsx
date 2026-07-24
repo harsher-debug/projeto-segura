@@ -99,13 +99,13 @@ function Index() {
 
     const step = () => {
       const resetPoint = carousel.scrollWidth / 2;
-      if (carousel.scrollLeft >= resetPoint - 390) {
+      if (carousel.scrollLeft >= resetPoint - 210) {
         carousel.scrollTo({ left: 0 });
       }
-      carousel.scrollBy({ left: 370, behavior: "smooth" });
+      carousel.scrollBy({ left: 185, behavior: "smooth" });
     };
 
-    const timer = window.setInterval(step, 1200);
+    const timer = window.setInterval(step, 650);
     return () => window.clearInterval(timer);
   }, [recentes.length]);
 
