@@ -97,16 +97,23 @@ function Index() {
     const carousel = carouselRef.current;
     if (!carousel || recentes.length === 0) return;
 
-    const step = () => {
+    let frame = 0;
+    let lastTime = performance.now();
+    const speed = 70;
+
+    const tick = (time: number) => {
+      const delta = time - lastTime;
+      lastTime = time;
       const resetPoint = carousel.scrollWidth / 2;
-      if (carousel.scrollLeft >= resetPoint - 210) {
+      if (carousel.scrollLeft >= resetPoint) {
         carousel.scrollTo({ left: 0 });
       }
-      carousel.scrollBy({ left: 185, behavior: "smooth" });
+      carousel.scrollLeft += (speed * delta) / 1000;
+      frame = window.requestAnimationFrame(tick);
     };
 
-    const timer = window.setInterval(step, 650);
-    return () => window.clearInterval(timer);
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
   }, [recentes.length]);
 
   return (
