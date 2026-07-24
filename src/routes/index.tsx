@@ -405,78 +405,84 @@ const staticVendaCards: ImovelResumo[] = [
 
 function HomePromoGrid() {
   return (
-    <div className="grid gap-6">
-      <article className="grid overflow-hidden rounded-md bg-[linear-gradient(135deg,#e40016_0%,#7a1422_58%,#160c10_100%)] text-white shadow-xl shadow-black/10 md:grid-cols-[1fr_1.05fr]">
-        <div className="flex min-h-[292px] flex-col justify-center p-7 md:p-10">
-          <p className="text-xs font-extrabold uppercase tracking-wide text-[#f1c76b]">Segura Imobiliária</p>
-          <h2 className="mt-4 max-w-lg font-display text-3xl font-extrabold leading-tight md:text-4xl">
-            Escolha seu imóvel com orientação de quem conhece Canoas
-          </h2>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/82">
-            Atendimento local, busca por bairro, mapa interativo e acompanhamento da primeira conversa até a visita.
-          </p>
-          <Button asChild className="mt-6 w-fit rounded-full bg-white px-5 text-primary hover:bg-white/90">
-            <Link to="/alugar">Começar pela locação</Link>
-          </Button>
-        </div>
-        <div className="relative min-h-[292px] overflow-hidden bg-[#2a1013] p-8">
-          <div className="absolute inset-x-8 top-8 h-3 rounded-full bg-[#f1c76b]" />
-          <div className="absolute left-8 top-16 grid w-[72%] gap-3">
-            {["Centro", "Marechal Rondon", "Moinhos de Vento", "Nossa Senhora das Graças"].map((bairro, index) => (
-              <div key={bairro} className="flex items-center justify-between rounded-md bg-white px-4 py-3 text-sm font-extrabold text-neutral-950 shadow-lg">
-                <span>{bairro}</span>
-                <span className="rounded-full bg-primary px-3 py-1 text-xs text-white">{index + 4} imóveis</span>
+    <div className="grid gap-5">
+      <article className="overflow-hidden rounded-md border bg-white shadow-xl shadow-black/8">
+        <div className="grid min-h-[300px] md:grid-cols-[0.95fr_1.05fr]">
+          <div className="flex flex-col justify-center p-7 md:p-10">
+            <p className="text-xs font-extrabold uppercase tracking-wide text-primary">Segura Imobiliária</p>
+            <h2 className="mt-4 max-w-lg font-display text-3xl font-extrabold leading-tight text-neutral-950 md:text-4xl">
+              Encontre o imóvel certo por região, valor e momento de vida
+            </h2>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-neutral-600">
+              A busca combina atendimento local, imóveis organizados por bairro e um mapa real para aproximar sua escolha das ruas de Canoas.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild className="rounded-full px-5">
+                <Link to="/alugar">Buscar aluguel</Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full px-5">
+                <Link to="/comprar">Buscar compra</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="relative min-h-[300px] bg-[#f8f2e3] p-7">
+            <div className="absolute left-10 top-8 h-[76%] w-[70%] rounded-[38%_62%_42%_58%] border border-[#d6ad57]/60 bg-white shadow-inner" />
+            <div className="absolute left-[18%] top-[28%] h-1 w-[58%] rotate-[-18deg] rounded-full bg-[#d6ad57]/70" />
+            <div className="absolute left-[28%] top-[20%] h-[58%] w-1 rotate-[14deg] rounded-full bg-[#d6ad57]/70" />
+            <div className="absolute left-[23%] top-[58%] h-1 w-[52%] rotate-[12deg] rounded-full bg-[#d6ad57]/70" />
+            {[
+              { label: "Centro", count: "12", className: "left-[22%] top-[34%]" },
+              { label: "Marechal", count: "8", className: "left-[55%] top-[28%]" },
+              { label: "Moinhos", count: "6", className: "left-[47%] top-[58%]" },
+            ].map((item) => (
+              <div key={item.label} className={`absolute ${item.className} rounded-full bg-primary px-3 py-2 text-xs font-black text-white shadow-lg`}>
+                {item.count}
               </div>
             ))}
-          </div>
-          <div className="absolute bottom-8 right-8 flex h-28 w-28 items-center justify-center rounded-full border-8 border-[#f1c76b] bg-white text-center text-sm font-black uppercase leading-tight text-primary shadow-xl">
-            Busca por região
+            <div className="absolute bottom-7 right-7 w-56 rounded-md border bg-white p-4 shadow-xl">
+              <p className="text-xs font-extrabold uppercase text-primary">Mapa interativo</p>
+              <p className="mt-2 text-sm font-bold text-neutral-950">Aproxime para ver imóveis por rua.</p>
+              <p className="mt-1 text-xs leading-relaxed text-neutral-500">A lista acompanha a área visível do mapa.</p>
+            </div>
           </div>
         </div>
       </article>
 
-      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <article className="grid overflow-hidden rounded-md bg-[#fff1cf] shadow-xl shadow-black/8 md:grid-cols-[0.95fr_1.05fr]">
-          <div className="flex min-h-[250px] flex-col justify-center p-7">
-            <h3 className="font-display text-3xl font-extrabold leading-none text-neutral-950">
-              Alugar bem, sem complicação
-            </h3>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-neutral-800">
-              Filtros rápidos, imóveis organizados por região e contato direto para agendar sua visita.
-            </p>
-            <Button asChild className="mt-6 w-fit rounded-full px-5">
-              <Link to="/alugar">Ver apartamentos para alugar</Link>
-            </Button>
-          </div>
-          <div className="relative min-h-[250px] bg-[#e40016] p-7 text-white">
-            <div className="rounded-md bg-white p-4 text-neutral-950 shadow-lg">
-              <p className="text-xs font-bold uppercase text-primary">Checklist de locação</p>
-              {["Bairro ideal", "Valor compatível", "Visita agendada", "Contrato acompanhado"].map((item) => (
-                <div key={item} className="mt-3 flex items-center gap-3 text-sm font-bold">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f1c76b] text-primary">✓</span>
-                  {item}
-                </div>
-              ))}
-            </div>
+      <div className="grid gap-5 lg:grid-cols-3">
+        <article className="rounded-md border bg-[#fff7e5] p-7 shadow-lg shadow-black/5">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-lg font-black text-white">1</span>
+          <h3 className="mt-6 font-display text-2xl font-extrabold leading-tight text-neutral-950">Alugue sem perder tempo</h3>
+          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+            Filtre por bairro, código ou tipo de imóvel e fale com a equipe para confirmar disponibilidade.
+          </p>
+          <Button asChild className="mt-6 rounded-full px-5">
+            <Link to="/alugar">Ver imóveis para alugar</Link>
+          </Button>
+        </article>
+
+        <article className="rounded-md border bg-white p-7 shadow-lg shadow-black/5">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#d6ad57] text-lg font-black text-primary">2</span>
+          <h3 className="mt-6 font-display text-2xl font-extrabold leading-tight text-neutral-950">Compare antes de visitar</h3>
+          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+            Veja valores, regiões e características antes de agendar, com imóveis organizados para comparação rápida.
+          </p>
+          <div className="mt-6 grid gap-2 text-sm font-bold text-neutral-800">
+            <div className="rounded-md bg-muted px-3 py-2">Valor</div>
+            <div className="rounded-md bg-muted px-3 py-2">Bairro</div>
+            <div className="rounded-md bg-muted px-3 py-2">Dormitórios</div>
           </div>
         </article>
 
-        <article className="relative min-h-[250px] overflow-hidden rounded-md bg-[#1f1214] text-white shadow-xl shadow-black/8">
-          <div className="absolute right-0 top-0 h-full w-1/2 bg-[#f1c76b]" />
-          <div className="absolute right-10 top-10 grid gap-3">
-            <div className="h-16 w-36 rounded-md bg-white shadow-lg" />
-            <div className="ml-8 h-16 w-36 rounded-md bg-primary shadow-lg" />
-            <div className="h-16 w-36 rounded-md bg-white shadow-lg" />
-          </div>
-          <div className="relative flex h-full max-w-[310px] flex-col justify-center p-7">
-            <h3 className="font-display text-2xl font-extrabold leading-tight">Comprar com mais clareza</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/82">
-              Compare opções, veja a região no mapa e fale com a equipe para avançar com segurança.
-            </p>
-            <Button asChild variant="secondary" className="mt-6 w-fit rounded-full bg-white text-primary hover:bg-white/90">
-              <Link to="/comprar">Ver imóveis à venda</Link>
-            </Button>
-          </div>
+        <article className="rounded-md border bg-[#261316] p-7 text-white shadow-lg shadow-black/10">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg font-black text-primary">3</span>
+          <h3 className="mt-6 font-display text-2xl font-extrabold leading-tight">Compre com apoio local</h3>
+          <p className="mt-3 text-sm leading-relaxed text-white/78">
+            Conheça oportunidades em Canoas com orientação para escolher, visitar e negociar com mais segurança.
+          </p>
+          <Button asChild variant="secondary" className="mt-6 rounded-full bg-white px-5 text-primary hover:bg-white/90">
+            <Link to="/comprar">Ver imóveis à venda</Link>
+          </Button>
         </article>
       </div>
     </div>
