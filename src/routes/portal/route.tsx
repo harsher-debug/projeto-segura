@@ -82,8 +82,9 @@ const proprietarioNav = [
 ];
 
 const sindicoNav = [
-  { to: "/portal/sindico", label: "Painel sindico", icon: Building2 },
+  { to: "/portal/sindico", label: "Painel condomino", icon: Building2 },
   { to: "/portal/sindico/condominios", label: "Condominios", icon: Home },
+  { to: "/portal/sindico/boletos", label: "Boletos", icon: Receipt },
   { to: "/portal/sindico/solicitacoes", label: "Solicitacoes", icon: Wrench },
 ];
 

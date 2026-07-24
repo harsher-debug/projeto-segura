@@ -1,211 +1,152 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { ArrowUpRight, Building2, FileCheck2, FileText, Receipt, TrendingUp } from "lucide-react";
 import {
-  Building2, DollarSign, Home, AlertCircle,
-  TrendingUp, ChevronRight, ArrowUpRight, Clock,
-} from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { getProprietarioDashboard } from "@/lib/portal.functions";
+  formatCurrency,
+  ownerContracts,
+  ownerProperties,
+  ownerProposals,
+  ownerTransfers,
+} from "@/lib/portal-demo";
 
 export const Route = createFileRoute("/portal/proprietario/")({
   component: ProprietarioDashboard,
 });
 
-function formatBRL(v: number) {
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    ativo: "bg-emerald-100 text-emerald-700",
-    vago: "bg-amber-100 text-amber-700",
-    pendente: "bg-blue-100 text-blue-700",
-  };
-  return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${map[status] ?? "bg-muted text-muted-foreground"}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
-}
-
 function ProprietarioDashboard() {
-  const dashFn = useServerFn(getProprietarioDashboard);
-  const { data: session } = useQuery({
-    queryKey: ["session"],
-    queryFn: () => supabase.auth.getUser().then((r) => r.data.user),
-  });
-  const { data, isLoading } = useQuery({
-    queryKey: ["proprietario-dashboard", session?.id],
-    queryFn: () => dashFn({ data: { userId: session?.id ?? "" } }),
-    enabled: !!session?.id,
-  });
+  const projectedIncome = ownerTransfers
+    .filter((transfer) => transfer.status === "Previsto")
+    .reduce((total, transfer) => total + transfer.net, 0);
 
   const cards = [
-    {
-      label: "Imóveis Administrados",
-      value: data?.stats.total ?? "—",
-      icon: Building2,
-      color: "text-blue-600 bg-blue-50",
-    },
-    {
-      label: "Imóveis Ativos",
-      value: data?.stats.ativos ?? "—",
-      icon: Home,
-      color: "text-emerald-600 bg-emerald-50",
-    },
-    {
-      label: "Imóveis Vagos",
-      value: data?.stats.vagos ?? "—",
-      icon: AlertCircle,
-      color: "text-amber-600 bg-amber-50",
-    },
-    {
-      label: "Receita Estimada",
-      value: data?.stats.receitaEstimada != null  ? formatBRL(data.stats.receitaEstimada) : "—",
-      icon: DollarSign,
-      color: "text-purple-600 bg-purple-50",
-    },
+    { label: "Imoveis administrados", value: ownerProperties.length, icon: Building2 },
+    { label: "Contratos ativos", value: ownerContracts.filter((contract) => contract.status === "Ativo").length, icon: FileText },
+    { label: "Propostas abertas", value: ownerProposals.length, icon: FileCheck2 },
+    { label: "Proximo repasse", value: formatCurrency(projectedIncome), icon: Receipt },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Cabeçalho */}
-      <div>
-        <h1 className="font-display text-2xl font-extrabold text-foreground">
-          Portal do Proprietário
+      <section className="overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#e40016_0%,#8e1221_52%,#1c0f13_100%)] p-8 text-white shadow-2xl shadow-black/15">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2d78a]">Portal do proprietario</p>
+        <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">
+          Sua carteira administrada pela Segura.
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Acompanhe seus imóveis e recebimentos
+        <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-white/80">
+          Acompanhe propostas recebidas, contratos, repasses e status dos seus imoveis em Canoas.
         </p>
-      </div>
+      </section>
 
-      {/* Cards de Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <div key={c.label} className="rounded-xl border bg-card p-5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {c.label}
-              </span>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${c.color}`}>
-                <c.icon className="h-4 w-4" />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card) => (
+          <article key={card.label} className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase text-neutral-500">{card.label}</p>
+                <p className="mt-2 font-display text-3xl font-extrabold">{card.value}</p>
+              </div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff5dc] text-primary">
+                <card.icon className="h-5 w-5" />
               </div>
             </div>
-            <p className="mt-3 font-display text-3xl font-extrabold text-foreground">
-              {isLoading  ? <span className="animate-pulse text-muted-foreground">...</span> : c.value}
-            </p>
-          </div>
+          </article>
         ))}
-      </div>
+      </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Próximos Repasses */}
-        <div className="rounded-xl border bg-card shadow-sm">
-          <div className="flex items-center justify-between border-b p-5">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="font-display text-base font-bold">Próximos Repasses</h2>
+      <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-xl font-extrabold">Meus imoveis</h2>
+              <p className="text-sm text-neutral-500">Status comercial e ocupacao.</p>
             </div>
-            <Link
-              to="/portal/proprietario/financeiro"
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-            >
-              Ver todos <ArrowUpRight className="h-3.5 w-3.5" />
+            <Link to="/portal/proprietario/imoveis" className="inline-flex items-center gap-1 text-sm font-bold text-primary">
+              Ver detalhes <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="divide-y">
-            {(data?.proximosRepasses ?? []).map((r, i) => (
-              <div key={i} className="flex items-center justify-between px-5 py-3.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
-                    <DollarSign className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{r.imovel}</p>
-                    <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" /> {r.data}
-                    </p>
-                  </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {ownerProperties.map((property) => (
+              <div key={property.code} className="overflow-hidden rounded-xl border bg-[#fbfaf8]">
+                <div className="aspect-[16/8] overflow-hidden">
+                  <img src={property.image} alt={property.title} className="h-full w-full object-cover" />
                 </div>
-                <span className="font-semibold text-emerald-600">{formatBRL(r.valor)}</span>
-              </div>
-            ))}
-            {(!data?.proximosRepasses?.length) && (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                Nenhum repasse previsto
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Meus Imóveis */}
-        <div className="rounded-xl border bg-card shadow-sm">
-          <div className="flex items-center justify-between border-b p-5">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              <h2 className="font-display text-base font-bold">Meus Imóveis</h2>
-            </div>
-            <Link
-              to="/portal/proprietario/imoveis"
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-            >
-              Ver todos <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          <div className="divide-y">
-            {(data?.imoveis ?? []).slice(0, 4).map((im) => (
-              <div key={im.id} className="flex items-center gap-3 px-5 py-3.5">
-                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  {im.imagem_principal  ? (
-                    <img src={im.imagem_principal} alt={im.titulo} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium capitalize">{im.titulo.toLowerCase()}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {im.bairro} · Cód. {im.referencia}
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">{property.status}</span>
+                    <span className="text-xs font-bold text-neutral-500">Cod. {property.code}</span>
+                  </div>
+                  <h3 className="mt-3 font-display text-lg font-extrabold">{property.title}</h3>
+                  <p className="text-sm text-neutral-500">{property.location}</p>
+                  <p className="mt-3 text-sm">
+                    <strong>Ocupacao:</strong> {property.tenant}
                   </p>
                 </div>
-                <StatusBadge status={im.ativo ?"ativo" : "vago"} />
               </div>
             ))}
-            {isLoading && (
-              <div className="p-8 text-center text-sm text-muted-foreground animate-pulse">
-                Carregando...
-              </div>
-            )}
           </div>
-        </div>
-      </div>
+        </article>
 
-      {/* Ações Rápidas */}
-      <div className="rounded-xl border bg-card p-5 shadow-sm">
-        <h2 className="mb-4 font-display text-base font-bold">Ações Rápidas</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { to: "/portal/proprietario/financeiro", label: "Ver Extratos", icon: DollarSign, color: "bg-purple-50 text-purple-600" },
-            { to: "/portal/proprietario/contratos", label: "Meus Contratos", icon: Building2, color: "bg-blue-50 text-blue-600" },
-            { to: "/portal/proprietario/documentos", label: "Documentos", icon: AlertCircle, color: "bg-amber-50 text-amber-600" },
-          ].map((a) => (
-            <Link
-              key={a.to}
-              to={a.to}
-              className="flex items-center gap-3 rounded-lg border p-4 transition hover:bg-muted/50"
-            >
-              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${a.color}`}>
-                <a.icon className="h-5 w-5" />
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-5 flex items-center gap-2">
+            <FileCheck2 className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-xl font-extrabold">Propostas recebidas</h2>
+          </div>
+          <div className="space-y-3">
+            {ownerProposals.map((proposal) => (
+              <div key={proposal.id} className="rounded-xl bg-[#fbfaf8] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-bold">{proposal.client}</p>
+                  <span className="rounded-full bg-[#fff5dc] px-3 py-1 text-xs font-bold text-[#8e641a]">{proposal.status}</span>
+                </div>
+                <p className="mt-1 text-sm text-neutral-500">{proposal.property}</p>
+                <p className="mt-2 font-display text-xl font-extrabold text-primary">{formatCurrency(proposal.value)}</p>
+                <p className="mt-1 text-xs text-neutral-500">{proposal.date}</p>
               </div>
-              <span className="text-sm font-medium">{a.label}</span>
-              <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-            </Link>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-2">
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-xl font-extrabold">Repasses</h2>
+          </div>
+          <div className="divide-y">
+            {ownerTransfers.map((transfer) => (
+              <div key={`${transfer.month}-${transfer.property}`} className="flex items-center justify-between gap-4 py-3">
+                <div>
+                  <p className="text-sm font-bold">{transfer.month}</p>
+                  <p className="text-sm text-neutral-500">{transfer.property} - taxa {formatCurrency(transfer.fee)}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-display text-lg font-extrabold">{formatCurrency(transfer.net)}</p>
+                  <p className="text-xs text-neutral-500">{transfer.status}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            <h2 className="font-display text-xl font-extrabold">Contratos</h2>
+          </div>
+          <div className="divide-y">
+            {ownerContracts.map((contract) => (
+              <div key={contract.id} className="py-3">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-bold">{contract.id}</p>
+                  <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-600">{contract.status}</span>
+                </div>
+                <p className="mt-1 text-sm text-neutral-500">{contract.property} - {contract.tenant}</p>
+                <p className="mt-1 text-xs text-neutral-500">{contract.period}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
     </div>
   );
 }

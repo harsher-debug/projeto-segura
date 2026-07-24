@@ -1,36 +1,53 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2 } from "lucide-react";
+import { Building2, ClipboardList, Receipt, Users } from "lucide-react";
 
 export const Route = createFileRoute("/portal/sindico/condominios")({
   component: SindicoCondominiosPage,
 });
 
-const condominios = [
-  { nome: "Residencial Centro", unidades: 48, status: "Ativo" },
-  { nome: "Condominio Marechal", unidades: 32, status: "Ativo" },
-  { nome: "Edificio Moinhos", unidades: 24, status: "Em revisao" },
-];
-
 function SindicoCondominiosPage() {
+  const cards = [
+    { label: "Unidades", value: "48", icon: Building2 },
+    { label: "Moradores ativos", value: "112", icon: Users },
+    { label: "Boletos do mes", value: "46", icon: Receipt },
+    { label: "Comunicados", value: "3", icon: ClipboardList },
+  ];
+
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-extrabold">Condominios</h1>
-        <p className="text-sm text-muted-foreground">Carteira condominial vinculada ao sindico logado.</p>
+        <h1 className="font-display text-2xl font-extrabold">Condominio Residencial Centro</h1>
+        <p className="text-sm text-muted-foreground">Resumo de unidades, moradores e operacao condominial.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {condominios.map((condominio) => (
-          <article key={condominio.nome} className="rounded-xl border bg-card p-5 shadow-sm">
-            <Building2 className="h-5 w-5 text-primary" />
-            <h2 className="mt-4 font-display text-lg font-bold">{condominio.nome}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{condominio.unidades} unidades</p>
-            <span className="mt-4 inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-              {condominio.status}
-            </span>
+      <div className="grid gap-4 md:grid-cols-4">
+        {cards.map((card) => (
+          <article key={card.label} className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff5dc] text-primary">
+              <card.icon className="h-5 w-5" />
+            </div>
+            <p className="mt-5 text-xs font-bold uppercase text-neutral-500">{card.label}</p>
+            <p className="font-display text-3xl font-extrabold">{card.value}</p>
           </article>
         ))}
       </div>
+
+      <section className="rounded-2xl border bg-white p-5 shadow-sm">
+        <h2 className="font-display text-xl font-extrabold">Dados do condominio</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {[
+            ["Endereco", "Rua Tiradentes, 421 - Centro, Canoas"],
+            ["Administradora", "Segura Imobiliaria"],
+            ["Sindico", "Joao Henrique"],
+            ["Proxima assembleia", "05/08/2026 as 19h"],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-[#fbfaf8] p-4">
+              <p className="text-xs font-bold uppercase text-neutral-500">{label}</p>
+              <p className="mt-1 font-bold">{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
