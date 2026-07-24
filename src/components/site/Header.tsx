@@ -42,9 +42,15 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <Button asChild variant="ghost" size="icon" aria-label="Favoritos" className="hover:bg-white/10">
+          <Button
+            asChild
+            variant="ghost"
+            aria-label="Favoritos"
+            className="h-11 rounded-md px-3 text-sm font-bold text-[#f0c96f] hover:bg-white/10 hover:text-[#f8d982]"
+          >
             <Link to="/favoritos">
-              <Heart className="h-6 w-6 text-[#d6ad57]" />
+              <Heart className="mr-1.5 h-7 w-7 text-[#d6ad57]" />
+              Favoritos
             </Link>
           </Button>
           <Button
