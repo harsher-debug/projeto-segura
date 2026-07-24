@@ -17,7 +17,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-[100] w-full border-b-4 border-[#d6ad57] bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-[0_2px_10px_rgba(0,0,0,0.22)]">
+    <header className="sticky top-0 z-[100] w-full bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-[0_2px_10px_rgba(0,0,0,0.22)] after:fixed after:left-0 after:right-0 after:top-[70px] after:z-[120] after:h-[4px] after:bg-[#d6ad57] after:shadow-[0_1px_8px_rgba(214,173,87,0.75)] after:content-['']">
       <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between px-6">
         <Logo light className="h-14" />
 

@@ -102,7 +102,6 @@ function Index() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute inset-x-0 top-0 h-1 bg-[#d6ad57]" />
         <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-16 text-center md:pt-20">
           <h1 className="max-w-5xl font-sans text-4xl font-extrabold leading-tight text-white [text-shadow:0_5px_22px_rgba(0,0,0,0.95)] md:text-6xl">
             Imóveis em Canoas

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, IdCard, Lock, Shield, User } from "lucide-react";
 import { toast } from "sonner";
-import { Logo } from "@/components/site/Logo";
 import { Header } from "@/components/site/Header";
+import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,7 +139,7 @@ function EntrarPage() {
                 className="h-11 w-full rounded-md bg-primary text-sm font-bold text-white hover:bg-primary/90"
               >
                 <User className="mr-2 h-4 w-4" />
-                {loading ?"Validando..." : "Entrar"}
+                {loading ? "Validando..." : "Entrar"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </form>
