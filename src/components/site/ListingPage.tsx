@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, SlidersHorizontal } from "lucide-react";
+import { Loader2, MapPin, SlidersHorizontal } from "lucide-react";
 import { getFacets, getSearchSuggestions, listImoveis } from "@/lib/imoveis.functions";
-import { ImovelCard } from "./ImovelCard";
+import { ImovelCard, type ImovelResumo } from "./ImovelCard";
+import { formatBRL, titleCase } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -95,6 +96,27 @@ export function ListingPage({
       }),
   });
 
+  const { data: mapData } = useQuery({
+    queryKey: ["imoveis-map", finalidade, apenasRecentes, filtros],
+    queryFn: () =>
+      listFn({
+        data: {
+          finalidade,
+          apenasRecentes,
+          cidade: filtros.cidade === ALL ? undefined : filtros.cidade,
+          bairro: filtros.bairro === ALL ? undefined : filtros.bairro,
+          tipo: filtros.tipo === ALL ? undefined : filtros.tipo,
+          dormitorios:
+            filtros.dormitorios === ALL ? undefined : Number(filtros.dormitorios),
+          vagas: filtros.vagas === ALL ? undefined : Number(filtros.vagas),
+          busca: filtros.busca || undefined,
+          ordem: filtros.ordem as "recentes" | "menor_preco" | "maior_preco",
+          page: 1,
+          pageSize: 48,
+        },
+      }),
+  });
+
   const termoSugestao = buscaInput.trim();
   const { data: sugestoes = [] } = useQuery({
     queryKey: ["listing-search-suggestions", finalidade, termoSugestao],
@@ -114,6 +136,11 @@ export function ListingPage({
   const totalPages = useMemo(
     () => (data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1),
     [data],
+  );
+
+  const mapRegions = useMemo(
+    () => buildMapRegions(((mapData?.items ?? []) as ImovelResumo[])),
+    [mapData],
   );
 
   return (
@@ -271,17 +298,29 @@ export function ListingPage({
         {isFetching && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
       </div>
 
-      {data && data.items.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
-          Nenhum imóvel encontrado com esses filtros.
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+        <div>
+          {data && data.items.length === 0 ? (
+            <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
+              Nenhum imóvel encontrado com esses filtros.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {(data?.items ?? []).map((imovel) => (
+                <ImovelCard key={imovel.id} imovel={imovel as never} />
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {(data?.items ?? []).map((imovel) => (
-            <ImovelCard key={imovel.id} imovel={imovel as never} />
-          ))}
-        </div>
-      )}
+
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <SearchMap
+            regions={mapRegions}
+            selectedRegion={filtros.bairro === ALL ? "" : filtros.bairro}
+            onSelectRegion={(bairro) => set("bairro", bairro)}
+          />
+        </aside>
+      </div>
 
       {totalPages > 1 && (
         <Pagination className="mt-8">
@@ -314,6 +353,174 @@ export function ListingPage({
           </PaginationContent>
         </Pagination>
       )}
+    </div>
+  );
+}
+
+type MapRegion = {
+  bairro: string;
+  cidade: string;
+  count: number;
+  minPrice: number;
+  x: number;
+  y: number;
+};
+
+const regionPositions: Record<string, { x: number; y: number }> = {
+  centro: { x: 54, y: 52 },
+  "marechal rondon": { x: 62, y: 43 },
+  "moinhos de vento": { x: 66, y: 34 },
+  "estancia velha": { x: 43, y: 33 },
+  "estância velha": { x: 43, y: 33 },
+  "nossa senhora das gracas": { x: 57, y: 28 },
+  "nossa senhora das graças": { x: 57, y: 28 },
+  "mathias velho": { x: 36, y: 54 },
+  "sao jose": { x: 48, y: 64 },
+  "são josé": { x: 48, y: 64 },
+  niteroi: { x: 68, y: 66 },
+  niterói: { x: 68, y: 66 },
+  igara: { x: 34, y: 31 },
+  "rio branco": { x: 63, y: 58 },
+  guajuviras: { x: 25, y: 47 },
+  ozenan: { x: 45, y: 44 },
+  harmonia: { x: 49, y: 40 },
+  "são luís": { x: 39, y: 67 },
+  "sao luis": { x: 39, y: 67 },
+};
+
+function normalizeRegion(value?: string | null) {
+  return titleCase(value || "Região não informada");
+}
+
+function regionKey(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+    .trim();
+}
+
+function fallbackPosition(key: string) {
+  let hash = 0;
+  for (let index = 0; index < key.length; index += 1) {
+    hash = (hash * 31 + key.charCodeAt(index)) % 997;
+  }
+
+  return {
+    x: 18 + (hash % 65),
+    y: 24 + ((hash * 7) % 50),
+  };
+}
+
+function buildMapRegions(items: ImovelResumo[]): MapRegion[] {
+  const groups = new Map<string, MapRegion>();
+
+  for (const item of items) {
+    const bairro = normalizeRegion(item.bairro || item.cidade || "Canoas");
+    const cidade = normalizeRegion(item.cidade || "Canoas");
+    const key = regionKey(bairro);
+    const position = regionPositions[key] ?? fallbackPosition(key);
+    const current = groups.get(key);
+
+    if (current) {
+      current.count += 1;
+      current.minPrice = Math.min(current.minPrice, Number(item.preco || 0));
+    } else {
+      groups.set(key, {
+        bairro,
+        cidade,
+        count: 1,
+        minPrice: Number(item.preco || 0),
+        x: position.x,
+        y: position.y,
+      });
+    }
+  }
+
+  return [...groups.values()].sort((a, b) => b.count - a.count);
+}
+
+function SearchMap({
+  regions,
+  selectedRegion,
+  onSelectRegion,
+}: {
+  regions: MapRegion[];
+  selectedRegion: string;
+  onSelectRegion: (bairro: string) => void;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <div>
+          <h2 className="text-sm font-extrabold text-foreground">Mapa por região</h2>
+          <p className="text-xs text-muted-foreground">Imóveis disponíveis por bairro</p>
+        </div>
+        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+          {regions.reduce((total, region) => total + region.count, 0)} imóveis
+        </span>
+      </div>
+
+      <div className="relative h-[520px] bg-[#eef1e8]">
+        <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(28deg,transparent_0_46%,rgba(255,255,255,0.9)_46%_48%,transparent_48%_100%),linear-gradient(118deg,transparent_0_54%,rgba(255,255,255,0.72)_54%_56%,transparent_56%_100%),linear-gradient(0deg,rgba(122,135,98,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(122,135,98,0.08)_1px,transparent_1px)] [background-size:220px_160px,260px_190px,42px_42px,42px_42px]" />
+        <div className="absolute left-[8%] top-[12%] h-[76%] w-[76%] rounded-[42%_58%_48%_52%] border-2 border-[#8aa16a]/30 bg-[#dfe8d2]/60" />
+        <div className="absolute bottom-5 left-5 rounded-md bg-white/90 px-3 py-2 text-xs font-semibold text-neutral-700 shadow-sm">
+          Canoas e região
+        </div>
+
+        {regions.length === 0 ? (
+          <div className="absolute inset-0 flex items-center justify-center px-8 text-center text-sm text-muted-foreground">
+            Ajuste os filtros para visualizar imóveis no mapa.
+          </div>
+        ) : (
+          regions.map((region) => {
+            const selected = regionKey(selectedRegion) === regionKey(region.bairro);
+
+            return (
+              <button
+                key={`${region.bairro}-${region.cidade}`}
+                type="button"
+                onClick={() => onSelectRegion(region.bairro)}
+                className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full px-3 py-2 text-xs font-extrabold shadow-lg ring-2 transition hover:-translate-y-[55%] hover:scale-105 ${
+                  selected
+                    ? "bg-primary text-white ring-white"
+                    : "bg-white text-primary ring-primary/20 hover:ring-primary/50"
+                }`}
+                style={{ left: `${region.x}%`, top: `${region.y}%` }}
+                title={`${region.bairro}: ${region.count} imóveis`}
+              >
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {region.count}
+                </span>
+                <span className="block whitespace-nowrap text-[10px] font-bold opacity-80">
+                  desde {formatBRL(region.minPrice)}
+                </span>
+              </button>
+            );
+          })
+        )}
+      </div>
+
+      <div className="max-h-48 divide-y overflow-y-auto bg-white">
+        {regions.slice(0, 8).map((region) => (
+          <button
+            key={`list-${region.bairro}-${region.cidade}`}
+            type="button"
+            onClick={() => onSelectRegion(region.bairro)}
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm transition hover:bg-muted"
+          >
+            <span>
+              <span className="block font-bold text-foreground">{region.bairro}</span>
+              <span className="text-xs text-muted-foreground">{region.cidade}</span>
+            </span>
+            <span className="text-right">
+              <span className="block font-extrabold text-primary">{region.count}</span>
+              <span className="text-[10px] text-muted-foreground">imóveis</span>
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
