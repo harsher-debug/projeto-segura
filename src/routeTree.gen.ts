@@ -22,9 +22,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImovelIdRouteImport } from './routes/imovel.$id'
 import { Route as ImoveisRecentesRouteImport } from './routes/imoveis/recentes'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as PortalSindicoIndexRouteImport } from './routes/portal/sindico/index'
 import { Route as PortalProprietarioIndexRouteImport } from './routes/portal/proprietario/index'
 import { Route as PortalLocatarioIndexRouteImport } from './routes/portal/locatario/index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as PortalSindicoSolicitacoesRouteImport } from './routes/portal/sindico/solicitacoes'
+import { Route as PortalSindicoCondominiosRouteImport } from './routes/portal/sindico/condominios'
 import { Route as PortalProprietarioPerfilRouteImport } from './routes/portal/proprietario/perfil'
 import { Route as PortalProprietarioImoveisRouteImport } from './routes/portal/proprietario/imoveis'
 import { Route as PortalProprietarioFinanceiroRouteImport } from './routes/portal/proprietario/financeiro'
@@ -105,6 +108,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const PortalSindicoIndexRoute = PortalSindicoIndexRouteImport.update({
+  id: '/sindico/',
+  path: '/sindico/',
+  getParentRoute: () => PortalRouteRoute,
+} as any)
 const PortalProprietarioIndexRoute = PortalProprietarioIndexRouteImport.update({
   id: '/proprietario/',
   path: '/proprietario/',
@@ -120,6 +128,18 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const PortalSindicoSolicitacoesRoute =
+  PortalSindicoSolicitacoesRouteImport.update({
+    id: '/sindico/solicitacoes',
+    path: '/sindico/solicitacoes',
+    getParentRoute: () => PortalRouteRoute,
+  } as any)
+const PortalSindicoCondominiosRoute =
+  PortalSindicoCondominiosRouteImport.update({
+    id: '/sindico/condominios',
+    path: '/sindico/condominios',
+    getParentRoute: () => PortalRouteRoute,
+  } as any)
 const PortalProprietarioPerfilRoute =
   PortalProprietarioPerfilRouteImport.update({
     id: '/proprietario/perfil',
@@ -232,9 +252,12 @@ export interface FileRoutesByFullPath {
   '/portal/proprietario/financeiro': typeof PortalProprietarioFinanceiroRoute
   '/portal/proprietario/imoveis': typeof PortalProprietarioImoveisRoute
   '/portal/proprietario/perfil': typeof PortalProprietarioPerfilRoute
+  '/portal/sindico/condominios': typeof PortalSindicoCondominiosRoute
+  '/portal/sindico/solicitacoes': typeof PortalSindicoSolicitacoesRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/portal/locatario/': typeof PortalLocatarioIndexRoute
   '/portal/proprietario/': typeof PortalProprietarioIndexRoute
+  '/portal/sindico/': typeof PortalSindicoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -263,9 +286,12 @@ export interface FileRoutesByTo {
   '/portal/proprietario/financeiro': typeof PortalProprietarioFinanceiroRoute
   '/portal/proprietario/imoveis': typeof PortalProprietarioImoveisRoute
   '/portal/proprietario/perfil': typeof PortalProprietarioPerfilRoute
+  '/portal/sindico/condominios': typeof PortalSindicoCondominiosRoute
+  '/portal/sindico/solicitacoes': typeof PortalSindicoSolicitacoesRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/portal/locatario': typeof PortalLocatarioIndexRoute
   '/portal/proprietario': typeof PortalProprietarioIndexRoute
+  '/portal/sindico': typeof PortalSindicoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -297,9 +323,12 @@ export interface FileRoutesById {
   '/portal/proprietario/financeiro': typeof PortalProprietarioFinanceiroRoute
   '/portal/proprietario/imoveis': typeof PortalProprietarioImoveisRoute
   '/portal/proprietario/perfil': typeof PortalProprietarioPerfilRoute
+  '/portal/sindico/condominios': typeof PortalSindicoCondominiosRoute
+  '/portal/sindico/solicitacoes': typeof PortalSindicoSolicitacoesRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/portal/locatario/': typeof PortalLocatarioIndexRoute
   '/portal/proprietario/': typeof PortalProprietarioIndexRoute
+  '/portal/sindico/': typeof PortalSindicoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -331,9 +360,12 @@ export interface FileRouteTypes {
     | '/portal/proprietario/financeiro'
     | '/portal/proprietario/imoveis'
     | '/portal/proprietario/perfil'
+    | '/portal/sindico/condominios'
+    | '/portal/sindico/solicitacoes'
     | '/app/'
     | '/portal/locatario/'
     | '/portal/proprietario/'
+    | '/portal/sindico/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -362,9 +394,12 @@ export interface FileRouteTypes {
     | '/portal/proprietario/financeiro'
     | '/portal/proprietario/imoveis'
     | '/portal/proprietario/perfil'
+    | '/portal/sindico/condominios'
+    | '/portal/sindico/solicitacoes'
     | '/app'
     | '/portal/locatario'
     | '/portal/proprietario'
+    | '/portal/sindico'
   id:
     | '__root__'
     | '/'
@@ -395,9 +430,12 @@ export interface FileRouteTypes {
     | '/portal/proprietario/financeiro'
     | '/portal/proprietario/imoveis'
     | '/portal/proprietario/perfil'
+    | '/portal/sindico/condominios'
+    | '/portal/sindico/solicitacoes'
     | '/_authenticated/app/'
     | '/portal/locatario/'
     | '/portal/proprietario/'
+    | '/portal/sindico/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -508,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/portal/sindico/': {
+      id: '/portal/sindico/'
+      path: '/sindico'
+      fullPath: '/portal/sindico/'
+      preLoaderRoute: typeof PortalSindicoIndexRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
     '/portal/proprietario/': {
       id: '/portal/proprietario/'
       path: '/proprietario'
@@ -528,6 +573,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/portal/sindico/solicitacoes': {
+      id: '/portal/sindico/solicitacoes'
+      path: '/sindico/solicitacoes'
+      fullPath: '/portal/sindico/solicitacoes'
+      preLoaderRoute: typeof PortalSindicoSolicitacoesRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
+    '/portal/sindico/condominios': {
+      id: '/portal/sindico/condominios'
+      path: '/sindico/condominios'
+      fullPath: '/portal/sindico/condominios'
+      preLoaderRoute: typeof PortalSindicoCondominiosRouteImport
+      parentRoute: typeof PortalRouteRoute
     }
     '/portal/proprietario/perfil': {
       id: '/portal/proprietario/perfil'
@@ -680,8 +739,11 @@ interface PortalRouteRouteChildren {
   PortalProprietarioFinanceiroRoute: typeof PortalProprietarioFinanceiroRoute
   PortalProprietarioImoveisRoute: typeof PortalProprietarioImoveisRoute
   PortalProprietarioPerfilRoute: typeof PortalProprietarioPerfilRoute
+  PortalSindicoCondominiosRoute: typeof PortalSindicoCondominiosRoute
+  PortalSindicoSolicitacoesRoute: typeof PortalSindicoSolicitacoesRoute
   PortalLocatarioIndexRoute: typeof PortalLocatarioIndexRoute
   PortalProprietarioIndexRoute: typeof PortalProprietarioIndexRoute
+  PortalSindicoIndexRoute: typeof PortalSindicoIndexRoute
 }
 
 const PortalRouteRouteChildren: PortalRouteRouteChildren = {
@@ -695,8 +757,11 @@ const PortalRouteRouteChildren: PortalRouteRouteChildren = {
   PortalProprietarioFinanceiroRoute: PortalProprietarioFinanceiroRoute,
   PortalProprietarioImoveisRoute: PortalProprietarioImoveisRoute,
   PortalProprietarioPerfilRoute: PortalProprietarioPerfilRoute,
+  PortalSindicoCondominiosRoute: PortalSindicoCondominiosRoute,
+  PortalSindicoSolicitacoesRoute: PortalSindicoSolicitacoesRoute,
   PortalLocatarioIndexRoute: PortalLocatarioIndexRoute,
   PortalProprietarioIndexRoute: PortalProprietarioIndexRoute,
+  PortalSindicoIndexRoute: PortalSindicoIndexRoute,
 }
 
 const PortalRouteRouteWithChildren = PortalRouteRoute._addFileChildren(

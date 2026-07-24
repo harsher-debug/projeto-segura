@@ -1,7 +1,14 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { Bell, FileText, Heart, Home, LogOut, Receipt, User, Wrench } from "lucide-react";
+import { Bell, Building2, ClipboardList, FileText, Heart, Home, LogOut, Receipt, User, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
+import {
+  canAccessPortalPath,
+  clearLocalPortalSession,
+  firstPortalPath,
+  getLocalPortalSession,
+  type PortalPermission,
+} from "@/lib/portal-auth";
 
 function hasSupabaseEnv() {
   const hasValue = (value: unknown) =>
@@ -16,16 +23,31 @@ function hasSupabaseEnv() {
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
-  beforeLoad: async () => {
-    if (!hasSupabaseEnv()) {
+  beforeLoad: async ({ location }) => {
+    const localSession = getLocalPortalSession();
+    if (localSession) {
+      if (location.pathname === "/portal" || location.pathname === "/portal/") {
+        throw redirect({ to: localSession.defaultPath });
+      }
+
+      if (!canAccessPortalPath(location.pathname, localSession.permissions)) {
+        throw redirect({ to: firstPortalPath(localSession.permissions) });
+      }
+
       return {
         user: {
-          id: "local-cliente",
-          email: "cliente@segura.com",
-          user_metadata: { nome: "Cliente" },
+          id: localSession.id,
+          email: localSession.email,
+          user_metadata: { nome: localSession.name, login: localSession.login },
         },
-        roles: [],
+        permissions: localSession.permissions,
+        roles: localSession.permissions,
+        isLocal: true,
       };
+    }
+
+    if (!hasSupabaseEnv()) {
+      throw redirect({ to: "/entrar" });
     }
 
     const { data, error } = await supabase.auth.getUser();
@@ -34,16 +56,38 @@ export const Route = createFileRoute("/portal")({
       .from("user_roles")
       .select("role")
       .eq("user_id", data.user.id);
-    return { user: data.user, roles: roles?.map((item) => item.role) ?? [] };
+    return {
+      user: data.user,
+      permissions: ["locatario"] as PortalPermission[],
+      roles: roles?.map((item) => item.role) ?? [],
+      isLocal: false,
+    };
   },
   component: PortalLayout,
 });
 
-const nav = [
-  { to: "/portal/locatario", label: "Visão geral", icon: Home },
+const locatarioNav = [
+  { to: "/portal/locatario", label: "Visao geral", icon: Home },
   { to: "/portal/locatario/contrato", label: "Contratos", icon: FileText },
   { to: "/portal/locatario/boletos", label: "Boletos", icon: Receipt },
   { to: "/portal/locatario/chamados", label: "Chamados", icon: Wrench },
+];
+
+const proprietarioNav = [
+  { to: "/portal/proprietario", label: "Painel proprietario", icon: Building2 },
+  { to: "/portal/proprietario/imoveis", label: "Meus imoveis", icon: Home },
+  { to: "/portal/proprietario/contratos", label: "Contratos", icon: FileText },
+  { to: "/portal/proprietario/financeiro", label: "Financeiro", icon: Receipt },
+  { to: "/portal/proprietario/documentos", label: "Documentos", icon: ClipboardList },
+];
+
+const sindicoNav = [
+  { to: "/portal/sindico", label: "Painel sindico", icon: Building2 },
+  { to: "/portal/sindico/condominios", label: "Condominios", icon: Home },
+  { to: "/portal/sindico/solicitacoes", label: "Solicitacoes", icon: Wrench },
+];
+
+const commonNav = [
   { to: "/favoritos", label: "Favoritos", icon: Heart },
 ];
 
@@ -52,9 +96,17 @@ function PortalLayout() {
   const ctx = Route.useRouteContext();
   const nome = (ctx.user as any)?.user_metadata?.nome ?? "Cliente";
   const email = ctx.user.email ?? "cliente@segura.com";
+  const permissions = (ctx as any).permissions as PortalPermission[];
+  const nav = [
+    ...(permissions.includes("locatario") ? locatarioNav : []),
+    ...(permissions.includes("proprietario") ? proprietarioNav : []),
+    ...(permissions.includes("sindico") ? sindicoNav : []),
+    ...commonNav,
+  ];
 
   const sair = async () => {
-    if (hasSupabaseEnv()) await supabase.auth.signOut();
+    clearLocalPortalSession();
+    if (!(ctx as any).isLocal && hasSupabaseEnv()) await supabase.auth.signOut();
     navigate({ to: "/" });
   };
 

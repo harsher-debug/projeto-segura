@@ -6,6 +6,7 @@ import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authenticateLocalPortalUser, saveLocalPortalSession } from "@/lib/portal-auth";
 
 export const Route = createFileRoute("/entrar")({
   head: () => ({ meta: [{ title: "Área do Cliente | Segura Imobiliária" }] }),
@@ -25,13 +26,13 @@ function EntrarPage() {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (documento.trim().toLowerCase() === "admin" && senha === "0000") {
+    const localUser = authenticateLocalPortalUser(documento, senha);
+    if (localUser) {
       setLoading(true);
-      window.localStorage.setItem("segura_cliente_nome", "Admin");
-      window.localStorage.setItem("segura_cliente_tipo", "admin");
+      saveLocalPortalSession(localUser);
       window.setTimeout(() => {
         setLoading(false);
-        navigate({ to: "/portal/locatario" });
+        navigate({ to: localUser.defaultPath });
       }, 250);
       return;
     }
@@ -46,8 +47,14 @@ function EntrarPage() {
     }
 
     setLoading(true);
-    window.localStorage.setItem("segura_cliente_nome", "Cliente");
-    window.localStorage.removeItem("segura_cliente_tipo");
+    saveLocalPortalSession({
+      id: "local-cliente",
+      login: onlyDigits(documento),
+      name: "Cliente",
+      email: "cliente@segura.com",
+      permissions: ["locatario"],
+      defaultPath: "/portal/locatario",
+    });
     window.setTimeout(() => {
       setLoading(false);
       navigate({ to: "/portal/locatario" });
@@ -89,7 +96,7 @@ function EntrarPage() {
               Acesse sua área do cliente
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-neutral-600">
-              Use CPF/CNPJ e senha BXP ou entre com o acesso local de administrador.
+              Use CPF/CNPJ e senha BXP ou entre com um dos acessos locais liberados.
             </p>
 
             <form className="mt-8 space-y-5" onSubmit={submit}>
@@ -103,7 +110,7 @@ function EntrarPage() {
                     id="documento"
                     value={documento}
                     onChange={(event) => setDocumento(event.target.value)}
-                    placeholder="Digite admin para acesso local"
+                    placeholder="Digite admin1, admin2, admin3 ou admin4"
                     className="h-11 rounded-md border-red-300 pl-11 focus-visible:ring-primary"
                     autoComplete="username"
                   />
@@ -121,7 +128,7 @@ function EntrarPage() {
                     type="password"
                     value={senha}
                     onChange={(event) => setSenha(event.target.value)}
-                    placeholder="Senha cadastrada ou 0000"
+                    placeholder="Senha cadastrada ou 123456"
                     className="h-11 rounded-md pl-11"
                     autoComplete="current-password"
                   />
@@ -140,7 +147,7 @@ function EntrarPage() {
             </form>
 
             <p className="mt-6 text-center text-xs text-neutral-500">
-              Acesso local de teste: usuário admin e senha 0000.
+              Acessos locais: admin1, admin2, admin3 e admin4. Senha: 123456.
             </p>
           </div>
         </section>
