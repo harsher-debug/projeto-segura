@@ -4,7 +4,11 @@ export type LocalPortalUser = {
   id: string;
   login: string;
   name: string;
+  fullName?: string;
   email: string;
+  phone?: string;
+  document?: string;
+  address?: string;
   permissions: PortalPermission[];
   defaultPath: string;
 };
@@ -15,7 +19,11 @@ const LOCAL_USERS: Record<string, LocalPortalUser & { password: string }> = {
     login: "admin1",
     password: "123456",
     name: "Admin Locatario",
+    fullName: "Marina Costa",
     email: "admin1@segura.local",
+    phone: "(51) 99821-4100",
+    document: "CPF 123.456.789-10",
+    address: "Apartamento 703 - Centro, Canoas",
     permissions: ["locatario"],
     defaultPath: "/portal/locatario",
   },
@@ -24,7 +32,11 @@ const LOCAL_USERS: Record<string, LocalPortalUser & { password: string }> = {
     login: "admin2",
     password: "123456",
     name: "Admin Proprietario",
+    fullName: "Roberto Almeida",
     email: "admin2@segura.local",
+    phone: "(51) 99140-2200",
+    document: "CPF 234.567.890-11",
+    address: "Centro, Canoas",
     permissions: ["proprietario"],
     defaultPath: "/portal/proprietario",
   },
@@ -33,7 +45,11 @@ const LOCAL_USERS: Record<string, LocalPortalUser & { password: string }> = {
     login: "admin3",
     password: "123456",
     name: "Admin Completo",
+    fullName: "Cliente Completo Segura",
     email: "admin3@segura.local",
+    phone: "(51) 99200-3300",
+    document: "CPF 345.678.901-22",
+    address: "Marechal Rondon, Canoas",
     permissions: ["locatario", "proprietario"],
     defaultPath: "/portal/locatario",
   },
@@ -42,7 +58,11 @@ const LOCAL_USERS: Record<string, LocalPortalUser & { password: string }> = {
     login: "admin4",
     password: "123456",
     name: "Admin Sindico",
+    fullName: "Joao Henrique Martins",
     email: "admin4@segura.local",
+    phone: "(51) 99344-1900",
+    document: "CPF 456.789.012-33",
+    address: "Condominio Residencial Centro - Canoas",
     permissions: ["sindico"],
     defaultPath: "/portal/sindico",
   },

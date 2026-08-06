@@ -1,5 +1,6 @@
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { Bell, Building2, ClipboardList, FileText, Heart, Home, LogOut, Receipt, User, Wrench } from "lucide-react";
+import { Bell, Building2, CalendarDays, ClipboardList, FileText, Heart, Home, LogOut, Mail, Phone, Receipt, ShieldCheck, User, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import {
@@ -9,6 +10,7 @@ import {
   getLocalPortalSession,
   type PortalPermission,
 } from "@/lib/portal-auth";
+import { condoBills, condoRequests, ownerProposals, ownerTransfers } from "@/lib/portal-demo";
 
 function hasSupabaseEnv() {
   const hasValue = (value: unknown) =>
@@ -38,7 +40,14 @@ export const Route = createFileRoute("/portal")({
         user: {
           id: localSession.id,
           email: localSession.email,
-          user_metadata: { nome: localSession.name, login: localSession.login },
+          user_metadata: {
+            nome: localSession.name,
+            fullName: localSession.fullName,
+            login: localSession.login,
+            phone: localSession.phone,
+            document: localSession.document,
+            address: localSession.address,
+          },
         },
         permissions: localSession.permissions,
         roles: localSession.permissions,
@@ -93,10 +102,17 @@ const commonNav = [
 ];
 
 function PortalLayout() {
+  const [openPanel, setOpenPanel] = useState<"perfil" | "notificacoes" | null>(null);
   const navigate = useNavigate();
   const ctx = Route.useRouteContext();
-  const nome = (ctx.user as any)?.user_metadata?.nome ?? "Cliente";
+  const metadata = (ctx.user as any)?.user_metadata ?? {};
+  const nome = metadata.nome ?? "Cliente";
+  const fullName = metadata.fullName ?? metadata.nome ?? "Cliente Segura";
   const email = ctx.user.email ?? "cliente@segura.com";
+  const login = metadata.login ?? "cliente";
+  const phone = metadata.phone ?? "(51) 2102-4000";
+  const document = metadata.document ?? "CPF/CNPJ cadastrado no BXP";
+  const address = metadata.address ?? "Canoas - RS";
   const permissions = (ctx as any).permissions as PortalPermission[];
   const nav = [
     ...(permissions.includes("locatario") ? locatarioNav : []),
@@ -104,6 +120,35 @@ function PortalLayout() {
     ...(permissions.includes("sindico") ? sindicoNav : []),
     ...commonNav,
   ];
+  const profileLabels = permissions.map((permission) => ({
+    locatario: "Locatario",
+    proprietario: "Proprietario",
+    sindico: "Condomino",
+  }[permission]));
+  const notifications = useMemo(() => {
+    const items = [
+      ...(permissions.includes("proprietario")
+        ? [
+            { title: "Nova proposta recebida", text: `${ownerProposals[0].client} enviou proposta para ${ownerProposals[0].property}.`, time: ownerProposals[0].date },
+            { title: "Repasse atualizado", text: `${ownerTransfers[0].month} previsto em ${ownerTransfers[0].net.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}.`, time: "Hoje" },
+          ]
+        : []),
+      ...(permissions.includes("sindico")
+        ? [
+            { title: "Boleto condominial em aberto", text: `${condoBills[0].title} vence em ${condoBills[0].due}.`, time: "Hoje" },
+            { title: "Solicitacao alterada", text: `${condoRequests[0].id} mudou para ${condoRequests[0].status}.`, time: condoRequests[0].date },
+          ]
+        : []),
+      ...(permissions.includes("locatario")
+        ? [
+            { title: "Boleto disponivel", text: "Boleto de agosto disponivel para segunda via.", time: "Hoje" },
+            { title: "Chamado respondido", text: "A equipe tecnica respondeu seu chamado de manutencao.", time: "Ontem" },
+          ]
+        : []),
+    ];
+
+    return items.slice(0, 5);
+  }, [permissions]);
 
   const sair = async () => {
     clearLocalPortalSession();
@@ -151,14 +196,85 @@ function PortalLayout() {
         </aside>
 
         <section className="min-w-0">
-          <div className="mb-6 flex justify-end">
-            <button className="relative rounded-lg p-2 text-primary hover:bg-primary/10">
+          <div className="relative mb-6 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setOpenPanel((value) => value === "notificacoes" ? null : "notificacoes")}
+              className="relative rounded-lg p-2 text-primary hover:bg-primary/10"
+              aria-label="Abrir notificacoes"
+            >
               <Bell className="h-5 w-5" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />
+              {notifications.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />}
             </button>
-            <button className="ml-2 rounded-lg p-2 text-neutral-500 hover:bg-neutral-100">
+            <button
+              type="button"
+              onClick={() => setOpenPanel((value) => value === "perfil" ? null : "perfil")}
+              className="ml-2 rounded-lg p-2 text-neutral-500 hover:bg-neutral-100"
+              aria-label="Abrir perfil"
+            >
               <User className="h-5 w-5" />
             </button>
+
+            {openPanel === "notificacoes" && (
+              <div className="absolute right-10 top-11 z-30 w-[360px] max-w-[calc(100vw-3rem)] rounded-2xl border bg-white p-4 shadow-2xl shadow-black/15">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="font-display text-lg font-extrabold">Notificacoes</h2>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                    {notifications.length} novas
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {notifications.map((item) => (
+                    <div key={`${item.title}-${item.text}`} className="rounded-xl bg-[#fbfaf8] p-3">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                          <Bell className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold">{item.title}</p>
+                          <p className="mt-1 text-xs leading-relaxed text-neutral-600">{item.text}</p>
+                          <p className="mt-2 text-xs font-bold text-primary">{item.time}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {openPanel === "perfil" && (
+              <div className="absolute right-0 top-11 z-30 w-[380px] max-w-[calc(100vw-3rem)] rounded-2xl border bg-white p-5 shadow-2xl shadow-black/15">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-xl font-extrabold text-white">
+                    {fullName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="truncate font-display text-xl font-extrabold">{fullName}</h2>
+                    <p className="text-sm text-neutral-500">{email}</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-3">
+                  {[
+                    { icon: ShieldCheck, label: "Perfil de acesso", value: profileLabels.join(" + ") },
+                    { icon: User, label: "Usuario", value: login },
+                    { icon: Mail, label: "E-mail", value: email },
+                    { icon: Phone, label: "Telefone", value: phone },
+                    { icon: FileText, label: "Documento", value: document },
+                    { icon: Home, label: "Endereco vinculado", value: address },
+                    { icon: CalendarDays, label: "Entrada no portal", value: new Date().toLocaleString("pt-BR") },
+                  ].map((item) => (
+                    <div key={item.label} className="flex gap-3 rounded-xl bg-[#fbfaf8] p-3">
+                      <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold uppercase text-neutral-500">{item.label}</p>
+                        <p className="break-words text-sm font-semibold text-neutral-900">{item.value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <Outlet />
         </section>

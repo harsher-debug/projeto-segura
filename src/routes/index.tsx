@@ -14,7 +14,7 @@ import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
 import { getDestaques, getSearchSuggestions } from "@/lib/imoveis.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import heroImg from "@/assets/hero.png";
+import heroImg from "@/assets/hero-interior.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -118,20 +118,21 @@ function Index() {
       <section className="relative min-h-[560px] overflow-hidden bg-neutral-950">
         <img
           src={heroImg}
-          alt="Imóveis em Canoas"
+          alt="Sala decorada com a marca Segura Imobiliaria"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-16 text-center md:pt-20">
-          <h1 className="max-w-5xl font-sans text-4xl font-extrabold leading-tight text-white [text-shadow:0_5px_22px_rgba(0,0,0,0.95)] md:text-6xl">
-            Imóveis em Canoas
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,8,5,0.22)_0%,rgba(18,8,5,0.48)_48%,rgba(18,8,5,0.72)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,#f5efe6_92%)]" />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-20 text-center md:pt-24">
+          <h1 className="max-w-5xl font-display text-4xl font-extrabold leading-tight text-white [text-shadow:0_8px_28px_rgba(0,0,0,0.88)] md:text-6xl">
+            Tradição e confiança
           </h1>
           <p className="mt-4 text-xl font-semibold text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.9)] md:text-2xl">
-            Tradição e confiança para comprar ou alugar.
+            Para comprar, vender ou alugar com segurança em Canoas.
           </p>
         </div>
 
-        <div className="relative z-10 mx-auto mt-36 max-w-7xl px-6 pb-10 md:mt-40">
+        <div className="relative z-10 mx-auto mt-36 max-w-7xl px-6 pb-12 md:mt-40">
         <form
           onSubmit={submit}
           className="mx-auto max-w-[940px]"
@@ -217,7 +218,7 @@ function Index() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pt-16">
+      <section className="relative mx-auto max-w-7xl px-6 pt-12">
         <HomePromoGrid />
       </section>
 
@@ -291,7 +292,7 @@ function Index() {
         </div>
       </section>
 
-      <section className="bg-muted/40 py-14">
+      <section className="bg-[#eee5da]/70 py-14">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-6 flex items-end justify-between">
             <div>
