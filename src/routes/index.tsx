@@ -124,11 +124,11 @@ function Index() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,8,5,0.22)_0%,rgba(18,8,5,0.48)_48%,rgba(18,8,5,0.72)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,#f5efe6_92%)]" />
         <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-20 text-center md:pt-24">
-          <h1 className="max-w-5xl font-display text-4xl font-extrabold leading-tight text-white [text-shadow:0_8px_28px_rgba(0,0,0,0.88)] md:text-6xl">
+          <h1 className="max-w-5xl font-serif text-4xl font-bold leading-tight text-white [text-shadow:0_8px_28px_rgba(0,0,0,0.88)] md:text-6xl">
             Tradição e confiança
           </h1>
           <p className="mt-4 text-xl font-semibold text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.9)] md:text-2xl">
-            Para comprar, vender ou alugar com segurança em Canoas.
+            Comece sua história conosco
           </p>
         </div>
 
