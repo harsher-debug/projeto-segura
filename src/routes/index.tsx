@@ -14,7 +14,8 @@ import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
 import { getDestaques, getSearchSuggestions } from "@/lib/imoveis.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import heroImg from "@/assets/hero-interior.png";
+import heroImg from "@/assets/hero-living-room-clean.png";
+import heroLogoImg from "@/assets/hero-segura-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -229,7 +230,12 @@ function Index() {
           alt="Sala decorada com a marca Segura Imobiliaria"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.36)_0%,rgba(16,7,5,0.62)_48%,rgba(16,7,5,0.84)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.08)_0%,rgba(16,7,5,0.22)_45%,rgba(16,7,5,0.72)_100%)]" />
+        <img
+          src={heroLogoImg}
+          alt="Segura Imobiliaria"
+          className="absolute left-1/2 top-[38%] z-10 w-[58vw] max-w-[430px] -translate-x-1/2 -translate-y-1/2 object-contain brightness-110 drop-shadow-[0_16px_30px_rgba(0,0,0,0.55)]"
+        />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />
         <div className="relative z-10 mx-auto mt-[340px] max-w-7xl px-6 pb-10 md:mt-[360px]">
         <form
