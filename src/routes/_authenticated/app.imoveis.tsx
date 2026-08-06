@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { adminProperties, brl } from "@/lib/admin-demo";
 
@@ -9,16 +9,39 @@ export const Route = createFileRoute("/_authenticated/app/imoveis")({
 
 function ImoveisPage() {
   const [search, setSearch] = useState("");
+  const [propertyList, setPropertyList] = useState(adminProperties);
   const properties = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return adminProperties;
-    return adminProperties.filter((property) =>
+    if (!term) return propertyList;
+    return propertyList.filter((property) =>
       [property.title, property.code, property.neighborhood, property.city, property.type]
         .join(" ")
         .toLowerCase()
         .includes(term),
     );
-  }, [search]);
+  }, [propertyList, search]);
+
+  const createExampleProperty = () => {
+    const sequence = propertyList.length + 1;
+    setPropertyList((current) => [
+      {
+        id: `exemplo-${Date.now()}`,
+        code: `EX-${String(sequence).padStart(3, "0")}`,
+        title: "Novo imóvel de exemplo",
+        purpose: "Venda",
+        type: "Apartamento",
+        neighborhood: "Centro",
+        city: "Canoas",
+        price: 480000,
+        status: "Rascunho",
+        owner: "Cadastro de exemplo",
+        tenant: "Disponível",
+        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80",
+        metrics: "82 m2 - 2 dorm. - 1 vaga",
+      },
+      ...current,
+    ]);
+  };
 
   return (
     <div className="space-y-5">
@@ -63,8 +86,12 @@ function ImoveisPage() {
         ))}
       </section>
 
-      <button className="inline-flex items-center gap-2 rounded-xl bg-[#a50f1b] px-4 py-3 text-sm font-bold text-white shadow-md shadow-[#a50f1b]/20">
-        <SlidersHorizontal className="h-4 w-4" />
+      <button
+        type="button"
+        onClick={createExampleProperty}
+        className="inline-flex items-center gap-2 rounded-xl bg-[#a50f1b] px-4 py-3 text-sm font-bold text-white shadow-md shadow-[#a50f1b]/20 transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-px hover:bg-[#7e0d16] hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
+      >
+        <Plus className="h-4 w-4" />
         Criar novo imovel exemplo
       </button>
     </div>
