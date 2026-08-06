@@ -10,28 +10,18 @@ import {
   type SiteInformativo,
 } from "@/lib/site-informativos";
 
-const DISMISSED_INFORMATIVOS_KEY = "segura_dismissed_informativos";
-
-function getDismissedInformativos() {
-  if (typeof window === "undefined") return {} as Record<string, string>;
-
-  try {
-    return JSON.parse(window.localStorage.getItem(DISMISSED_INFORMATIVOS_KEY) ?? "{}") as Record<string, string>;
-  } catch {
-    return {} as Record<string, string>;
-  }
-}
-
 export function SiteInformativoBanner() {
   const [informativos, setInformativos] = useState<SiteInformativo[]>([]);
-  const [dismissed, setDismissed] = useState<Record<string, string>>({});
+  const [closed, setClosed] = useState(false);
   const [appearance, setAppearance] = useState<SiteAppearanceSettings>({ informativoBarColor: "#241114" });
 
   useEffect(() => {
-    const updateInformativos = () => setInformativos(getSiteInformativos());
+    const updateInformativos = () => {
+      setInformativos(getSiteInformativos());
+      setClosed(false);
+    };
     const updateAppearance = () => setAppearance(getSiteAppearanceSettings());
     updateInformativos();
-    setDismissed(getDismissedInformativos());
     updateAppearance();
 
     window.addEventListener(SITE_INFORMATIVOS_EVENT, updateInformativos);
@@ -47,16 +37,10 @@ export function SiteInformativoBanner() {
   }, []);
 
   const informativo = informativos.find(
-    (item) => item.ativo && dismissed[item.id] !== item.atualizadoEm,
+    (item) => item.ativo,
   );
 
-  if (!informativo) return null;
-
-  const dismiss = () => {
-    const next = { ...dismissed, [informativo.id]: informativo.atualizadoEm };
-    setDismissed(next);
-    window.localStorage.setItem(DISMISSED_INFORMATIVOS_KEY, JSON.stringify(next));
-  };
+  if (!informativo || closed) return null;
 
   return (
     <aside
@@ -77,7 +61,7 @@ export function SiteInformativoBanner() {
         </div>
         <button
           type="button"
-          onClick={dismiss}
+          onClick={() => setClosed(true)}
           className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-white/75 transition-[background-color,color,transform] duration-200 hover:bg-white/10 hover:text-white active:scale-95"
           aria-label="Fechar informativo"
           title="Fechar"
