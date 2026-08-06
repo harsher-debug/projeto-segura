@@ -462,7 +462,8 @@ function HomeWhatsappButton() {
             {whatsappOptions.map((option) => (
               <a
                 key={option.number}
-                href={`https://api.whatsapp.com/send?phone=${option.number}&text=${encodeURIComponent(message)}`}
+                href={`https://web.whatsapp.com/send?phone=${option.number}&text=${encodeURIComponent(message)}`}
+                target="segura-whatsapp"
                 className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-bold text-neutral-800 transition-[background-color,color,transform] duration-200 hover:bg-[#fff5dc] hover:text-[#8f0f18] active:scale-[0.98]"
               >
                 <MessageCircle className="h-5 w-5 text-[#1d9b56]" />
