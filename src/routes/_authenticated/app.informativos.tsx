@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createSiteInformativo,
+  getSiteAppearanceSettings,
   getSiteInformativos,
+  saveSiteAppearanceSettings,
   saveSiteInformativos,
+  type SiteAppearanceSettings,
   type SiteInformativo,
 } from "@/lib/site-informativos";
 
@@ -37,11 +40,13 @@ const emptyForm: FormState = {
 
 function InformativosAdmin() {
   const [informativos, setInformativos] = useState<SiteInformativo[]>([]);
+  const [appearance, setAppearance] = useState<SiteAppearanceSettings>({ headerLineColor: "#d6ad57" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
 
   useEffect(() => {
     setInformativos(getSiteInformativos());
+    setAppearance(getSiteAppearanceSettings());
   }, []);
 
   const ativos = useMemo(() => informativos.filter((item) => item.ativo).length, [informativos]);
@@ -49,6 +54,13 @@ function InformativosAdmin() {
   const persist = (next: SiteInformativo[]) => {
     setInformativos(next);
     saveSiteInformativos(next);
+  };
+
+  const updateHeaderLineColor = (headerLineColor: string) => {
+    if (!/^#[0-9a-f]{6}$/i.test(headerLineColor)) return;
+    const next = { ...appearance, headerLineColor };
+    setAppearance(next);
+    saveSiteAppearanceSettings(next);
   };
 
   const submit = (event: React.FormEvent) => {
@@ -219,6 +231,32 @@ function InformativosAdmin() {
                   <span className="block text-xs text-neutral-500">Mostrar no site</span>
                 </span>
               </label>
+            </div>
+
+            <div className="rounded-md border bg-[#fbfaf8] p-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-bold">Linha global abaixo do cabeçalho</p>
+                  <p className="text-xs text-neutral-500">A cor aparece em todas as páginas públicas.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={appearance.headerLineColor}
+                    onChange={(event) => updateHeaderLineColor(event.target.value)}
+                    className="h-10 w-12 cursor-pointer rounded-md border bg-white p-1"
+                    aria-label="Escolher cor da linha do cabeçalho"
+                  />
+                  <Input
+                    value={appearance.headerLineColor.toUpperCase()}
+                    onChange={(event) => updateHeaderLineColor(event.target.value.trim())}
+                    className="h-10 w-28 font-mono text-sm uppercase"
+                    maxLength={7}
+                    aria-label="Código hexadecimal da linha do cabeçalho"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 h-1.5 rounded-full" style={{ backgroundColor: appearance.headerLineColor }} />
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">

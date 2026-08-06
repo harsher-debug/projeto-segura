@@ -11,7 +11,14 @@ export type SiteInformativo = {
 };
 
 export const SITE_INFORMATIVOS_EVENT = "segura-site-informativos-updated";
+export const SITE_APPEARANCE_EVENT = "segura-site-appearance-updated";
 const SITE_INFORMATIVOS_KEY = "segura_site_informativos";
+const SITE_APPEARANCE_KEY = "segura_site_appearance";
+const DEFAULT_HEADER_LINE_COLOR = "#d6ad57";
+
+export type SiteAppearanceSettings = {
+  headerLineColor: string;
+};
 
 export const defaultInformativos: SiteInformativo[] = [
   {
@@ -64,4 +71,24 @@ export function createSiteInformativo(data: Omit<SiteInformativo, "id" | "atuali
     id: `info-${Date.now()}`,
     atualizadoEm: new Date().toISOString(),
   };
+}
+
+export function getSiteAppearanceSettings(): SiteAppearanceSettings {
+  if (typeof window === "undefined") return { headerLineColor: DEFAULT_HEADER_LINE_COLOR };
+
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(SITE_APPEARANCE_KEY) ?? "{}") as Partial<SiteAppearanceSettings>;
+    return {
+      headerLineColor: /^#[0-9a-f]{6}$/i.test(parsed.headerLineColor ?? "")
+        ? parsed.headerLineColor!
+        : DEFAULT_HEADER_LINE_COLOR,
+    };
+  } catch {
+    return { headerLineColor: DEFAULT_HEADER_LINE_COLOR };
+  }
+}
+
+export function saveSiteAppearanceSettings(settings: SiteAppearanceSettings) {
+  window.localStorage.setItem(SITE_APPEARANCE_KEY, JSON.stringify(settings));
+  window.dispatchEvent(new Event(SITE_APPEARANCE_EVENT));
 }
