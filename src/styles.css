@@ -156,6 +156,13 @@
   .home-carousel {
     scrollbar-width: none;
     scroll-behavior: smooth;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .home-carousel:active {
+    cursor: grabbing;
   }
 
   .home-carousel::-webkit-scrollbar {

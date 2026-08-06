@@ -36,6 +36,10 @@ function Index() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const carouselPausedRef = useRef(false);
   const carouselResumeTimeoutRef = useRef<number | null>(null);
+  const carouselDraggingRef = useRef(false);
+  const carouselDraggedRef = useRef(false);
+  const carouselDragStartXRef = useRef(0);
+  const carouselDragStartScrollRef = useRef(0);
   const navigate = useNavigate();
   const destaquesFn = useServerFn(getDestaques);
   const suggestionsFn = useServerFn(getSearchSuggestions);
@@ -86,10 +90,20 @@ function Index() {
   };
 
   const scrollCarousel = (direction: "prev" | "next") => {
-    carouselRef.current?.scrollBy({
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const resetPoint = carousel.scrollWidth / 2;
+    if (direction === "prev" && carousel.scrollLeft < 370) {
+      carousel.scrollLeft = resetPoint;
+    }
+
+    pauseCarousel();
+    carousel.scrollBy({
       left: direction === "next" ? 370 : -370,
       behavior: "smooth",
     });
+    resumeCarousel(900);
   };
 
   const pauseCarousel = () => {
@@ -115,6 +129,64 @@ function Index() {
 
     carouselPausedRef.current = false;
     carouselResumeTimeoutRef.current = null;
+  };
+
+  const startCarouselDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    pauseCarousel();
+
+    const resetPoint = carousel.scrollWidth / 2;
+    if (carousel.scrollLeft <= 5) {
+      carousel.scrollLeft = resetPoint;
+    }
+
+    carouselDraggingRef.current = true;
+    carouselDraggedRef.current = false;
+    carouselDragStartXRef.current = event.clientX;
+    carouselDragStartScrollRef.current = carousel.scrollLeft;
+    carousel.setPointerCapture(event.pointerId);
+  };
+
+  const moveCarouselDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const carousel = carouselRef.current;
+    if (!carousel || !carouselDraggingRef.current) return;
+
+    event.preventDefault();
+    const resetPoint = carousel.scrollWidth / 2;
+    const delta = event.clientX - carouselDragStartXRef.current;
+    if (Math.abs(delta) > 6) {
+      carouselDraggedRef.current = true;
+    }
+    carousel.scrollLeft = carouselDragStartScrollRef.current - delta;
+
+    if (carousel.scrollLeft >= resetPoint + 20) {
+      carousel.scrollLeft -= resetPoint;
+      carouselDragStartScrollRef.current -= resetPoint;
+    }
+
+    if (carousel.scrollLeft <= 20) {
+      carousel.scrollLeft += resetPoint;
+      carouselDragStartScrollRef.current += resetPoint;
+    }
+  };
+
+  const stopCarouselDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const carousel = carouselRef.current;
+    carouselDraggingRef.current = false;
+    carousel?.releasePointerCapture?.(event.pointerId);
+    resumeCarousel();
+  };
+
+  const handleCarouselClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!carouselDraggedRef.current) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    window.setTimeout(() => {
+      carouselDraggedRef.current = false;
+    }, 0);
   };
 
   useEffect(() => {
@@ -249,7 +321,7 @@ function Index() {
         <HomePromoGrid />
       </section>
 
-      <section className="mx-auto max-w-7xl overflow-hidden px-6 pb-12 pt-10">
+      <section className="mx-auto max-w-7xl overflow-visible px-6 pb-12 pt-10">
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-display text-4xl font-extrabold leading-tight">
@@ -266,50 +338,56 @@ function Index() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-11 w-11 rounded-md"
-                aria-label="Voltar carrossel"
-                onClick={() => scrollCarousel("prev")}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-11 w-11 rounded-md"
-                aria-label="Avançar carrossel"
-                onClick={() => scrollCarousel("next")}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
           </div>
         </div>
 
-        <div
-          ref={carouselRef}
-          className="home-carousel overflow-hidden pb-4"
-          onMouseEnter={pauseCarousel}
-          onMouseLeave={() => resumeCarousel()}
-          onPointerDown={pauseCarousel}
-          onPointerUp={() => resumeCarousel()}
-          onPointerCancel={() => resumeCarousel()}
-          onWheel={() => {
-            pauseCarousel();
-            resumeCarousel(1200);
-          }}
-        >
-          <div className="flex w-max gap-5">
-            {carouselItems.map((imovel, index) => (
-              <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
-                <ImovelCard imovel={imovel} />
-              </div>
-            ))}
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="absolute left-2 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-white/95 shadow-lg shadow-black/15 md:-left-5 md:h-12 md:w-12"
+            aria-label="Voltar carrossel"
+            onClick={() => scrollCarousel("prev")}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="absolute right-2 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-white/95 shadow-lg shadow-black/15 md:-right-5 md:h-12 md:w-12"
+            aria-label="Avancar carrossel"
+            onClick={() => scrollCarousel("next")}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+
+          <div
+            ref={carouselRef}
+            className="home-carousel overflow-hidden pb-4"
+            onMouseEnter={pauseCarousel}
+            onMouseLeave={() => {
+              carouselDraggingRef.current = false;
+              resumeCarousel();
+            }}
+            onPointerDown={startCarouselDrag}
+            onPointerMove={moveCarouselDrag}
+            onPointerUp={stopCarouselDrag}
+            onPointerCancel={stopCarouselDrag}
+            onClickCapture={handleCarouselClickCapture}
+            onWheel={() => {
+              pauseCarousel();
+              resumeCarousel(1200);
+            }}
+          >
+            <div className="flex w-max gap-5">
+              {carouselItems.map((imovel, index) => (
+                <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
+                  <ImovelCard imovel={imovel} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
