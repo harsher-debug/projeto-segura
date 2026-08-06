@@ -123,16 +123,7 @@ function Index() {
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.36)_0%,rgba(16,7,5,0.62)_48%,rgba(16,7,5,0.84)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-20 text-center md:pt-24">
-          <h1 className="max-w-5xl font-sans text-4xl font-extrabold leading-tight text-white [text-shadow:0_8px_30px_rgba(0,0,0,0.95)] md:text-6xl">
-            Tradição e confiança
-          </h1>
-          <p className="mt-4 font-sans text-xl font-extrabold text-white [text-shadow:0_6px_24px_rgba(0,0,0,0.95)] md:text-2xl">
-            Comece sua história conosco
-          </p>
-        </div>
-
-        <div className="relative z-10 mx-auto mt-36 max-w-7xl px-6 pb-12 md:mt-40">
+        <div className="relative z-10 mx-auto mt-[340px] max-w-7xl px-6 pb-10 md:mt-[360px]">
         <form
           onSubmit={submit}
           className="mx-auto max-w-[940px]"
