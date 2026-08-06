@@ -226,7 +226,7 @@ function Index() {
 
   return (
     <SiteLayout>
-      <section className="relative min-h-[560px] overflow-hidden bg-neutral-950">
+      <section className="relative z-20 min-h-[560px] overflow-visible bg-neutral-950">
         <img
           src={heroImg}
           alt="Sala decorada com a marca Segura Imobiliaria"
@@ -239,7 +239,7 @@ function Index() {
           className="absolute left-1/2 top-[38%] z-10 w-[58vw] max-w-[430px] -translate-x-1/2 -translate-y-1/2 object-contain brightness-110 drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]"
         />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />
-        <div className="relative z-10 mx-auto mt-[340px] max-w-7xl px-6 pb-10 md:mt-[360px]">
+        <div className="relative z-30 mx-auto mt-[340px] max-w-7xl px-6 pb-10 md:mt-[360px]">
         <form
           onSubmit={submit}
           className="mx-auto max-w-[940px]"
@@ -281,7 +281,7 @@ function Index() {
               <span className="ml-2 sm:hidden">Buscar</span>
             </Button>
             {showSugestoes && (
-              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 overflow-hidden rounded-2xl border bg-white text-left shadow-2xl ring-1 ring-black/5">
+              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 overflow-hidden rounded-2xl border bg-white text-left shadow-2xl ring-1 ring-black/5">
                 {sugestoes.map((sugestao) => (
                   <button
                     key={sugestao.imovelId}
