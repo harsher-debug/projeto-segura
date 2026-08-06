@@ -34,6 +34,8 @@ function Index() {
   const [busca, setBusca] = useState("");
   const [buscaFocus, setBuscaFocus] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const carouselPausedRef = useRef(false);
+  const carouselResumeTimeoutRef = useRef<number | null>(null);
   const navigate = useNavigate();
   const destaquesFn = useServerFn(getDestaques);
   const suggestionsFn = useServerFn(getSearchSuggestions);
@@ -90,6 +92,31 @@ function Index() {
     });
   };
 
+  const pauseCarousel = () => {
+    if (carouselResumeTimeoutRef.current) {
+      window.clearTimeout(carouselResumeTimeoutRef.current);
+      carouselResumeTimeoutRef.current = null;
+    }
+    carouselPausedRef.current = true;
+  };
+
+  const resumeCarousel = (delay = 0) => {
+    if (carouselResumeTimeoutRef.current) {
+      window.clearTimeout(carouselResumeTimeoutRef.current);
+    }
+
+    if (delay > 0) {
+      carouselResumeTimeoutRef.current = window.setTimeout(() => {
+        carouselPausedRef.current = false;
+        carouselResumeTimeoutRef.current = null;
+      }, delay);
+      return;
+    }
+
+    carouselPausedRef.current = false;
+    carouselResumeTimeoutRef.current = null;
+  };
+
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel || recentes.length === 0) return;
@@ -101,16 +128,25 @@ function Index() {
     const tick = (time: number) => {
       const delta = time - lastTime;
       lastTime = time;
-      const resetPoint = carousel.scrollWidth / 2;
-      if (carousel.scrollLeft >= resetPoint) {
-        carousel.scrollTo({ left: 0 });
+
+      if (!carouselPausedRef.current) {
+        const resetPoint = carousel.scrollWidth / 2;
+        if (carousel.scrollLeft >= resetPoint) {
+          carousel.scrollTo({ left: 0 });
+        }
+        carousel.scrollLeft += (speed * delta) / 1000;
       }
-      carousel.scrollLeft += (speed * delta) / 1000;
+
       frame = window.requestAnimationFrame(tick);
     };
 
     frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      if (carouselResumeTimeoutRef.current) {
+        window.clearTimeout(carouselResumeTimeoutRef.current);
+      }
+    };
   }, [recentes.length]);
 
   return (
@@ -255,7 +291,19 @@ function Index() {
           </div>
         </div>
 
-        <div ref={carouselRef} className="home-carousel overflow-hidden pb-4">
+        <div
+          ref={carouselRef}
+          className="home-carousel overflow-hidden pb-4"
+          onMouseEnter={pauseCarousel}
+          onMouseLeave={() => resumeCarousel()}
+          onPointerDown={pauseCarousel}
+          onPointerUp={() => resumeCarousel()}
+          onPointerCancel={() => resumeCarousel()}
+          onWheel={() => {
+            pauseCarousel();
+            resumeCarousel(1200);
+          }}
+        >
           <div className="flex w-max gap-5">
             {carouselItems.map((imovel, index) => (
               <div key={`${imovel.id}-${index}`} className="w-[320px] shrink-0 md:w-[340px]">
