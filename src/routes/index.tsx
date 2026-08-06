@@ -121,13 +121,13 @@ function Index() {
           alt="Sala decorada com a marca Segura Imobiliaria"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,8,5,0.22)_0%,rgba(18,8,5,0.48)_48%,rgba(18,8,5,0.72)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,#f5efe6_92%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.36)_0%,rgba(16,7,5,0.62)_48%,rgba(16,7,5,0.84)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />
         <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pt-20 text-center md:pt-24">
-          <h1 className="max-w-5xl font-serif text-4xl font-bold leading-tight text-white [text-shadow:0_8px_28px_rgba(0,0,0,0.88)] md:text-6xl">
+          <h1 className="max-w-5xl font-sans text-4xl font-extrabold leading-tight text-white [text-shadow:0_8px_30px_rgba(0,0,0,0.95)] md:text-6xl">
             Tradição e confiança
           </h1>
-          <p className="mt-4 text-xl font-semibold text-white [text-shadow:0_4px_18px_rgba(0,0,0,0.9)] md:text-2xl">
+          <p className="mt-4 font-sans text-xl font-extrabold text-white [text-shadow:0_6px_24px_rgba(0,0,0,0.95)] md:text-2xl">
             Comece sua história conosco
           </p>
         </div>
@@ -137,7 +137,7 @@ function Index() {
           onSubmit={submit}
           className="mx-auto max-w-[940px]"
         >
-          <div className="mx-auto mb-4 flex w-fit overflow-hidden rounded-full bg-white p-1 shadow-[0_10px_24px_rgba(0,0,0,0.22)] ring-1 ring-black/10">
+          <div className="mx-auto mb-4 flex w-fit overflow-hidden rounded-full bg-[#2a1715]/95 p-1 shadow-[0_14px_32px_rgba(0,0,0,0.46)] ring-1 ring-[#d6ad57]/25">
             {[
               { key: "locacao", label: "Alugar" },
               { key: "venda", label: "Comprar" },
@@ -149,15 +149,15 @@ function Index() {
                 onClick={() => setFinalidade(item.key as typeof finalidade)}
                 className={`h-10 rounded-full px-7 text-sm font-bold transition ${
                   finalidade === item.key
-                    ? "bg-primary text-white shadow"
-                    : "text-neutral-700 hover:text-primary"
+                    ? "bg-[#8f0f18] text-white shadow"
+                    : "text-white/82 hover:text-[#f2d084]"
                 }`}
               >
                 {item.label}
               </button>
             ))}
           </div>
-          <div className="relative flex flex-col overflow-visible rounded-[2rem] bg-white shadow-[0_12px_24px_rgba(0,0,0,0.22)] ring-1 ring-black/10 sm:flex-row">
+          <div className="relative flex flex-col overflow-visible rounded-[2rem] bg-[#fbf6ed] shadow-[0_18px_38px_rgba(0,0,0,0.42)] ring-1 ring-[#3b1b17]/20 sm:flex-row">
             <div className="relative flex-1">
               <MapPin className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
               <Input
@@ -169,7 +169,7 @@ function Index() {
                 placeholder={finalidade === "condominios" ? "Digite o condomínio, bairro ou código..." : "Digite a cidade, bairro ou empreendimento..."}
               />
             </div>
-            <Button className="m-2 h-12 rounded-full bg-primary px-8 text-base font-bold text-white hover:bg-primary/90 sm:h-auto sm:w-16 sm:px-0" aria-label="Buscar">
+            <Button className="m-2 h-12 rounded-full bg-[#8f0f18] px-8 text-base font-bold text-white hover:bg-[#6f0b13] sm:h-auto sm:w-16 sm:px-0" aria-label="Buscar">
               <Search className="h-6 w-6" />
               <span className="ml-2 sm:hidden">Buscar</span>
             </Button>
