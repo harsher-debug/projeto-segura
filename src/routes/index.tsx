@@ -444,7 +444,7 @@ function Index() {
 
 function HomeWhatsappButton() {
   const [open, setOpen] = useState(false);
-  const message = "Olá! Gostaria de mais informações sobre imóveis.";
+  const message = "Olá! Vim pelo site da Segura, gostaria de ser atendido (a).";
   const whatsappOptions = [
     { label: "Central", phone: "(51) 2102-4000", number: "555121024000" },
     { label: "Vendas", phone: "(51) 2102-4001", number: "555121024001" },
