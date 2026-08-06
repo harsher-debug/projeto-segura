@@ -7,7 +7,9 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
+  MessageCircle,
   Search,
+  X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
@@ -435,7 +437,54 @@ function Index() {
           </div>
         </div>
       </section>
+      <HomeWhatsappButton />
     </SiteLayout>
+  );
+}
+
+function HomeWhatsappButton() {
+  const [open, setOpen] = useState(false);
+  const message = "Olá! Gostaria de mais informações sobre imóveis.";
+  const whatsappOptions = [
+    { label: "(51) 2102-4000", number: "555121024000" },
+    { label: "(51) 2102-4001", number: "555121024001" },
+  ];
+
+  return (
+    <div className="fixed bottom-5 right-5 z-[90] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+      {open && (
+        <div className="w-64 overflow-hidden rounded-xl border border-[#d6ad57]/35 bg-white shadow-2xl shadow-black/25">
+          <div className="bg-[#241114] px-4 py-3 text-white">
+            <p className="text-sm font-extrabold">Fale com a Segura</p>
+            <p className="mt-0.5 text-xs text-white/70">Escolha um número para conversar.</p>
+          </div>
+          <div className="space-y-1 p-2">
+            {whatsappOptions.map((option) => (
+              <a
+                key={option.number}
+                href={`https://api.whatsapp.com/send?phone=${option.number}&text=${encodeURIComponent(message)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-bold text-neutral-800 transition-[background-color,color,transform] duration-200 hover:bg-[#fff5dc] hover:text-[#8f0f18] active:scale-[0.98]"
+              >
+                <MessageCircle className="h-5 w-5 text-[#1d9b56]" />
+                {option.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="flex h-14 items-center gap-2 rounded-full bg-[#1d9b56] px-5 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(10,74,39,0.36)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-1 hover:bg-[#168246] hover:shadow-[0_16px_32px_rgba(10,74,39,0.42)] active:translate-y-0 active:scale-[0.98]"
+        aria-expanded={open}
+        aria-label={open ? "Fechar opções do WhatsApp" : "Abrir opções do WhatsApp"}
+      >
+        {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-6 w-6" />}
+        <span>{open ? "Fechar" : "WhatsApp"}</span>
+      </button>
+    </div>
   );
 }
 
