@@ -226,7 +226,7 @@ function Index() {
 
   return (
     <SiteLayout>
-      <section className="relative z-20 min-h-[560px] overflow-visible bg-neutral-950">
+      <section className="relative z-20 flow-root min-h-[560px] overflow-visible bg-neutral-950">
         <img
           src={heroImg}
           alt="Sala decorada com a marca Segura Imobiliaria"
