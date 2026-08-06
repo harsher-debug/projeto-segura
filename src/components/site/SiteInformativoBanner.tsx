@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Info, X } from "lucide-react";
 import {
@@ -46,12 +46,8 @@ export function SiteInformativoBanner() {
     };
   }, []);
 
-  const informativo = useMemo(
-    () =>
-      informativos
-        .filter((item) => item.ativo && dismissed[item.id] !== item.atualizadoEm)
-        .sort((a, b) => new Date(b.atualizadoEm).getTime() - new Date(a.atualizadoEm).getTime())[0],
-    [dismissed, informativos],
+  const informativo = informativos.find(
+    (item) => item.ativo && dismissed[item.id] !== item.atualizadoEm,
   );
 
   if (!informativo) return null;

@@ -68,8 +68,7 @@ function InformativosAdmin() {
     if (!form.titulo.trim() || !form.descricao.trim()) return;
 
     if (editingId) {
-      persist(
-        informativos.map((item) =>
+      const updated = informativos.map((item) =>
           item.id === editingId
             ? {
                 ...item,
@@ -82,8 +81,11 @@ function InformativosAdmin() {
                 atualizadoEm: new Date().toISOString(),
               }
             : item,
-        ),
       );
+      persist([
+        ...updated.filter((item) => item.id === editingId),
+        ...updated.filter((item) => item.id !== editingId),
+      ]);
     } else {
       persist([
         createSiteInformativo({
