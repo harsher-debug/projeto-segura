@@ -281,7 +281,7 @@ function Index() {
               <span className="ml-2 sm:hidden">Buscar</span>
             </Button>
             {showSugestoes && (
-              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 overflow-hidden rounded-2xl border bg-white text-left shadow-2xl ring-1 ring-black/5">
+              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 max-h-[min(22rem,calc(100vh-12rem))] overflow-y-auto overscroll-contain rounded-2xl border bg-white text-left shadow-2xl ring-1 ring-black/5">
                 {sugestoes.map((sugestao) => (
                   <button
                     key={sugestao.imovelId}
