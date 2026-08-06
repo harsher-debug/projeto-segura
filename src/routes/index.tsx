@@ -15,6 +15,7 @@ import { getDestaques, getSearchSuggestions } from "@/lib/imoveis.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import heroImg from "@/assets/hero-interior.png";
+import heroLogoImg from "@/assets/logo-transparent.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -229,7 +230,13 @@ function Index() {
           alt="Sala decorada com a marca Segura Imobiliaria"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.36)_0%,rgba(16,7,5,0.62)_48%,rgba(16,7,5,0.84)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.2)_0%,rgba(16,7,5,0.42)_48%,rgba(16,7,5,0.78)_100%)]" />
+        <div className="absolute left-1/2 top-[38%] h-44 w-[78vw] max-w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f8e8c8]/30 blur-3xl" />
+        <img
+          src={heroLogoImg}
+          alt="Segura Imobiliaria"
+          className="absolute left-1/2 top-[38%] z-20 w-[72vw] max-w-[460px] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,0.85)]"
+        />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />
         <div className="relative z-10 mx-auto mt-[340px] max-w-7xl px-6 pb-10 md:mt-[360px]">
         <form
