@@ -20,7 +20,7 @@ export function Header() {
     <header className="sticky top-0 z-[100] w-full bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-[0_2px_10px_rgba(0,0,0,0.22)] after:absolute after:bottom-0 after:left-0 after:right-0 after:z-[120] after:h-[4px] after:bg-[#d6ad57] after:shadow-[0_1px_8px_rgba(214,173,87,0.75)] after:content-['']">
       <div className="mx-auto grid h-[74px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6">
         <div className="flex justify-start">
-          <Logo light className="h-14" />
+          <Logo light className="h-[3.9rem]" />
         </div>
 
         <nav className="hidden items-center justify-center gap-8 md:flex">
@@ -28,7 +28,7 @@ export function Header() {
             <Link
               key={item.to}
               to={item.to}
-              className="text-sm font-semibold text-white transition hover:text-[#d6ad57] [&.active]:text-[#d6ad57]"
+              className="text-sm font-semibold text-white transition-[color,transform] duration-200 ease-out hover:-translate-y-px hover:text-[#f0c96f] active:translate-y-0 [&.active]:text-[#f0c96f]"
             >
               {item.label}
             </Link>
@@ -37,7 +37,7 @@ export function Header() {
             href={announceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-semibold text-white transition hover:text-[#d6ad57]"
+            className="text-sm font-semibold text-white transition-[color,transform] duration-200 ease-out hover:-translate-y-px hover:text-[#f0c96f] active:translate-y-0"
           >
             Anunciar
           </a>
@@ -48,7 +48,7 @@ export function Header() {
             asChild
             variant="ghost"
             aria-label="Favoritos"
-            className="h-11 rounded-md px-3 text-sm font-bold text-[#f0c96f] hover:bg-white/10 hover:text-[#f8d982]"
+            className="h-11 rounded-md px-3 text-sm font-bold text-[#f0c96f] transition-[transform,background-color,color] duration-200 ease-out hover:-translate-y-px hover:bg-white/10 hover:text-[#fff1bd] active:translate-y-0"
           >
             <Link to="/favoritos">
               <Heart className="mr-1.5 h-7 w-7 text-[#d6ad57]" />
@@ -58,7 +58,7 @@ export function Header() {
           <Button
             asChild
             size="lg"
-            className="h-10 rounded-md border border-[#d6ad57]/70 bg-white px-5 font-bold text-[#a90f1b] shadow-md shadow-black/20 hover:border-[#f0c96f] hover:bg-[#fff8ea]"
+            className="h-10 rounded-md border border-[#d6ad57]/80 bg-[#fffdf8] px-5 font-bold text-[#8f0f18] shadow-md shadow-black/25 transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out hover:-translate-y-px hover:border-[#f0c96f] hover:bg-[#fff5dc] hover:shadow-lg hover:shadow-black/30 active:translate-y-0"
           >
             <Link to="/entrar">
               <User className="mr-1.5 h-4 w-4" />

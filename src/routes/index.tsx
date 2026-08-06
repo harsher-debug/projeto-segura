@@ -271,10 +271,10 @@ function Index() {
                 key={item.key}
                 type="button"
                 onClick={() => setFinalidade(item.key as typeof finalidade)}
-                className={`h-10 rounded-full px-7 text-sm font-bold transition ${
+                className={`h-10 rounded-full px-7 text-sm font-bold transition-[transform,background-color,color,box-shadow] duration-200 ease-out active:scale-[0.98] ${
                   finalidade === item.key
-                    ? "bg-[#8f0f18] text-white shadow"
-                    : "text-white/82 hover:text-[#f2d084]"
+                    ? "bg-[#8f0f18] text-white shadow-[0_5px_12px_rgba(0,0,0,0.28)]"
+                    : "text-white/82 hover:bg-white/8 hover:text-[#f2d084]"
                 }`}
               >
                 {item.label}
@@ -293,7 +293,7 @@ function Index() {
                 placeholder={finalidade === "condominios" ? "Digite o condomínio, bairro ou código..." : "Digite a cidade, bairro ou empreendimento..."}
               />
             </div>
-            <Button className="m-2 h-12 rounded-full bg-[#8f0f18] px-8 text-base font-bold text-white hover:bg-[#6f0b13] sm:h-auto sm:w-16 sm:px-0" aria-label="Buscar">
+            <Button className="m-2 h-12 rounded-full bg-[#8f0f18] px-8 text-base font-bold text-white shadow-[0_5px_12px_rgba(87,7,13,0.28)] hover:bg-[#6f0b13] sm:h-auto sm:w-16 sm:px-0" aria-label="Buscar">
               <Search className="h-6 w-6" />
               <span className="ml-2 sm:hidden">Buscar</span>
             </Button>
