@@ -40,7 +40,7 @@ const emptyForm: FormState = {
 
 function InformativosAdmin() {
   const [informativos, setInformativos] = useState<SiteInformativo[]>([]);
-  const [appearance, setAppearance] = useState<SiteAppearanceSettings>({ headerLineColor: "#d6ad57" });
+  const [appearance, setAppearance] = useState<SiteAppearanceSettings>({ informativoBarColor: "#241114" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
 
@@ -56,9 +56,9 @@ function InformativosAdmin() {
     saveSiteInformativos(next);
   };
 
-  const updateHeaderLineColor = (headerLineColor: string) => {
-    if (!/^#[0-9a-f]{6}$/i.test(headerLineColor)) return;
-    const next = { ...appearance, headerLineColor };
+  const updateInformativoBarColor = (informativoBarColor: string) => {
+    if (!/^#[0-9a-f]{6}$/i.test(informativoBarColor)) return;
+    const next = { ...appearance, informativoBarColor };
     setAppearance(next);
     saveSiteAppearanceSettings(next);
   };
@@ -236,27 +236,27 @@ function InformativosAdmin() {
             <div className="rounded-md border bg-[#fbfaf8] p-3">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm font-bold">Linha global abaixo do cabeçalho</p>
-                  <p className="text-xs text-neutral-500">A cor aparece em todas as páginas públicas.</p>
+                  <p className="text-sm font-bold">Faixa global do informativo</p>
+                  <p className="text-xs text-neutral-500">A cor aparece na faixa de avisos abaixo do cabeçalho.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={appearance.headerLineColor}
-                    onChange={(event) => updateHeaderLineColor(event.target.value)}
+                    value={appearance.informativoBarColor}
+                    onChange={(event) => updateInformativoBarColor(event.target.value)}
                     className="h-10 w-12 cursor-pointer rounded-md border bg-white p-1"
-                    aria-label="Escolher cor da linha do cabeçalho"
+                    aria-label="Escolher cor da faixa do informativo"
                   />
                   <Input
-                    value={appearance.headerLineColor.toUpperCase()}
-                    onChange={(event) => updateHeaderLineColor(event.target.value.trim())}
+                    value={appearance.informativoBarColor.toUpperCase()}
+                    onChange={(event) => updateInformativoBarColor(event.target.value.trim())}
                     className="h-10 w-28 font-mono text-sm uppercase"
                     maxLength={7}
-                    aria-label="Código hexadecimal da linha do cabeçalho"
+                    aria-label="Código hexadecimal da faixa do informativo"
                   />
                 </div>
               </div>
-              <div className="mt-3 h-1.5 rounded-full" style={{ backgroundColor: appearance.headerLineColor }} />
+              <div className="mt-3 h-8 rounded-md" style={{ backgroundColor: appearance.informativoBarColor }} />
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">

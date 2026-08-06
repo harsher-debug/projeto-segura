@@ -3,7 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { Info, X } from "lucide-react";
 import {
   SITE_INFORMATIVOS_EVENT,
+  SITE_APPEARANCE_EVENT,
+  getSiteAppearanceSettings,
   getSiteInformativos,
+  type SiteAppearanceSettings,
   type SiteInformativo,
 } from "@/lib/site-informativos";
 
@@ -22,17 +25,24 @@ function getDismissedInformativos() {
 export function SiteInformativoBanner() {
   const [informativos, setInformativos] = useState<SiteInformativo[]>([]);
   const [dismissed, setDismissed] = useState<Record<string, string>>({});
+  const [appearance, setAppearance] = useState<SiteAppearanceSettings>({ informativoBarColor: "#241114" });
 
   useEffect(() => {
     const updateInformativos = () => setInformativos(getSiteInformativos());
+    const updateAppearance = () => setAppearance(getSiteAppearanceSettings());
     updateInformativos();
     setDismissed(getDismissedInformativos());
+    updateAppearance();
 
     window.addEventListener(SITE_INFORMATIVOS_EVENT, updateInformativos);
+    window.addEventListener(SITE_APPEARANCE_EVENT, updateAppearance);
     window.addEventListener("storage", updateInformativos);
+    window.addEventListener("storage", updateAppearance);
     return () => {
       window.removeEventListener(SITE_INFORMATIVOS_EVENT, updateInformativos);
+      window.removeEventListener(SITE_APPEARANCE_EVENT, updateAppearance);
       window.removeEventListener("storage", updateInformativos);
+      window.removeEventListener("storage", updateAppearance);
     };
   }, []);
 
@@ -53,7 +63,10 @@ export function SiteInformativoBanner() {
   };
 
   return (
-    <aside className="border-b border-[#d6ad57]/35 bg-[#241114] text-white shadow-[0_5px_16px_rgba(0,0,0,0.18)]">
+    <aside
+      className="border-b border-white/15 text-white shadow-[0_5px_16px_rgba(0,0,0,0.18)]"
+      style={{ backgroundColor: appearance.informativoBarColor }}
+    >
       <div className="mx-auto flex max-w-7xl items-start gap-3 px-6 py-3 sm:items-center">
         <Info className="mt-0.5 h-5 w-5 shrink-0 text-[#f0c96f] sm:mt-0" aria-hidden="true" />
         <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">

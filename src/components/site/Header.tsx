@@ -1,9 +1,8 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, Menu, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
-import { SITE_APPEARANCE_EVENT, getSiteAppearanceSettings } from "@/lib/site-informativos";
 
 const announceUrl = "https://imobiliariaseguracanoas.bitrix24.site/captacao/cadastro_externo/";
 
@@ -16,24 +15,9 @@ const navItems = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const [headerLineColor, setHeaderLineColor] = useState("#d6ad57");
-
-  useEffect(() => {
-    const updateAppearance = () => setHeaderLineColor(getSiteAppearanceSettings().headerLineColor);
-    updateAppearance();
-    window.addEventListener(SITE_APPEARANCE_EVENT, updateAppearance);
-    window.addEventListener("storage", updateAppearance);
-    return () => {
-      window.removeEventListener(SITE_APPEARANCE_EVENT, updateAppearance);
-      window.removeEventListener("storage", updateAppearance);
-    };
-  }, []);
 
   return (
-    <header
-      className="sticky top-0 z-[100] w-full border-b-4 bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-[0_2px_10px_rgba(0,0,0,0.22)]"
-      style={{ borderBottomColor: headerLineColor, boxShadow: `0 2px 10px rgba(0,0,0,0.22), 0 2px 9px ${headerLineColor}b8` } as CSSProperties}
-    >
+    <header className="sticky top-0 z-[100] w-full bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] shadow-[0_2px_10px_rgba(0,0,0,0.22)] after:absolute after:bottom-0 after:left-0 after:right-0 after:z-[120] after:h-[4px] after:bg-[#d6ad57] after:shadow-[0_1px_8px_rgba(214,173,87,0.75)] after:content-['']">
       <div className="mx-auto grid h-[74px] max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6">
         <div className="flex justify-start">
           <Logo light className="h-[3.9rem]" />
