@@ -8,9 +8,7 @@ export function Footer() {
     <footer className="mt-auto border-t border-white/10 bg-[linear-gradient(90deg,#e40016_0%,#7a1422_52%,#160c10_100%)] text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-[1.25fr_1fr_1fr_1fr]">
         <div>
-          <div className="w-fit rounded-lg bg-black/20 px-3 py-2 ring-1 ring-white/15 shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
-            <Logo light className="h-[4.5rem]" />
-          </div>
+          <Logo light shadow={false} className="h-[4.5rem]" />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/85">
             Há mais de 55 anos cuidando da sua locação e venda de imóveis em
             Canoas e região metropolitana, com segurança e experiência.

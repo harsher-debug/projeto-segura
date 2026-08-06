@@ -236,7 +236,7 @@ function Index() {
         <img
           src={heroLogoImg}
           alt="Segura Imobiliaria"
-          className="absolute left-1/2 top-[38%] z-10 w-[58vw] max-w-[430px] -translate-x-1/2 -translate-y-1/2 object-contain brightness-110 drop-shadow-[0_16px_30px_rgba(0,0,0,0.55)]"
+          className="absolute left-1/2 top-[38%] z-10 w-[58vw] max-w-[430px] -translate-x-1/2 -translate-y-1/2 object-contain brightness-110 drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]"
         />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />
         <div className="relative z-10 mx-auto mt-[340px] max-w-7xl px-6 pb-10 md:mt-[360px]">
