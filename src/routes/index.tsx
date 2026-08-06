@@ -446,8 +446,8 @@ function HomeWhatsappButton() {
   const [open, setOpen] = useState(false);
   const message = "Olá! Gostaria de mais informações sobre imóveis.";
   const whatsappOptions = [
-    { label: "(51) 2102-4000", number: "555121024000" },
-    { label: "(51) 2102-4001", number: "555121024001" },
+    { label: "Central", phone: "(51) 2102-4000", number: "555121024000" },
+    { label: "Vendas", phone: "(51) 2102-4001", number: "555121024001" },
   ];
 
   return (
@@ -468,7 +468,10 @@ function HomeWhatsappButton() {
                 className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-bold text-neutral-800 transition-[background-color,color,transform] duration-200 hover:bg-[#fff5dc] hover:text-[#8f0f18] active:scale-[0.98]"
               >
                 <MessageCircle className="h-5 w-5 text-[#1d9b56]" />
-                {option.label}
+                <span>
+                  <span className="block">{option.label}</span>
+                  <span className="block text-xs font-medium text-neutral-500">{option.phone}</span>
+                </span>
               </a>
             ))}
           </div>
