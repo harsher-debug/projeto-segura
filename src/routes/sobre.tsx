@@ -20,7 +20,7 @@ export const Route = createFileRoute("/sobre")({
 function Page() {
   return (
     <SiteLayout>
-      <section className="bg-secondary py-16 text-center text-white">
+      <section className="border-b border-[#d6ad57]/75 bg-[linear-gradient(135deg,#bd101d_0%,#751522_52%,#211014_100%)] py-16 text-center text-white shadow-[0_10px_24px_rgba(56,13,18,0.2)]">
         <div className="mx-auto max-w-3xl px-4">
           <h1 className="font-display text-3xl font-extrabold md:text-4xl">
             Quem Somos

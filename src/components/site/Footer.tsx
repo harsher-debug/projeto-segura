@@ -60,7 +60,7 @@ export function Footer() {
             href={whatsappLink("Olá! Gostaria de mais informações sobre imóveis.")}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-5 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2.5 text-sm font-extrabold text-primary shadow-lg transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-px hover:bg-[#fff5dc] hover:shadow-xl active:translate-y-0"
+            className="mt-5 inline-flex items-center gap-2 rounded-md bg-[#1d9b56] px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-black/20 transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-px hover:bg-[#168246] hover:shadow-xl active:translate-y-0"
           >
             <MessageCircle className="h-4 w-4" />
             Fale no WhatsApp
