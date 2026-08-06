@@ -4,6 +4,7 @@ dist/
 .vinxi/
 .wrangler/
 .vercel/
+.tanstack/
 .env
 .env.local
 *.log

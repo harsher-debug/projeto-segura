@@ -42,6 +42,7 @@ import { Route as PortalLocatarioBoletosRouteImport } from './routes/portal/loca
 import { Route as AuthenticatedAppVisitasRouteImport } from './routes/_authenticated/app.visitas'
 import { Route as AuthenticatedAppPropostasRouteImport } from './routes/_authenticated/app.propostas'
 import { Route as AuthenticatedAppLeadsRouteImport } from './routes/_authenticated/app.leads'
+import { Route as AuthenticatedAppInformativosRouteImport } from './routes/_authenticated/app.informativos'
 import { Route as AuthenticatedAppImoveisRouteImport } from './routes/_authenticated/app.imoveis'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app.dashboard'
 import { Route as AuthenticatedAppContratosRouteImport } from './routes/_authenticated/app.contratos'
@@ -221,6 +222,12 @@ const AuthenticatedAppLeadsRoute = AuthenticatedAppLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppInformativosRoute =
+  AuthenticatedAppInformativosRouteImport.update({
+    id: '/informativos',
+    path: '/informativos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppImoveisRoute = AuthenticatedAppImoveisRouteImport.update({
   id: '/imoveis',
   path: '/imoveis',
@@ -267,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/app/contratos': typeof AuthenticatedAppContratosRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/imoveis': typeof AuthenticatedAppImoveisRoute
+  '/app/informativos': typeof AuthenticatedAppInformativosRoute
   '/app/leads': typeof AuthenticatedAppLeadsRoute
   '/app/propostas': typeof AuthenticatedAppPropostasRoute
   '/app/visitas': typeof AuthenticatedAppVisitasRoute
@@ -305,6 +313,7 @@ export interface FileRoutesByTo {
   '/app/contratos': typeof AuthenticatedAppContratosRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/imoveis': typeof AuthenticatedAppImoveisRoute
+  '/app/informativos': typeof AuthenticatedAppInformativosRoute
   '/app/leads': typeof AuthenticatedAppLeadsRoute
   '/app/propostas': typeof AuthenticatedAppPropostasRoute
   '/app/visitas': typeof AuthenticatedAppVisitasRoute
@@ -346,6 +355,7 @@ export interface FileRoutesById {
   '/_authenticated/app/contratos': typeof AuthenticatedAppContratosRoute
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/app/imoveis': typeof AuthenticatedAppImoveisRoute
+  '/_authenticated/app/informativos': typeof AuthenticatedAppInformativosRoute
   '/_authenticated/app/leads': typeof AuthenticatedAppLeadsRoute
   '/_authenticated/app/propostas': typeof AuthenticatedAppPropostasRoute
   '/_authenticated/app/visitas': typeof AuthenticatedAppVisitasRoute
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/app/contratos'
     | '/app/dashboard'
     | '/app/imoveis'
+    | '/app/informativos'
     | '/app/leads'
     | '/app/propostas'
     | '/app/visitas'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/app/contratos'
     | '/app/dashboard'
     | '/app/imoveis'
+    | '/app/informativos'
     | '/app/leads'
     | '/app/propostas'
     | '/app/visitas'
@@ -465,6 +477,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/contratos'
     | '/_authenticated/app/dashboard'
     | '/_authenticated/app/imoveis'
+    | '/_authenticated/app/informativos'
     | '/_authenticated/app/leads'
     | '/_authenticated/app/propostas'
     | '/_authenticated/app/visitas'
@@ -735,6 +748,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppLeadsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/informativos': {
+      id: '/_authenticated/app/informativos'
+      path: '/informativos'
+      fullPath: '/app/informativos'
+      preLoaderRoute: typeof AuthenticatedAppInformativosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/imoveis': {
       id: '/_authenticated/app/imoveis'
       path: '/imoveis'
@@ -779,6 +799,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppContratosRoute: typeof AuthenticatedAppContratosRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppImoveisRoute: typeof AuthenticatedAppImoveisRoute
+  AuthenticatedAppInformativosRoute: typeof AuthenticatedAppInformativosRoute
   AuthenticatedAppLeadsRoute: typeof AuthenticatedAppLeadsRoute
   AuthenticatedAppPropostasRoute: typeof AuthenticatedAppPropostasRoute
   AuthenticatedAppVisitasRoute: typeof AuthenticatedAppVisitasRoute
@@ -791,6 +812,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppContratosRoute: AuthenticatedAppContratosRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppImoveisRoute: AuthenticatedAppImoveisRoute,
+  AuthenticatedAppInformativosRoute: AuthenticatedAppInformativosRoute,
   AuthenticatedAppLeadsRoute: AuthenticatedAppLeadsRoute,
   AuthenticatedAppPropostasRoute: AuthenticatedAppPropostasRoute,
   AuthenticatedAppVisitasRoute: AuthenticatedAppVisitasRoute,

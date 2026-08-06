@@ -14,6 +14,11 @@ import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
 import { getDestaques, getSearchSuggestions } from "@/lib/imoveis.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  SITE_INFORMATIVOS_EVENT,
+  getSiteInformativos,
+  type SiteInformativo,
+} from "@/lib/site-informativos";
 import heroImg from "@/assets/hero-living-room-clean.png";
 import heroLogoImg from "@/assets/hero-segura-logo.png";
 
@@ -34,6 +39,7 @@ function Index() {
   const [finalidade, setFinalidade] = useState<"locacao" | "venda" | "condominios">("locacao");
   const [busca, setBusca] = useState("");
   const [buscaFocus, setBuscaFocus] = useState(false);
+  const [informativos, setInformativos] = useState<SiteInformativo[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
   const carouselPausedRef = useRef(false);
   const carouselResumeTimeoutRef = useRef<number | null>(null);
@@ -76,6 +82,7 @@ function Index() {
   });
 
   const showSugestoes = buscaFocus && termoSugestao.length >= 2 && sugestoes.length > 0;
+  const informativosAtivos = informativos.filter((item) => item.ativo);
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -222,6 +229,18 @@ function Index() {
     };
   }, [recentes.length]);
 
+  useEffect(() => {
+    const updateInformativos = () => setInformativos(getSiteInformativos());
+    updateInformativos();
+
+    window.addEventListener(SITE_INFORMATIVOS_EVENT, updateInformativos);
+    window.addEventListener("storage", updateInformativos);
+    return () => {
+      window.removeEventListener(SITE_INFORMATIVOS_EVENT, updateInformativos);
+      window.removeEventListener("storage", updateInformativos);
+    };
+  }, []);
+
   return (
     <SiteLayout>
       <section className="relative min-h-[560px] overflow-hidden bg-neutral-950">
@@ -326,6 +345,25 @@ function Index() {
       <section className="relative mx-auto max-w-7xl px-6 pt-12">
         <HomePromoGrid />
       </section>
+
+      {informativosAtivos.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pt-10">
+          <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-[#a50f1b]">Informativos</p>
+              <h2 className="font-display text-3xl font-extrabold text-neutral-950">Avisos e novidades da Segura</h2>
+            </div>
+            <p className="max-w-md text-sm text-muted-foreground">
+              Conteudos publicados pelo painel administrativo do site.
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {informativosAtivos.slice(0, 4).map((item) => (
+              <HomeInformativoCard key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl overflow-visible px-6 pb-12 pt-10">
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -607,5 +645,36 @@ function HomePromoGrid() {
         </article>
       </div>
     </div>
+  );
+}
+
+function HomeInformativoCard({ item }: { item: SiteInformativo }) {
+  const styles = {
+    destaque: {
+      card: "bg-[linear-gradient(135deg,#e40016_0%,#8e1221_55%,#211014_100%)] text-white",
+      text: "text-white/78",
+      button: "bg-white text-[#a50f1b] hover:bg-[#fff5dc]",
+    },
+    claro: {
+      card: "bg-[#fff7e4] text-neutral-950",
+      text: "text-neutral-600",
+      button: "bg-[#a50f1b] text-white hover:bg-[#7e0d16]",
+    },
+    escuro: {
+      card: "bg-[#211014] text-white",
+      text: "text-white/78",
+      button: "bg-white text-[#a50f1b] hover:bg-[#fff5dc]",
+    },
+  }[item.variante];
+
+  return (
+    <article className={`rounded-md p-7 shadow-xl shadow-black/8 ${styles.card}`}>
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-[#d6ad57]">{item.etiqueta}</p>
+      <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight">{item.titulo}</h3>
+      <p className={`mt-3 text-sm leading-relaxed ${styles.text}`}>{item.descricao}</p>
+      <Button asChild className={`mt-6 rounded-full px-5 ${styles.button}`}>
+        <Link to={item.linkUrl}>{item.linkTexto}</Link>
+      </Button>
+    </article>
   );
 }
