@@ -53,7 +53,10 @@ function Page() {
           <div className="space-y-4">
             {[
               { icon: MapPin, t: "Endereço", d: "Canoas - RS, Brasil" },
-              { icon: Phone, t: "Telefone", d: "(51) 2102-4000 / (51) 2102-4001" },
+              { icon: Phone, t: "Telefone", d: "(51) 2102-4000 / (51) 2102-4001", phones: [
+                { label: "(51) 2102-4000", href: "tel:+555121024000" },
+                { label: "(51) 2102-4001", href: "tel:+555121024001" },
+              ] },
               { icon: Mail, t: "E-mail", d: "imobiliaria@segura.com.br" },
             ].map((c) => (
               <div key={c.t} className="flex items-start gap-3 rounded-xl border bg-card p-4">
@@ -62,7 +65,22 @@ function Page() {
                 </div>
                 <div>
                   <p className="font-semibold">{c.t}</p>
-                  <p className="text-sm text-muted-foreground">{c.d}</p>
+                  {"phones" in c ? (
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                      {c.phones.map((phone) => (
+                        <a
+                          key={phone.href}
+                          href={phone.href}
+                          className="text-sm font-semibold text-primary underline-offset-4 transition-colors hover:text-primary/75 hover:underline"
+                          aria-label={`Ligar para ${phone.label}`}
+                        >
+                          {phone.label}
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{c.d}</p>
+                  )}
                 </div>
               </div>
             ))}
