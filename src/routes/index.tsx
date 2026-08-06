@@ -573,8 +573,8 @@ function HomePromoGrid() {
         </div>
       </article>
 
-      <div className="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:snap-none lg:grid-cols-3 lg:overflow-visible lg:px-0">
-        <article className="min-w-[calc(100vw-3.5rem)] snap-start rounded-md border bg-white p-7 shadow-lg shadow-black/5 sm:min-w-[22rem] lg:min-w-0">
+      <div className="hidden gap-5 md:grid md:grid-cols-3">
+        <article className="rounded-md border bg-white p-7 shadow-lg shadow-black/5">
           <h3 className="font-display text-2xl font-extrabold leading-tight text-neutral-950">Alugue sem perder tempo</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Filtre por bairro, código ou tipo de imóvel e fale com a equipe para confirmar disponibilidade.
@@ -584,7 +584,7 @@ function HomePromoGrid() {
           </Button>
         </article>
 
-        <article className="min-w-[calc(100vw-3.5rem)] snap-start rounded-md border bg-white p-7 shadow-lg shadow-black/5 sm:min-w-[22rem] lg:min-w-0">
+        <article className="rounded-md border bg-white p-7 shadow-lg shadow-black/5">
           <h3 className="font-display text-2xl font-extrabold leading-tight text-neutral-950">Compare antes de visitar</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Veja valores, regiões e características antes de agendar, com imóveis organizados para comparação rápida.
@@ -596,7 +596,7 @@ function HomePromoGrid() {
           </div>
         </article>
 
-        <article className="min-w-[calc(100vw-3.5rem)] snap-start rounded-md border bg-white p-7 text-neutral-950 shadow-lg shadow-black/5 sm:min-w-[22rem] lg:min-w-0">
+        <article className="rounded-md border bg-white p-7 text-neutral-950 shadow-lg shadow-black/5">
           <h3 className="font-display text-2xl font-extrabold leading-tight">Compre com apoio local</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             Conheça oportunidades em Canoas com orientação para escolher, visitar e negociar com mais segurança.
