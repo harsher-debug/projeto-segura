@@ -8,6 +8,7 @@ import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   getFavoriteContact,
   getFavoriteIds,
@@ -40,8 +41,7 @@ function Page() {
   const [contactReady, setContactReady] = useState(false);
   const [checkingContact, setCheckingContact] = useState(true);
   const [accessMode, setAccessMode] = useState<"login" | "register">("login");
-  const [contactType, setContactType] = useState<"email" | "telefone">("email");
-  const [contactValue, setContactValue] = useState("");
+  const [username, setUsername] = useState("");
   const [senha, setSenha] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,11 +49,9 @@ function Page() {
     const contact = getFavoriteContact();
     if (contact) {
       if (contact.email) {
-        setContactType("email");
-        setContactValue(contact.email);
+        setUsername(contact.email);
       } else if (contact.telefone) {
-        setContactType("telefone");
-        setContactValue(formatPhone(contact.telefone));
+        setUsername(formatPhone(contact.telefone));
       }
     }
     const portalSession = getLocalPortalSession();
@@ -108,13 +106,12 @@ function Page() {
 
   const handleContact = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const cleanValue = contactValue.trim();
-    const contact = contactType === "email"
-      ? { email: cleanValue, telefone: "" }
-      : { email: "", telefone: cleanValue };
+    const cleanValue = username.trim();
+    const isPhone = isPhoneUsername(cleanValue);
+    const contact = isPhone ? { email: "", telefone: cleanValue } : { email: cleanValue, telefone: "" };
     const digits = cleanValue.replace(/\D/g, "");
-    if (!cleanValue || (contactType === "email" && !/^\S+@\S+\.\S+$/.test(cleanValue)) || (contactType === "telefone" && digits.length < 10)) {
-      toast.error(contactType === "email" ? "Informe um e-mail válido." : "Informe um telefone válido com DDD.");
+    if (!cleanValue || (!isPhone && !/^\S+@\S+\.\S+$/.test(cleanValue)) || (isPhone && digits.length < 10)) {
+      toast.error(isPhone ? "Informe um telefone válido com DDD." : "Informe um e-mail válido.");
       return;
     }
     if (senha.length < 6) {
@@ -149,8 +146,8 @@ function Page() {
     saveFavoriteContact(contact);
     registerAccessFn({
       data: {
-        email: cleanEmail,
-        telefone: cleanPhone,
+        email: contact.email,
+        telefone: contact.telefone,
         localizacao: await getBrowserLocation(),
       },
     }).catch(() => {
@@ -203,40 +200,39 @@ function Page() {
                   Cadastro
                 </button>
               </div>
-              <div className="flex gap-2" aria-label="Tipo de contato">
-                <Button type="button" size="sm" variant={contactType === "email" ? "default" : "outline"} onClick={() => { setContactType("email"); setContactValue(""); }}>
-                  <Mail className="mr-1.5 h-3.5 w-3.5" /> E-mail
-                </Button>
-                <Button type="button" size="sm" variant={contactType === "telefone" ? "default" : "outline"} onClick={() => { setContactType("telefone"); setContactValue(""); }}>
-                  <Phone className="mr-1.5 h-3.5 w-3.5" /> Telefone
-                </Button>
+              <div>
+                <Label htmlFor="favorite-username" className="mb-1.5 block">Usuário</Label>
+                <div className="relative">
+                  {isPhoneUsername(username) ? <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /> : <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />}
+                  <Input
+                    id="favorite-username"
+                    type="text"
+                    inputMode={isPhoneUsername(username) ? "tel" : "email"}
+                    placeholder="E-mail ou telefone com DDD"
+                    className="pl-10"
+                    value={username}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setUsername(isPhoneUsername(value) ? formatPhone(value) : value);
+                    }}
+                    autoComplete="username"
+                  />
+                </div>
               </div>
-              <div className="relative">
-                {contactType === "email" ? (
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                ) : (
-                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                )}
-                <Input
-                  type={contactType === "email" ? "email" : "tel"}
-                  inputMode={contactType === "email" ? "email" : "tel"}
-                  placeholder={contactType === "email" ? "E-mail para contato" : "(51) 99999-9999"}
-                  className="pl-10"
-                  value={contactValue}
-                  onChange={(event) => setContactValue(contactType === "telefone" ? formatPhone(event.target.value) : event.target.value)}
-                  autoComplete={contactType === "email" ? "email" : "tel"}
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="password"
-                  placeholder="Crie ou informe sua senha"
-                  className="pl-10"
-                  value={senha}
-                  onChange={(event) => setSenha(event.target.value)}
-                  autoComplete="current-password"
-                />
+              <div>
+                <Label htmlFor="favorite-password" className="mb-1.5 block">Senha</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="favorite-password"
+                    type="password"
+                    placeholder="Crie ou informe sua senha"
+                    className="pl-10"
+                    value={senha}
+                    onChange={(event) => setSenha(event.target.value)}
+                    autoComplete="current-password"
+                  />
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? "Validando..." : accessMode === "login" ? "Entrar nos favoritos" : "Criar cadastro"}
@@ -314,4 +310,8 @@ function formatPhone(value: string) {
   if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
   if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function isPhoneUsername(value: string) {
+  return !value.includes("@") && /^[\d\s()+-]*$/.test(value);
 }
