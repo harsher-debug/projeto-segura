@@ -5,9 +5,23 @@ export type FavoriteContact = {
   telefone?: string;
 };
 
+type FavoriteAccount = FavoriteContact & {
+  id: string;
+  passwordHash: string;
+  createdAt: string;
+};
+
+type FavoriteSession = {
+  accountId: string;
+  authenticatedAt: string;
+  source: "favoritos" | "cliente";
+};
+
 const FAVORITES_KEY = "segura_favorite_imoveis";
 const FAVORITE_ITEMS_KEY = "segura_favorite_imoveis_data";
 const CONTACT_COOKIE = "segura_favorite_contact";
+const FAVORITE_ACCOUNTS_KEY = "segura_favorite_accounts";
+const FAVORITE_SESSION_KEY = "segura_favorite_session";
 const CONTACT_MAX_AGE = 60 * 60 * 24 * 180;
 
 function canUseBrowser() {
@@ -44,6 +58,90 @@ export function saveFavoriteContact(contact: FavoriteContact) {
     telefone: contact.telefone?.trim() || undefined,
   };
   document.cookie = `${CONTACT_COOKIE}=${encodeCookieValue(cleanContact)}; max-age=${CONTACT_MAX_AGE}; path=/; SameSite=Lax`;
+}
+
+function normalizeEmail(email?: string) {
+  return email?.trim().toLowerCase() || "";
+}
+
+function normalizePhone(phone?: string) {
+  return phone?.replace(/\D/g, "") || "";
+}
+
+function contactId(contact: FavoriteContact) {
+  return `${normalizeEmail(contact.email)}|${normalizePhone(contact.telefone)}`;
+}
+
+function getFavoriteAccounts(): FavoriteAccount[] {
+  if (!canUseBrowser()) return [];
+  try {
+    const accounts = JSON.parse(window.localStorage.getItem(FAVORITE_ACCOUNTS_KEY) || "[]");
+    return Array.isArray(accounts) ? accounts.filter((account) => account?.id && account?.passwordHash) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveFavoriteAccounts(accounts: FavoriteAccount[]) {
+  window.localStorage.setItem(FAVORITE_ACCOUNTS_KEY, JSON.stringify(accounts));
+}
+
+async function hashPassword(password: string) {
+  const encoded = new TextEncoder().encode(password);
+  const digest = await window.crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function authenticateFavoriteAccount(contact: FavoriteContact, password: string) {
+  if (!canUseBrowser() || !window.crypto?.subtle) return { ok: false as const, reason: "unsupported" as const };
+
+  const accountId = contactId(contact);
+  const passwordHash = await hashPassword(password);
+  const accounts = getFavoriteAccounts();
+  const account = accounts.find((item) => item.id === accountId);
+
+  if (account && account.passwordHash !== passwordHash) return { ok: false as const, reason: "invalid-password" as const };
+
+  if (!account) {
+    accounts.push({
+      id: accountId,
+      email: normalizeEmail(contact.email) || undefined,
+      telefone: contact.telefone?.trim() || undefined,
+      passwordHash,
+      createdAt: new Date().toISOString(),
+    });
+    saveFavoriteAccounts(accounts);
+  }
+
+  saveFavoriteContact(contact);
+  const session: FavoriteSession = { accountId, authenticatedAt: new Date().toISOString(), source: "favoritos" };
+  window.localStorage.setItem(FAVORITE_SESSION_KEY, JSON.stringify(session));
+  return { ok: true as const, created: !account };
+}
+
+export function hasFavoriteSessionToday() {
+  if (!canUseBrowser()) return false;
+  try {
+    const session = JSON.parse(window.localStorage.getItem(FAVORITE_SESSION_KEY) || "null") as FavoriteSession | null;
+    if (!session?.accountId || !session.authenticatedAt) return false;
+    const authenticated = new Date(session.authenticatedAt);
+    if (Number.isNaN(authenticated.getTime())) return false;
+    return authenticated.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" }) ===
+      new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+  } catch {
+    return false;
+  }
+}
+
+export function saveClientFavoriteSession(contact: FavoriteContact) {
+  if (!canUseBrowser()) return;
+  saveFavoriteContact(contact);
+  const session: FavoriteSession = {
+    accountId: contactId(contact),
+    authenticatedAt: new Date().toISOString(),
+    source: "cliente",
+  };
+  window.localStorage.setItem(FAVORITE_SESSION_KEY, JSON.stringify(session));
 }
 
 export function getFavoriteIds(): string[] {

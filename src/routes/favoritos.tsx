@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Heart, Mail, Phone } from "lucide-react";
+import { Heart, Lock, Mail, Phone } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
@@ -12,10 +12,19 @@ import {
   getFavoriteContact,
   getFavoriteIds,
   getFavoriteItems,
+  hasFavoriteSessionToday,
   saveFavoriteContact,
+  saveClientFavoriteSession,
+  authenticateFavoriteAccount,
 } from "@/lib/public-favorites";
 import { registerFavoriteAccess } from "@/lib/favorite-access.functions";
 import { getImovel, listImoveis } from "@/lib/imoveis.functions";
+import {
+  authenticateLocalPortalContact,
+  findLocalPortalUserByContact,
+  getLocalPortalSession,
+  hasLocalPortalSessionToday,
+} from "@/lib/portal-auth";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({ meta: [{ title: "Favoritos | Imobiliária Segura" }] }),
@@ -32,12 +41,20 @@ function Page() {
   const [checkingContact, setCheckingContact] = useState(true);
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [senha, setSenha] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const contact = getFavoriteContact();
     if (contact) {
       setEmail(contact.email ?? "");
       setTelefone(contact.telefone ?? "");
+    }
+    const portalSession = getLocalPortalSession();
+    if (hasLocalPortalSessionToday() && portalSession) {
+      saveClientFavoriteSession({ email: portalSession.email, telefone: portalSession.phone });
+      setContactReady(true);
+    } else if (hasFavoriteSessionToday()) {
       setContactReady(true);
     }
     setCheckingContact(false);
@@ -91,7 +108,31 @@ function Page() {
       toast.error("Informe um telefone ou e-mail para acessar seus favoritos.");
       return;
     }
-    saveFavoriteContact({ email: cleanEmail, telefone: cleanPhone });
+    if (senha.length < 6) {
+      toast.error("Crie ou informe uma senha com pelo menos 6 caracteres.");
+      return;
+    }
+
+    setSubmitting(true);
+    const contact = { email: cleanEmail, telefone: cleanPhone };
+    const client = authenticateLocalPortalContact(contact, senha);
+    const knownClient = findLocalPortalUserByContact(contact);
+    if (client) {
+      saveClientFavoriteSession({ email: client.email, telefone: client.phone });
+    } else if (knownClient) {
+      setSubmitting(false);
+      toast.error("Use a mesma senha cadastrada para a Área do Cliente.");
+      return;
+    } else {
+      const account = await authenticateFavoriteAccount(contact, senha);
+      if (!account.ok) {
+        setSubmitting(false);
+        toast.error(account.reason === "invalid-password" ? "Senha incorreta para este cadastro." : "Este navegador não suporta o cadastro de favoritos.");
+        return;
+      }
+    }
+
+    saveFavoriteContact(contact);
     registerAccessFn({
       data: {
         email: cleanEmail,
@@ -102,7 +143,8 @@ function Page() {
       console.error("[Favoritos] Nao foi possivel registrar o acesso.");
     });
     setContactReady(true);
-    toast.success("Favoritos liberados neste navegador.");
+    setSubmitting(false);
+    toast.success(client ? "Favoritos liberados com seu cadastro de cliente." : "Favoritos liberados neste navegador.");
   };
 
   return (
@@ -116,7 +158,7 @@ function Page() {
             Seus imóveis favoritos
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Salve imóveis, volte depois e compartilhe as opções sem precisar ter login de cliente.
+            Salve imóveis, volte depois e compartilhe as opções com um acesso simples e seguro.
           </p>
         </div>
 
@@ -128,7 +170,7 @@ function Page() {
           <section className="max-w-xl rounded-xl border bg-card p-6 shadow-sm">
             <h2 className="font-display text-xl font-extrabold">Acesse seus favoritos</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Informe telefone ou e-mail para liberar os favoritos neste navegador.
+              Informe telefone ou e-mail e uma senha. Clientes Segura usam os mesmos dados da área do cliente.
             </p>
             <form className="mt-5 space-y-3" onSubmit={handleContact}>
               <div className="relative">
@@ -150,8 +192,19 @@ function Page() {
                   onChange={(event) => setTelefone(event.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Acessar favoritos
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="password"
+                  placeholder="Crie ou informe sua senha"
+                  className="pl-10"
+                  value={senha}
+                  onChange={(event) => setSenha(event.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Validando..." : "Acessar favoritos"}
               </Button>
             </form>
           </section>

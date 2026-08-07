@@ -13,6 +13,10 @@ export type LocalPortalUser = {
   defaultPath: string;
 };
 
+type StoredPortalSession = LocalPortalUser & {
+  authenticatedAt?: string;
+};
+
 const LOCAL_USERS: Record<string, LocalPortalUser & { password: string }> = {
   admin1: {
     id: "local-admin1",
@@ -80,24 +84,54 @@ export function authenticateLocalPortalUser(login: string, password: string) {
 }
 
 export function saveLocalPortalSession(user: LocalPortalUser) {
-  window.localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  const session: StoredPortalSession = { ...user, authenticatedAt: new Date().toISOString() };
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   window.localStorage.setItem("segura_cliente_nome", user.name);
   window.localStorage.setItem("segura_cliente_tipo", user.permissions.join(","));
 }
 
-export function getLocalPortalSession(): LocalPortalUser | null {
+export function getLocalPortalSession(): StoredPortalSession | null {
   if (typeof window === "undefined") return null;
 
   const raw = window.localStorage.getItem(SESSION_KEY);
   if (!raw) return null;
 
   try {
-    const session = JSON.parse(raw) as LocalPortalUser;
+    const session = JSON.parse(raw) as StoredPortalSession;
     if (!session.id || !session.login || !Array.isArray(session.permissions)) return null;
     return session;
   } catch {
     return null;
   }
+}
+
+export function hasLocalPortalSessionToday() {
+  const session = getLocalPortalSession();
+  if (!session?.authenticatedAt) return false;
+
+  const authenticated = new Date(session.authenticatedAt);
+  if (Number.isNaN(authenticated.getTime())) return false;
+
+  return authenticated.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" }) ===
+    new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+}
+
+export function findLocalPortalUserByContact(contact: { email?: string; telefone?: string }) {
+  const email = contact.email?.trim().toLowerCase();
+  const telefone = contact.telefone?.replace(/\D/g, "");
+
+  return Object.values(LOCAL_USERS).find((user) => {
+    const sameEmail = Boolean(email && user.email.toLowerCase() === email);
+    const samePhone = Boolean(telefone && user.phone?.replace(/\D/g, "") === telefone);
+    return sameEmail || samePhone;
+  }) ?? null;
+}
+
+export function authenticateLocalPortalContact(contact: { email?: string; telefone?: string }, password: string) {
+  const user = findLocalPortalUserByContact(contact);
+  if (!user || user.password !== password) return null;
+  const { password: _password, ...session } = user;
+  return session;
 }
 
 export function clearLocalPortalSession() {
