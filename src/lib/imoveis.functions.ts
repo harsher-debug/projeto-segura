@@ -27,7 +27,7 @@ function supabasePublishableKey() {
   return process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 }
 
-function bxpBaseUrl() {
+function bxpApiBaseUrl() {
   const value =
     process.env.BXP_API_BASE_URL ||
     process.env.VITE_BXP_API_BASE_URL ||
@@ -35,8 +35,21 @@ function bxpBaseUrl() {
   return value.trim().replace(/\/$/, "");
 }
 
+function bxpCatalogBaseUrl() {
+  const apiBaseUrl = bxpApiBaseUrl();
+  if (!apiBaseUrl || apiBaseUrl.includes("<IP-EXTERNO>")) return "";
+
+  // Supports both the original complete catalog URL and the current BXP API root.
+  if (/\/publico\/imobiliaria\/[^/]+$/i.test(apiBaseUrl)) return apiBaseUrl;
+
+  const clientId = (process.env.BXP_PUBLIC_CLIENT_ID || process.env.VITE_BXP_PUBLIC_CLIENT_ID || "").trim();
+  if (!clientId) return "";
+
+  return `${apiBaseUrl}/publico/imobiliaria/${encodeURIComponent(clientId)}`;
+}
+
 function hasBxpEnv() {
-  return bxpBaseUrl().length > 0 && !bxpBaseUrl().includes("<IP-EXTERNO>");
+  return bxpCatalogBaseUrl().length > 0;
 }
 
 type BxpImovel = {
@@ -236,7 +249,7 @@ async function fetchBxpList(data: ImovelFiltro): Promise<{
   if (data.bairro) params.set("bairro", data.bairro);
   if (data.busca) params.set("busca", data.busca);
 
-  const response = await fetch(`${bxpBaseUrl()}/imoveis?${params.toString()}`, {
+  const response = await fetch(`${bxpCatalogBaseUrl()}/imoveis?${params.toString()}`, {
     headers: { accept: "application/json" },
   });
   if (!response.ok) throw new Error(`BXP API error ${response.status}`);
@@ -262,7 +275,7 @@ async function fetchBxpDetail(id: string) {
   const params = new URLSearchParams();
   if (negociacao) params.set("negociacao", negociacao);
   const qs = params.toString();
-  const response = await fetch(`${bxpBaseUrl()}/imoveis/${encodeURIComponent(codigo)}${qs  ? `?${qs}` : ""}`, {
+  const response = await fetch(`${bxpCatalogBaseUrl()}/imoveis/${encodeURIComponent(codigo)}${qs  ? `?${qs}` : ""}`, {
     headers: { accept: "application/json" },
   });
   if (response.status === 404) return null;
@@ -273,7 +286,7 @@ async function fetchBxpDetail(id: string) {
 async function fetchBxpFacets(finalidade?: "locacao" | "venda") {
   const params = new URLSearchParams({ pagina: "1", por_pagina: "50" });
   if (finalidade) params.set("negociacao", finalidade);
-  const response = await fetch(`${bxpBaseUrl()}/imoveis?${params.toString()}`, {
+  const response = await fetch(`${bxpCatalogBaseUrl()}/imoveis?${params.toString()}`, {
     headers: { accept: "application/json" },
   });
   if (!response.ok) throw new Error(`BXP API error ${response.status}`);

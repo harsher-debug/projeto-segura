@@ -20,10 +20,10 @@ Não é necessária autenticação. Os endpoints são públicos e só retornam i
 ## Base URL
 
 ```
-http://<IP-EXTERNO>:8010/api/v1/publico/imobiliaria/cli_segura
+https://167.250.28.175:5443/api/v1/publico/imobiliaria/{cliente_publico_id}
 ```
 
-> Substituir `<IP-EXTERNO>` pelo IP externo fornecido pela Segura.
+> Substituir `{cliente_publico_id}` pelo identificador público fornecido pela BXP para a Segura Imobiliária.
 > A API é acessível por IP de origem autorizado (filtro de NAT configurado pelo cliente).
 
 ---
@@ -33,13 +33,13 @@ http://<IP-EXTERNO>:8010/api/v1/publico/imobiliaria/cli_segura
 Acesse a interface Swagger diretamente no browser — sem instalar nada, com botão **"Try it out"** para testar cada endpoint:
 
 ```
-http://<IP-EXTERNO>:8010/docs
+https://167.250.28.175:5443/docs
 ```
 
 Ou a versão ReDoc (só leitura, layout mais limpo):
 
 ```
-http://<IP-EXTERNO>:8010/redoc
+https://167.250.28.175:5443/redoc
 ```
 
 > **Dica:** No Swagger, usar o filtro de tag **`integracoes-publicas`** para ver apenas os endpoints públicos do catálogo. Os demais requerem autenticação e não são relevantes para o site.
@@ -212,7 +212,7 @@ Quando o site for ao ar em um domínio, informar o domínio exato para a equipe 
 
 ```js
 // Exemplo em JavaScript/React
-const BASE_URL = "http://<IP-EXTERNO>:8010/api/v1/publico/imobiliaria/cli_segura";
+const BASE_URL = "https://167.250.28.175:5443/api/v1/publico/imobiliaria/{cliente_publico_id}";
 
 async function buscarImoveis({ negociacao, cidade, busca, pagina = 1, porPagina = 24 }) {
   const params = new URLSearchParams({ pagina, por_pagina: porPagina });
