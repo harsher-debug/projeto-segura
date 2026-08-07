@@ -92,7 +92,11 @@ async function hashPassword(password: string) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export async function authenticateFavoriteAccount(contact: FavoriteContact, password: string) {
+export async function authenticateFavoriteAccount(
+  contact: FavoriteContact,
+  password: string,
+  mode: "login" | "register",
+) {
   if (!canUseBrowser() || !window.crypto?.subtle) return { ok: false as const, reason: "unsupported" as const };
 
   const accountId = contactId(contact);
@@ -100,7 +104,9 @@ export async function authenticateFavoriteAccount(contact: FavoriteContact, pass
   const accounts = getFavoriteAccounts();
   const account = accounts.find((item) => item.id === accountId);
 
+  if (account && mode === "register") return { ok: false as const, reason: "already-exists" as const };
   if (account && account.passwordHash !== passwordHash) return { ok: false as const, reason: "invalid-password" as const };
+  if (!account && mode === "login") return { ok: false as const, reason: "not-found" as const };
 
   if (!account) {
     accounts.push({

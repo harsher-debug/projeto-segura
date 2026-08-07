@@ -39,16 +39,22 @@ function Page() {
   const [savedItems, setSavedItems] = useState<ImovelResumo[]>([]);
   const [contactReady, setContactReady] = useState(false);
   const [checkingContact, setCheckingContact] = useState(true);
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
+  const [accessMode, setAccessMode] = useState<"login" | "register">("login");
+  const [contactType, setContactType] = useState<"email" | "telefone">("email");
+  const [contactValue, setContactValue] = useState("");
   const [senha, setSenha] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const contact = getFavoriteContact();
     if (contact) {
-      setEmail(contact.email ?? "");
-      setTelefone(contact.telefone ?? "");
+      if (contact.email) {
+        setContactType("email");
+        setContactValue(contact.email);
+      } else if (contact.telefone) {
+        setContactType("telefone");
+        setContactValue(formatPhone(contact.telefone));
+      }
     }
     const portalSession = getLocalPortalSession();
     if (hasLocalPortalSessionToday() && portalSession) {
@@ -102,10 +108,13 @@ function Page() {
 
   const handleContact = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const cleanEmail = email.trim();
-    const cleanPhone = telefone.trim();
-    if (!cleanEmail && !cleanPhone) {
-      toast.error("Informe um telefone ou e-mail para acessar seus favoritos.");
+    const cleanValue = contactValue.trim();
+    const contact = contactType === "email"
+      ? { email: cleanValue, telefone: "" }
+      : { email: "", telefone: cleanValue };
+    const digits = cleanValue.replace(/\D/g, "");
+    if (!cleanValue || (contactType === "email" && !/^\S+@\S+\.\S+$/.test(cleanValue)) || (contactType === "telefone" && digits.length < 10)) {
+      toast.error(contactType === "email" ? "Informe um e-mail válido." : "Informe um telefone válido com DDD.");
       return;
     }
     if (senha.length < 6) {
@@ -114,7 +123,6 @@ function Page() {
     }
 
     setSubmitting(true);
-    const contact = { email: cleanEmail, telefone: cleanPhone };
     const client = authenticateLocalPortalContact(contact, senha);
     const knownClient = findLocalPortalUserByContact(contact);
     if (client) {
@@ -124,10 +132,16 @@ function Page() {
       toast.error("Use a mesma senha cadastrada para a Área do Cliente.");
       return;
     } else {
-      const account = await authenticateFavoriteAccount(contact, senha);
+      const account = await authenticateFavoriteAccount(contact, senha, accessMode);
       if (!account.ok) {
         setSubmitting(false);
-        toast.error(account.reason === "invalid-password" ? "Senha incorreta para este cadastro." : "Este navegador não suporta o cadastro de favoritos.");
+        const messages = {
+          "invalid-password": "Senha incorreta para este cadastro.",
+          "not-found": "Não encontramos um cadastro com esse contato. Escolha Cadastro para criar seu acesso.",
+          "already-exists": "Este contato já possui cadastro. Use a opção Entrar.",
+          unsupported: "Este navegador não suporta o cadastro de favoritos.",
+        };
+        toast.error(messages[account.reason]);
         return;
       }
     }
@@ -144,7 +158,7 @@ function Page() {
     });
     setContactReady(true);
     setSubmitting(false);
-    toast.success(client ? "Favoritos liberados com seu cadastro de cliente." : "Favoritos liberados neste navegador.");
+    toast.success(client ? "Favoritos liberados com seu cadastro de cliente." : accessMode === "register" ? "Cadastro criado e favoritos liberados." : "Favoritos liberados neste navegador.");
   };
 
   return (
@@ -170,26 +184,47 @@ function Page() {
           <section className="max-w-xl rounded-xl border bg-card p-6 shadow-sm">
             <h2 className="font-display text-xl font-extrabold">Acesse seus favoritos</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Informe telefone ou e-mail e uma senha. Clientes Segura usam os mesmos dados da área do cliente.
+              Clientes Segura usam os mesmos dados da Área do Cliente. Novos interessados podem criar um acesso básico.
             </p>
             <form className="mt-5 space-y-3" onSubmit={handleContact}>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="E-mail para contato"
-                  className="pl-10"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
+              <div className="grid grid-cols-2 rounded-md bg-muted p-1">
+                <button
+                  type="button"
+                  onClick={() => setAccessMode("login")}
+                  className={`rounded-sm px-3 py-2 text-sm font-bold transition-colors ${accessMode === "login" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                >
+                  Entrar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccessMode("register")}
+                  className={`rounded-sm px-3 py-2 text-sm font-bold transition-colors ${accessMode === "register" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                >
+                  Cadastro
+                </button>
+              </div>
+              <div className="flex gap-2" aria-label="Tipo de contato">
+                <Button type="button" size="sm" variant={contactType === "email" ? "default" : "outline"} onClick={() => { setContactType("email"); setContactValue(""); }}>
+                  <Mail className="mr-1.5 h-3.5 w-3.5" /> E-mail
+                </Button>
+                <Button type="button" size="sm" variant={contactType === "telefone" ? "default" : "outline"} onClick={() => { setContactType("telefone"); setContactValue(""); }}>
+                  <Phone className="mr-1.5 h-3.5 w-3.5" /> Telefone
+                </Button>
               </div>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                {contactType === "email" ? (
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                ) : (
+                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                )}
                 <Input
-                  placeholder="Telefone ou WhatsApp"
+                  type={contactType === "email" ? "email" : "tel"}
+                  inputMode={contactType === "email" ? "email" : "tel"}
+                  placeholder={contactType === "email" ? "E-mail para contato" : "(51) 99999-9999"}
                   className="pl-10"
-                  value={telefone}
-                  onChange={(event) => setTelefone(event.target.value)}
+                  value={contactValue}
+                  onChange={(event) => setContactValue(contactType === "telefone" ? formatPhone(event.target.value) : event.target.value)}
+                  autoComplete={contactType === "email" ? "email" : "tel"}
                 />
               </div>
               <div className="relative">
@@ -204,7 +239,7 @@ function Page() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Validando..." : "Acessar favoritos"}
+                {submitting ? "Validando..." : accessMode === "login" ? "Entrar nos favoritos" : "Criar cadastro"}
               </Button>
             </form>
           </section>
@@ -271,4 +306,12 @@ function getBrowserLocation() {
       { enableHighAccuracy: false, maximumAge: 300000, timeout: 3500 },
     );
   });
+}
+
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits ? `(${digits}` : "";
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
