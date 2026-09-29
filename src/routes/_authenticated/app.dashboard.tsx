@@ -7,10 +7,10 @@ export const Route = createFileRoute("/_authenticated/app/dashboard")({
 });
 
 const stats = [
-  { label: "Imoveis publicados", value: adminProperties.length, icon: Building2, detail: "3 bairros com maior procura" },
-  { label: "Contratos ativos", value: adminContracts.filter((item) => item.status === "Ativo").length, icon: FileCheck2, detail: "1 renovacao pendente" },
+  { label: "Imóveis publicados", value: adminProperties.length, icon: Building2, detail: "3 bairros com maior procura" },
+  { label: "Contratos ativos", value: adminContracts.filter((item) => item.status === "Ativo").length, icon: FileCheck2, detail: "1 renovação pendente" },
   { label: "Boletos em aberto", value: adminBills.filter((item) => item.status === "Aberto").length, icon: Receipt, detail: "R$ 3.980 previstos" },
-  { label: "Acessos liberados", value: adminAccesses.length, icon: KeyRound, detail: "Locatarios, proprietarios e sindicos" },
+  { label: "Acessos liberados", value: adminAccesses.length, icon: KeyRound, detail: "Locatários, proprietários e síndicos" },
 ];
 
 function Dashboard() {
@@ -21,10 +21,10 @@ function Dashboard() {
           <div>
             <p className="text-xs font-black uppercase tracking-[0.24em] text-[#f2d78a]">Painel administrativo</p>
             <h2 className="mt-3 font-display text-4xl font-extrabold leading-tight">
-              Operacao do site, clientes e carteira em tempo real.
+              Operação do site, clientes e carteira em tempo real.
             </h2>
             <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-white/78">
-              Simulacao completa para acompanhar imoveis publicados, propostas, boletos, contratos e acessos dos clientes.
+              Simulação completa para acompanhar imóveis publicados, propostas, boletos, contratos e acessos dos clientes.
             </p>
           </div>
 
@@ -69,7 +69,7 @@ function Dashboard() {
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <h3 className="font-display text-xl font-extrabold">Imoveis em destaque</h3>
+              <h3 className="font-display text-xl font-extrabold">Imóveis em destaque</h3>
               <p className="text-sm text-neutral-500">Carteira simulada para gestao do site.</p>
             </div>
             <Link to="/app/imoveis" className="inline-flex items-center gap-1 text-sm font-bold text-[#a50f1b]">
@@ -85,7 +85,7 @@ function Dashboard() {
                 <div className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <span className="rounded-full bg-[#a50f1b] px-2.5 py-1 text-xs font-bold text-white">{property.purpose}</span>
-                    <span className="text-xs font-bold text-neutral-500">Cod. {property.code}</span>
+                    <span className="text-xs font-bold text-neutral-500">Código {property.code}</span>
                   </div>
                   <h4 className="mt-3 line-clamp-1 font-display text-lg font-extrabold">{property.title}</h4>
                   <p className="text-sm text-neutral-500">{property.neighborhood}, {property.city}</p>
@@ -143,7 +143,7 @@ function Dashboard() {
               <div key={contract.id} className="flex items-center justify-between gap-4 py-3">
                 <div>
                   <p className="text-sm font-bold">{contract.id}</p>
-                  <p className="text-sm text-neutral-500">{contract.client} - Cod. {contract.code}</p>
+                  <p className="text-sm text-neutral-500">{contract.client} - Código {contract.code}</p>
                 </div>
                 <p className="font-bold">{brl(contract.value)}</p>
               </div>
@@ -153,7 +153,7 @@ function Dashboard() {
 
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-xl font-extrabold">Boletos do mes</h3>
+            <h3 className="font-display text-xl font-extrabold">Boletos do mês</h3>
             <Receipt className="h-5 w-5 text-[#a50f1b]" />
           </div>
           <div className="divide-y">

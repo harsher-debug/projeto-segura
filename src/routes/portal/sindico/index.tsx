@@ -11,20 +11,20 @@ function SindicoDashboard() {
 
   const cards = [
     { label: "Boletos em aberto", value: openBills.length, icon: Receipt },
-    { label: "Solicitacoes abertas", value: condoRequests.filter((item) => item.status === "Em andamento").length, icon: Wrench },
+    { label: "Solicitações abertas", value: condoRequests.filter((item) => item.status === "Em andamento").length, icon: Wrench },
     { label: "Comunicados novos", value: condoNotices.length, icon: Bell },
-    { label: "Condominio", value: "Centro", icon: Building2 },
+    { label: "Condomínio", value: "Centro", icon: Building2 },
   ];
 
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#e40016_0%,#8e1221_52%,#1c0f13_100%)] p-8 text-white shadow-2xl shadow-black/15">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2d78a]">Portal do condomino</p>
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2d78a]">Portal do condômino</p>
         <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">
-          Condominio, boletos e atendimentos em um so lugar.
+          Condomínio, boletos e atendimentos em um só lugar.
         </h1>
         <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-white/80">
-          Simule a area do condomino com comunicados, solicitacoes, boletos e acompanhamento da administracao.
+          Simule a área do condômino com comunicados, solicitações, boletos e acompanhamento da administração.
         </p>
       </section>
 
@@ -48,7 +48,7 @@ function SindicoDashboard() {
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="font-display text-xl font-extrabold">Boletos do condominio</h2>
+              <h2 className="font-display text-xl font-extrabold">Boletos do condomínio</h2>
               <p className="text-sm text-neutral-500">Taxas e fundo de reserva.</p>
             </div>
             <Link to="/portal/sindico/boletos" className="inline-flex items-center gap-1 text-sm font-bold text-primary">
@@ -92,7 +92,7 @@ function SindicoDashboard() {
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-xl font-extrabold">Solicitacoes recentes</h2>
+            <h2 className="font-display text-xl font-extrabold">Solicitações recentes</h2>
           </div>
           <Link to="/portal/sindico/solicitacoes" className="inline-flex items-center gap-1 text-sm font-bold text-primary">
             Acompanhar <ArrowUpRight className="h-4 w-4" />

@@ -13,7 +13,7 @@ function PerfilPage() {
     <div className="max-w-3xl space-y-5">
       <div>
         <h1 className="font-display text-2xl font-extrabold">Meu Perfil</h1>
-        <p className="text-sm text-muted-foreground">Dados do proprietario e preferencia de repasse.</p>
+        <p className="text-sm text-muted-foreground">Dados do proprietário e preferência de repasse.</p>
       </div>
       <div className="rounded-xl border bg-card p-5 shadow-sm">
         <div className="mb-5 flex items-center gap-3">
@@ -22,13 +22,13 @@ function PerfilPage() {
           </div>
           <div>
             <p className="font-semibold">Cadastro</p>
-            <p className="text-xs text-muted-foreground">Use estes dados para comunicacoes da administracao.</p>
+            <p className="text-xs text-muted-foreground">Use estes dados para comunicações da administração.</p>
           </div>
         </div>
         <form className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label>Nome completo</Label>
-            <Input className="mt-1" defaultValue="Proprietario Segura" />
+            <Input className="mt-1" defaultValue="Proprietário Segura" />
           </div>
           <div>
             <Label>E-mail</Label>
@@ -52,7 +52,7 @@ function PerfilPage() {
             </div>
           </div>
           <div className="sm:col-span-2">
-            <Button type="button"><Save className="mr-2 h-4 w-4" /> Salvar alteracoes</Button>
+            <Button type="button"><Save className="mr-2 h-4 w-4" /> Salvar alterações</Button>
           </div>
         </form>
       </div>

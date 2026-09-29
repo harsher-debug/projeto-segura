@@ -22,7 +22,7 @@ function PerfilPage() {
           </div>
           <div>
             <p className="font-semibold">Dados cadastrais</p>
-            <p className="text-xs text-muted-foreground">Alteracoes podem ser revisadas pela administracao.</p>
+            <p className="text-xs text-muted-foreground">Alterações podem ser revisadas pela administração.</p>
           </div>
         </div>
         <form className="grid gap-4 sm:grid-cols-2">
@@ -45,7 +45,7 @@ function PerfilPage() {
             </div>
           </div>
           <div className="sm:col-span-2">
-            <Button type="button"><Save className="mr-2 h-4 w-4" /> Salvar alteracoes</Button>
+            <Button type="button"><Save className="mr-2 h-4 w-4" /> Salvar alterações</Button>
           </div>
         </form>
       </div>

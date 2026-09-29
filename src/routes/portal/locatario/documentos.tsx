@@ -7,9 +7,9 @@ export const Route = createFileRoute("/portal/locatario/documentos")({
 });
 
 const documentos = [
-  { nome: "Contrato de locacao", tipo: "PDF", data: "01/01/2026" },
+  { nome: "Contrato de locação", tipo: "PDF", data: "01/01/2026" },
   { nome: "Vistoria de entrada", tipo: "PDF", data: "02/01/2026" },
-  { nome: "Comprovante de caucao", tipo: "PDF", data: "03/01/2026" },
+  { nome: "Comprovante de caução", tipo: "PDF", data: "03/01/2026" },
 ];
 
 function DocumentosPage() {

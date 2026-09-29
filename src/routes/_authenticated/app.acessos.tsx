@@ -12,7 +12,7 @@ function AcessosPage() {
       <div>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-[#c7a45a]">Portal do cliente</p>
         <h1 className="font-display text-3xl font-extrabold">Acessos</h1>
-        <p className="text-sm text-neutral-500">Usuarios liberados para locatario, proprietario e sindico.</p>
+        <p className="text-sm text-neutral-500">Usuários liberados para locatários, proprietários e síndicos.</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-4">
@@ -35,7 +35,7 @@ function AcessosPage() {
               </p>
               <p className="mt-2 flex items-center gap-2 text-xs text-neutral-500">
                 <KeyRound className="h-3.5 w-3.5" />
-                Ultimo acesso: {access.lastAccess}
+                Último acesso: {access.lastAccess}
               </p>
             </div>
           </article>

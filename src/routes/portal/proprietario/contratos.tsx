@@ -8,7 +8,7 @@ export const Route = createFileRoute("/portal/proprietario/contratos")({
 
 const contratos = [
   { imovel: "Ap. Centro", locatario: "Maria S.", periodo: "01/01/2026 a 31/12/2026", status: "Ativo" },
-  { imovel: "Casa Mathias Velho", locatario: "Joao P.", periodo: "01/03/2026 a 28/02/2027", status: "Ativo" },
+  { imovel: "Casa Mathias Velho", locatario: "João P.", periodo: "01/03/2026 a 28/02/2027", status: "Ativo" },
 ];
 
 function ContratosPage() {
@@ -16,7 +16,7 @@ function ContratosPage() {
     <div className="space-y-5">
       <div>
         <h1 className="font-display text-2xl font-extrabold">Contratos</h1>
-        <p className="text-sm text-muted-foreground">Contratos vinculados aos seus imoveis.</p>
+        <p className="text-sm text-muted-foreground">Contratos vinculados aos seus imóveis.</p>
       </div>
       <div className="grid gap-4">
         {contratos.map((contrato) => (

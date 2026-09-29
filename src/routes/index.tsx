@@ -230,13 +230,13 @@ function Index() {
       <section className="relative z-20 flow-root min-h-[560px] overflow-visible bg-neutral-950">
         <img
           src={heroImg}
-          alt="Sala decorada com a marca Segura Imobiliaria"
+          alt="Sala decorada com a marca Segura Imobiliária"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,7,5,0.08)_0%,rgba(16,7,5,0.22)_45%,rgba(16,7,5,0.72)_100%)]" />
         <img
           src={heroLogoImg}
-          alt="Segura Imobiliaria"
+          alt="Segura Imobiliária"
           className="absolute left-1/2 top-[38%] z-10 w-[58vw] max-w-[430px] -translate-x-1/2 -translate-y-1/2 object-contain brightness-110 drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]"
         />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(245,239,230,0)_0%,rgba(64,31,20,0.72)_42%,#f5efe6_96%)]" />

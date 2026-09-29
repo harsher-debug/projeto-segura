@@ -24,7 +24,7 @@ export const defaultInformativos: SiteInformativo[] = [
   {
     id: "info-atendimento",
     titulo: "Atendimento com equipe local",
-    descricao: "Fale com a Segura para confirmar disponibilidade, valores e agendar sua visita com seguranca.",
+    descricao: "Fale com a Segura para confirmar disponibilidade, valores e agendar sua visita com segurança.",
     etiqueta: "Atendimento",
     linkTexto: "Entrar em contato",
     linkUrl: "/contato",
@@ -34,10 +34,10 @@ export const defaultInformativos: SiteInformativo[] = [
   },
   {
     id: "info-mapa",
-    titulo: "Busca por regiao em Canoas",
-    descricao: "Use o mapa nas buscas para aproximar bairros, ruas e encontrar imoveis disponiveis na area desejada.",
+    titulo: "Busca por região em Canoas",
+    descricao: "Use o mapa nas buscas para aproximar bairros, ruas e encontrar imóveis disponíveis na área desejada.",
     etiqueta: "Mapa",
-    linkTexto: "Ver imoveis",
+    linkTexto: "Ver imóveis",
     linkUrl: "/alugar",
     variante: "claro",
     ativo: true,

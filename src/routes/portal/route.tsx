@@ -76,25 +76,25 @@ export const Route = createFileRoute("/portal")({
 });
 
 const locatarioNav = [
-  { to: "/portal/locatario", label: "Visao geral", icon: Home },
+  { to: "/portal/locatario", label: "Visão geral", icon: Home },
   { to: "/portal/locatario/contrato", label: "Contratos", icon: FileText },
   { to: "/portal/locatario/boletos", label: "Boletos", icon: Receipt },
   { to: "/portal/locatario/chamados", label: "Chamados", icon: Wrench },
 ];
 
 const proprietarioNav = [
-  { to: "/portal/proprietario", label: "Painel proprietario", icon: Building2 },
-  { to: "/portal/proprietario/imoveis", label: "Meus imoveis", icon: Home },
+  { to: "/portal/proprietario", label: "Painel proprietário", icon: Building2 },
+  { to: "/portal/proprietario/imoveis", label: "Meus imóveis", icon: Home },
   { to: "/portal/proprietario/contratos", label: "Contratos", icon: FileText },
   { to: "/portal/proprietario/financeiro", label: "Financeiro", icon: Receipt },
   { to: "/portal/proprietario/documentos", label: "Documentos", icon: ClipboardList },
 ];
 
 const sindicoNav = [
-  { to: "/portal/sindico", label: "Painel condomino", icon: Building2 },
-  { to: "/portal/sindico/condominios", label: "Condominios", icon: Home },
+  { to: "/portal/sindico", label: "Painel condômino", icon: Building2 },
+  { to: "/portal/sindico/condominios", label: "Condomínios", icon: Home },
   { to: "/portal/sindico/boletos", label: "Boletos", icon: Receipt },
-  { to: "/portal/sindico/solicitacoes", label: "Solicitacoes", icon: Wrench },
+  { to: "/portal/sindico/solicitacoes", label: "Solicitações", icon: Wrench },
 ];
 
 const commonNav = [
@@ -121,9 +121,9 @@ function PortalLayout() {
     ...commonNav,
   ];
   const profileLabels = permissions.map((permission) => ({
-    locatario: "Locatario",
-    proprietario: "Proprietario",
-    sindico: "Condomino",
+    locatario: "Locatário",
+    proprietario: "Proprietário",
+    sindico: "Condômino",
   }[permission]));
   const notifications = useMemo(() => {
     const items = [
@@ -136,13 +136,13 @@ function PortalLayout() {
       ...(permissions.includes("sindico")
         ? [
             { title: "Boleto condominial em aberto", text: `${condoBills[0].title} vence em ${condoBills[0].due}.`, time: "Hoje" },
-            { title: "Solicitacao alterada", text: `${condoRequests[0].id} mudou para ${condoRequests[0].status}.`, time: condoRequests[0].date },
+            { title: "Solicitação alterada", text: `${condoRequests[0].id} mudou para ${condoRequests[0].status}.`, time: condoRequests[0].date },
           ]
         : []),
       ...(permissions.includes("locatario")
         ? [
-            { title: "Boleto disponivel", text: "Boleto de agosto disponivel para segunda via.", time: "Hoje" },
-            { title: "Chamado respondido", text: "A equipe tecnica respondeu seu chamado de manutencao.", time: "Ontem" },
+            { title: "Boleto disponível", text: "Boleto de agosto disponível para segunda via.", time: "Hoje" },
+            { title: "Chamado respondido", text: "A equipe técnica respondeu seu chamado de manutenção.", time: "Ontem" },
           ]
         : []),
     ];
@@ -257,11 +257,11 @@ function PortalLayout() {
                 <div className="mt-5 grid gap-3">
                   {[
                     { icon: ShieldCheck, label: "Perfil de acesso", value: profileLabels.join(" + ") },
-                    { icon: User, label: "Usuario", value: login },
+                    { icon: User, label: "Usuário", value: login },
                     { icon: Mail, label: "E-mail", value: email },
                     { icon: Phone, label: "Telefone", value: phone },
                     { icon: FileText, label: "Documento", value: document },
-                    { icon: Home, label: "Endereco vinculado", value: address },
+                    { icon: Home, label: "Endereço vinculado", value: address },
                     { icon: CalendarDays, label: "Entrada no portal", value: new Date().toLocaleString("pt-BR") },
                   ].map((item) => (
                     <div key={item.label} className="flex gap-3 rounded-xl bg-[#fbfaf8] p-3">

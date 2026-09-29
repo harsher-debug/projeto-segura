@@ -23,7 +23,7 @@ function FinanceiroPage() {
     <div className="space-y-5">
       <div>
         <h1 className="font-display text-2xl font-extrabold">Financeiro</h1>
-        <p className="text-sm text-muted-foreground">Extratos, repasses e previsao de recebimentos.</p>
+        <p className="text-sm text-muted-foreground">Extratos, repasses e previsão de recebimentos.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -34,7 +34,7 @@ function FinanceiroPage() {
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <TrendingUp className="h-5 w-5 text-primary" />
-          <p className="mt-3 text-xs uppercase text-muted-foreground">Proximo repasse</p>
+          <p className="mt-3 text-xs uppercase text-muted-foreground">Próximo repasse</p>
           <p className="font-display text-2xl font-extrabold">05/08</p>
         </div>
         <div className="rounded-xl border bg-card p-5 shadow-sm">

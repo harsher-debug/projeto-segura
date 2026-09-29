@@ -29,7 +29,7 @@ function BoletosPage() {
           <p className="mt-2 font-display text-3xl font-extrabold">{adminBills.filter((bill) => bill.status === "Pago").length}</p>
         </div>
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase text-neutral-500">Proximo vencimento</p>
+          <p className="text-xs font-bold uppercase text-neutral-500">Próximo vencimento</p>
           <p className="mt-2 font-display text-3xl font-extrabold">10/08</p>
         </div>
       </section>
@@ -40,11 +40,11 @@ function BoletosPage() {
             <tr>
               <th className="p-4">Boleto</th>
               <th className="p-4">Cliente</th>
-              <th className="p-4">Imovel</th>
+              <th className="p-4">Imóvel</th>
               <th className="p-4">Vencimento</th>
               <th className="p-4">Valor</th>
               <th className="p-4">Status</th>
-              <th className="p-4 text-right">Acao</th>
+              <th className="p-4 text-right">Ação</th>
             </tr>
           </thead>
           <tbody className="divide-y">

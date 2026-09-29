@@ -12,8 +12,8 @@ function ImoveisPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#c7a45a]">Carteira administrada</p>
-          <h1 className="font-display text-3xl font-extrabold">Meus imoveis</h1>
-          <p className="text-sm text-muted-foreground">Status comercial, ocupacao e desempenho dos seus imoveis.</p>
+          <h1 className="font-display text-3xl font-extrabold">Meus imóveis</h1>
+          <p className="text-sm text-muted-foreground">Status comercial, ocupação e desempenho dos seus imóveis.</p>
         </div>
         <Link
           to="/portal/proprietario/financeiro"
@@ -26,7 +26,7 @@ function ImoveisPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
           <Building2 className="h-5 w-5 text-primary" />
-          <p className="mt-4 text-xs font-bold uppercase text-neutral-500">Imoveis vinculados</p>
+          <p className="mt-4 text-xs font-bold uppercase text-neutral-500">Imóveis vinculados</p>
           <p className="font-display text-3xl font-extrabold">{ownerProperties.length}</p>
         </article>
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
@@ -36,7 +36,7 @@ function ImoveisPage() {
         </article>
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
           <Receipt className="h-5 w-5 text-primary" />
-          <p className="mt-4 text-xs font-bold uppercase text-neutral-500">Ultimo repasse</p>
+          <p className="mt-4 text-xs font-bold uppercase text-neutral-500">Último repasse</p>
           <p className="font-display text-3xl font-extrabold">{formatCurrency(ownerTransfers[1]?.net ?? 0)}</p>
         </article>
       </section>
@@ -63,7 +63,7 @@ function ImoveisPage() {
                   <div className="rounded-xl bg-[#fbfaf8] p-4">
                     <p className="flex items-center gap-2 text-xs font-bold uppercase text-neutral-500">
                       <UserRound className="h-4 w-4 text-primary" />
-                      Ocupacao
+                      Ocupação
                     </p>
                     <p className="mt-2 font-bold">{property.tenant}</p>
                   </div>

@@ -6,8 +6,8 @@ export const Route = createFileRoute("/_authenticated/app/visitas")({
 });
 
 const visits = [
-  { date: "25/07/2026", hour: "10:30", client: "Camila Martins", property: "Cod. 5708 - Casa resid. 2 dormitorios", place: "Mathias Velho", status: "Confirmada" },
-  { date: "25/07/2026", hour: "14:00", client: "Rafael Souza", property: "Cod. 1089 - Apartamento a venda", place: "Moinhos de Vento", status: "Aguardando" },
+  { date: "25/07/2026", hour: "10:30", client: "Camila Martins", property: "Código 5708 - Casa residencial com 2 dormitórios", place: "Mathias Velho", status: "Confirmada" },
+  { date: "25/07/2026", hour: "14:00", client: "Rafael Souza", property: "Código 1089 - Apartamento à venda", place: "Moinhos de Vento", status: "Aguardando" },
   { date: "27/07/2026", hour: "09:15", client: "Bruno Pereira", property: "Cod. 1950 - Sala comercial", place: "Centro", status: "Confirmada" },
 ];
 

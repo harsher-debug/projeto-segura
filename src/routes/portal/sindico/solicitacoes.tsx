@@ -10,8 +10,8 @@ function SindicoSolicitacoesPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-extrabold">Solicitacoes</h1>
-        <p className="text-sm text-muted-foreground">Chamados condominiais acompanhados pela administracao.</p>
+        <h1 className="font-display text-2xl font-extrabold">Solicitações</h1>
+        <p className="text-sm text-muted-foreground">Chamados condominiais acompanhados pela administração.</p>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-3">

@@ -151,7 +151,7 @@ function Page() {
         localizacao: await getBrowserLocation(),
       },
     }).catch(() => {
-      console.error("[Favoritos] Nao foi possivel registrar o acesso.");
+      console.error("[Favoritos] Não foi possível registrar o acesso.");
     });
     setContactReady(true);
     setSubmitting(false);

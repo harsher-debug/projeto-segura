@@ -9,15 +9,15 @@ function SindicoCondominiosPage() {
   const cards = [
     { label: "Unidades", value: "48", icon: Building2 },
     { label: "Moradores ativos", value: "112", icon: Users },
-    { label: "Boletos do mes", value: "46", icon: Receipt },
+    { label: "Boletos do mês", value: "46", icon: Receipt },
     { label: "Comunicados", value: "3", icon: ClipboardList },
   ];
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-extrabold">Condominio Residencial Centro</h1>
-        <p className="text-sm text-muted-foreground">Resumo de unidades, moradores e operacao condominial.</p>
+        <h1 className="font-display text-2xl font-extrabold">Condomínio Residencial Centro</h1>
+        <p className="text-sm text-muted-foreground">Resumo de unidades, moradores e operação condominial.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -33,13 +33,13 @@ function SindicoCondominiosPage() {
       </div>
 
       <section className="rounded-2xl border bg-white p-5 shadow-sm">
-        <h2 className="font-display text-xl font-extrabold">Dados do condominio</h2>
+        <h2 className="font-display text-xl font-extrabold">Dados do condomínio</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {[
-            ["Endereco", "Rua Tiradentes, 421 - Centro, Canoas"],
-            ["Administradora", "Segura Imobiliaria"],
-            ["Sindico", "Joao Henrique"],
-            ["Proxima assembleia", "05/08/2026 as 19h"],
+            ["Endereço", "Rua Tiradentes, 421 - Centro, Canoas"],
+            ["Administradora", "Segura Imobiliária"],
+            ["Síndico", "João Henrique"],
+            ["Próxima assembleia", "05/08/2026 às 19h"],
           ].map(([label, value]) => (
             <div key={label} className="rounded-xl bg-[#fbfaf8] p-4">
               <p className="text-xs font-bold uppercase text-neutral-500">{label}</p>

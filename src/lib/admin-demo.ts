@@ -2,8 +2,8 @@ export const adminProperties = [
   {
     id: "5732",
     code: "5732",
-    title: "Apartamento 3 dormitorios",
-    purpose: "Locacao",
+    title: "Apartamento com 3 dormitórios",
+    purpose: "Locação",
     type: "Apartamento",
     neighborhood: "Centro",
     city: "Canoas",
@@ -17,14 +17,14 @@ export const adminProperties = [
   {
     id: "1089",
     code: "1089",
-    title: "Apartamento a venda com otima localizacao",
+    title: "Apartamento à venda com ótima localização",
     purpose: "Venda",
     type: "Sala",
     neighborhood: "Moinhos de Vento",
     city: "Canoas",
     price: 315000,
     status: "Publicado",
-    owner: "Patricia Moreira",
+    owner: "Patrícia Moreira",
     tenant: "-",
     image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
     metrics: "32 m2",
@@ -32,22 +32,22 @@ export const adminProperties = [
   {
     id: "5708",
     code: "5708",
-    title: "Casa resid. 2 dormitorios",
-    purpose: "Locacao",
+    title: "Casa residencial com 2 dormitórios",
+    purpose: "Locação",
     type: "Casa Resid.",
     neighborhood: "Mathias Velho",
     city: "Canoas",
     price: 2200,
     status: "Em vistoria",
     owner: "Claudio Silveira",
-    tenant: "Disponivel",
+    tenant: "Disponível",
     image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80",
     metrics: "155 m2 - 2 dorm. - 2 vagas",
   },
   {
     id: "1082",
     code: "1082",
-    title: "Casa terrea com garagem",
+    title: "Casa térrea com garagem",
     purpose: "Venda",
     type: "Loja",
     neighborhood: "Centro",
@@ -64,11 +64,11 @@ export const adminProperties = [
 export const adminContracts = [
   {
     id: "CTR-2026-018",
-    property: "Apartamento 3 dormitorios",
+    property: "Apartamento com 3 dormitórios",
     code: "5732",
     client: "Marina Costa",
     owner: "Roberto Almeida",
-    type: "Locacao",
+    type: "Locação",
     start: "01/02/2026",
     end: "31/01/2027",
     value: 3490,
@@ -92,11 +92,11 @@ export const adminContracts = [
     code: "5375",
     client: "Eduardo Mello",
     owner: "Carlos Pires",
-    type: "Locacao",
+    type: "Locação",
     start: "10/11/2025",
     end: "09/11/2026",
     value: 265,
-    status: "Renovacao",
+    status: "Renovação",
   },
 ];
 
@@ -108,7 +108,7 @@ export const adminBills = [
 ];
 
 export const adminProposals = [
-  { id: "PROP-1082", client: "Fernanda Lopes", property: "Casa terrea com garagem", code: "1082", value: 730000, status: "Em negociacao", channel: "WhatsApp" },
+  { id: "PROP-1082", client: "Fernanda Lopes", property: "Casa térrea com garagem", code: "1082", value: 730000, status: "Em negociação", channel: "WhatsApp" },
   { id: "PROP-1089", client: "Rafael Souza", property: "Apartamento a venda", code: "1089", value: 305000, status: "Enviada", channel: "Site" },
   { id: "PROP-5708", client: "Camila Martins", property: "Casa resid. 2 dormitorios", code: "5708", value: 2200, status: "Visita agendada", channel: "Portal" },
 ];

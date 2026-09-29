@@ -9,8 +9,8 @@ export const Route = createFileRoute("/portal/locatario/chamados")({
 });
 
 const chamados = [
-  { titulo: "Revisao do interfone", data: "18/07/2026", status: "Em analise" },
-  { titulo: "Troca de lampada da garagem", data: "02/07/2026", status: "Resolvido" },
+  { titulo: "Revisão do interfone", data: "18/07/2026", status: "Em análise" },
+  { titulo: "Troca de lâmpada da garagem", data: "02/07/2026", status: "Resolvido" },
 ];
 
 function ChamadosPage() {
@@ -19,11 +19,11 @@ function ChamadosPage() {
       <section className="space-y-5">
         <div>
           <h1 className="font-display text-2xl font-extrabold">Chamados</h1>
-          <p className="text-sm text-muted-foreground">Solicite manutencoes e acompanhe o atendimento.</p>
+          <p className="text-sm text-muted-foreground">Solicite manutenções e acompanhe o atendimento.</p>
         </div>
         <div className="rounded-xl border bg-card shadow-sm">
           <div className="border-b p-5">
-            <h2 className="font-display text-base font-bold">Solicitacoes</h2>
+            <h2 className="font-display text-base font-bold">Solicitações</h2>
           </div>
           <div className="divide-y">
             {chamados.map((item) => (
@@ -52,7 +52,7 @@ function ChamadosPage() {
         </div>
         <form className="space-y-3">
           <Input placeholder="Assunto" />
-          <Input placeholder="Comodo ou area" />
+          <Input placeholder="Cômodo ou área" />
           <Textarea rows={5} placeholder="Descreva o problema" />
           <Button className="w-full" type="button">Enviar chamado</Button>
         </form>

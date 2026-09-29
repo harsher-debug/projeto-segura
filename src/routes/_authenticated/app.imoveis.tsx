@@ -48,15 +48,15 @@ function ImoveisPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#c7a45a]">Carteira online</p>
-          <h1 className="font-display text-3xl font-extrabold">Imoveis do site</h1>
-          <p className="text-sm text-neutral-500">Controle de publicacao, valores e status dos imoveis.</p>
+          <h1 className="font-display text-3xl font-extrabold">Imóveis do site</h1>
+          <p className="text-sm text-neutral-500">Controle de publicação, valores e status dos imóveis.</p>
         </div>
         <label className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por codigo, bairro ou tipo..."
+            placeholder="Buscar por código, bairro ou tipo..."
             className="h-11 w-full rounded-xl border bg-white pl-10 pr-4 text-sm outline-none focus:border-[#a50f1b] focus:ring-2 focus:ring-[#a50f1b]/10"
           />
         </label>
@@ -79,7 +79,7 @@ function ImoveisPage() {
               <div className="mt-4 rounded-xl bg-[#f7f5f2] p-3 text-xs text-neutral-600">
                 <p className="font-bold">Cod. {property.code}</p>
                 <p>{property.metrics}</p>
-                <p>Proprietario: {property.owner}</p>
+                <p>Proprietário: {property.owner}</p>
               </div>
             </div>
           </article>

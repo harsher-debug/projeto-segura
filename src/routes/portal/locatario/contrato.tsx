@@ -8,11 +8,11 @@ export const Route = createFileRoute("/portal/locatario/contrato")({
 
 function ContratoPage() {
   const rows = [
-    ["Imovel", "Apartamento - Centro, Canoas"],
-    ["Codigo", "1041"],
-    ["Locacao", "01/01/2026 a 31/12/2026"],
+    ["Imóvel", "Apartamento - Centro, Canoas"],
+    ["Código", "1041"],
+    ["Locação", "01/01/2026 a 31/12/2026"],
     ["Aluguel", "R$ 1.200,00"],
-    ["Reajuste", "Anual pelo indice contratual"],
+    ["Reajuste", "Anual pelo índice contratual"],
     ["Status", "Ativo"],
   ];
 
@@ -21,7 +21,7 @@ function ContratoPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-extrabold">Contrato</h1>
-          <p className="text-sm text-muted-foreground">Resumo do seu contrato de locacao.</p>
+          <p className="text-sm text-muted-foreground">Resumo do seu contrato de locação.</p>
         </div>
         <Button><Download className="mr-2 h-4 w-4" /> Baixar PDF</Button>
       </div>
@@ -50,7 +50,7 @@ function ContratoPage() {
           </div>
           <div className="rounded-xl border bg-card p-5 shadow-sm">
             <CalendarDays className="h-5 w-5 text-primary" />
-            <p className="mt-3 text-sm text-muted-foreground">Proxima renovacao</p>
+            <p className="mt-3 text-sm text-muted-foreground">Próxima renovação</p>
             <p className="font-display text-2xl font-extrabold">31/12/2026</p>
           </div>
         </aside>

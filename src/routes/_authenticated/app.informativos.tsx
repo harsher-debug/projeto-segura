@@ -263,7 +263,7 @@ function InformativosAdmin() {
 
             <div className="flex flex-wrap gap-3 pt-2">
               <Button type="submit" className="bg-[#a50f1b] hover:bg-[#7e0d16]">
-                {editingId ? "Salvar alteracoes" : "Publicar informativo"}
+                {editingId ? "Salvar alterações" : "Publicar informativo"}
               </Button>
               {editingId && (
                 <Button

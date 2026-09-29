@@ -10,7 +10,7 @@ function PropostasPage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-[#c7a45a]">Negociacao</p>
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-[#c7a45a]">Negociação</p>
         <h1 className="font-display text-3xl font-extrabold">Propostas</h1>
         <p className="text-sm text-neutral-500">Simule propostas recebidas pelo site, WhatsApp e portal.</p>
       </div>
@@ -25,10 +25,10 @@ function PropostasPage() {
               <span className="rounded-full bg-[#f7f5f2] px-3 py-1 text-xs font-bold text-neutral-600">{proposal.channel}</span>
             </div>
             <h2 className="mt-5 font-display text-xl font-extrabold">{proposal.client}</h2>
-            <p className="text-sm text-neutral-500">Cod. {proposal.code} - {proposal.property}</p>
+            <p className="text-sm text-neutral-500">Código {proposal.code} - {proposal.property}</p>
             <p className="mt-4 font-display text-3xl font-extrabold text-[#d71920]">{brl(proposal.value)}</p>
             <div className="mt-5 flex items-center gap-2 rounded-xl bg-[#f7f5f2] p-3 text-sm font-bold">
-              {proposal.status === "Enviada" ? <Clock className="h-4 w-4 text-[#c7a45a]" /> : proposal.status === "Em negociacao" ? <MessageCircle className="h-4 w-4 text-[#a50f1b]" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+              {proposal.status === "Enviada" ? <Clock className="h-4 w-4 text-[#c7a45a]" /> : proposal.status === "Em negociação" ? <MessageCircle className="h-4 w-4 text-[#a50f1b]" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
               {proposal.status}
             </div>
           </article>

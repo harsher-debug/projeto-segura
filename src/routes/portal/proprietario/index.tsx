@@ -18,21 +18,21 @@ function ProprietarioDashboard() {
     .reduce((total, transfer) => total + transfer.net, 0);
 
   const cards = [
-    { label: "Imoveis administrados", value: ownerProperties.length, icon: Building2 },
+    { label: "Imóveis administrados", value: ownerProperties.length, icon: Building2 },
     { label: "Contratos ativos", value: ownerContracts.filter((contract) => contract.status === "Ativo").length, icon: FileText },
     { label: "Propostas abertas", value: ownerProposals.length, icon: FileCheck2 },
-    { label: "Proximo repasse", value: formatCurrency(projectedIncome), icon: Receipt },
+    { label: "Próximo repasse", value: formatCurrency(projectedIncome), icon: Receipt },
   ];
 
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#e40016_0%,#8e1221_52%,#1c0f13_100%)] p-8 text-white shadow-2xl shadow-black/15">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2d78a]">Portal do proprietario</p>
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f2d78a]">Portal do proprietário</p>
         <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight">
           Sua carteira administrada pela Segura.
         </h1>
         <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-white/80">
-          Acompanhe propostas recebidas, contratos, repasses e status dos seus imoveis em Canoas.
+          Acompanhe propostas recebidas, contratos, repasses e status dos seus imóveis em Canoas.
         </p>
       </section>
 
@@ -56,8 +56,8 @@ function ProprietarioDashboard() {
         <article className="rounded-2xl border bg-white p-5 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="font-display text-xl font-extrabold">Meus imoveis</h2>
-              <p className="text-sm text-neutral-500">Status comercial e ocupacao.</p>
+              <h2 className="font-display text-xl font-extrabold">Meus imóveis</h2>
+              <p className="text-sm text-neutral-500">Status comercial e ocupação.</p>
             </div>
             <Link to="/portal/proprietario/imoveis" className="inline-flex items-center gap-1 text-sm font-bold text-primary">
               Ver detalhes <ArrowUpRight className="h-4 w-4" />
@@ -72,12 +72,12 @@ function ProprietarioDashboard() {
                 <div className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">{property.status}</span>
-                    <span className="text-xs font-bold text-neutral-500">Cod. {property.code}</span>
+                    <span className="text-xs font-bold text-neutral-500">Código {property.code}</span>
                   </div>
                   <h3 className="mt-3 font-display text-lg font-extrabold">{property.title}</h3>
                   <p className="text-sm text-neutral-500">{property.location}</p>
                   <p className="mt-3 text-sm">
-                    <strong>Ocupacao:</strong> {property.tenant}
+                    <strong>Ocupação:</strong> {property.tenant}
                   </p>
                 </div>
               </div>

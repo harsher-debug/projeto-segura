@@ -7,8 +7,8 @@ export const Route = createFileRoute("/_authenticated/app/leads")({
 
 const leads = [
   { name: "Fernanda Lopes", contact: "(51) 99821-4432", interest: "Casa para comprar no Centro", status: "Proposta" },
-  { name: "Rafael Souza", contact: "rafael@email.com", interest: "Apartamento ate R$ 320 mil", status: "Contato" },
-  { name: "Camila Martins", contact: "(51) 98120-9921", interest: "Casa para locacao com garagem", status: "Visita" },
+  { name: "Rafael Souza", contact: "rafael@email.com", interest: "Apartamento até R$ 320 mil", status: "Contato" },
+  { name: "Camila Martins", contact: "(51) 98120-9921", interest: "Casa para locação com garagem", status: "Visita" },
   { name: "Bruno Pereira", contact: "bruno@email.com", interest: "Sala comercial em Canoas", status: "Novo" },
 ];
 

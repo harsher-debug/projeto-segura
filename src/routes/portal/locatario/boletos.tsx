@@ -29,17 +29,17 @@ function BoletosPage() {
         <div className="rounded-xl border bg-card p-5 shadow-sm md:col-span-2">
           <div className="mb-4 flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-primary" />
-            <h2 className="font-display text-base font-bold">Historico</h2>
+            <h2 className="font-display text-base font-bold">Histórico</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="border-b text-left text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="py-3">Mes</th>
+                  <th className="py-3">Mês</th>
                   <th className="py-3">Vencimento</th>
                   <th className="py-3">Valor</th>
                   <th className="py-3">Status</th>
-                  <th className="py-3 text-right">Acao</th>
+                  <th className="py-3 text-right">Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -67,10 +67,10 @@ function BoletosPage() {
         </div>
 
         <aside className="rounded-xl border bg-card p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase text-muted-foreground">Proximo vencimento</p>
+          <p className="text-xs font-medium uppercase text-muted-foreground">Próximo vencimento</p>
           <p className="mt-2 font-display text-3xl font-extrabold text-primary">10/08</p>
           <p className="mt-1 text-sm text-muted-foreground">Agosto/2026 - {formatBRL(1200)}</p>
-          <Button className="mt-5 w-full">Gerar 2a via</Button>
+          <Button className="mt-5 w-full">Gerar 2ª via</Button>
         </aside>
       </div>
     </div>

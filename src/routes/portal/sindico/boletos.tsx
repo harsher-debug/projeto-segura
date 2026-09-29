@@ -10,19 +10,19 @@ function SindicoBoletosPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-extrabold">Boletos do condominio</h1>
-        <p className="text-sm text-muted-foreground">Taxas condominiais, fundo de reserva e historico de pagamento.</p>
+        <h1 className="font-display text-2xl font-extrabold">Boletos do condomínio</h1>
+        <p className="text-sm text-muted-foreground">Taxas condominiais, fundo de reserva e histórico de pagamento.</p>
       </div>
 
       <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-[#f7f5f2] text-left text-xs uppercase text-neutral-500">
             <tr>
-              <th className="p-4">Referencia</th>
+              <th className="p-4">Referência</th>
               <th className="p-4">Vencimento</th>
               <th className="p-4">Valor</th>
               <th className="p-4">Status</th>
-              <th className="p-4 text-right">Acao</th>
+              <th className="p-4 text-right">Ação</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -58,7 +58,7 @@ function SindicoBoletosPage() {
           </div>
           <div>
             <p className="font-display text-lg font-extrabold">Segunda via e comprovantes</p>
-            <p className="text-sm text-neutral-500">Esta area simula download de boleto e comprovantes para o condomino.</p>
+            <p className="text-sm text-neutral-500">Esta área simula o download de boletos e comprovantes para o condômino.</p>
           </div>
         </div>
       </section>
