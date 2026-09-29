@@ -11,6 +11,7 @@ import {
   Search,
   X,
 } from "lucide-react";
+import whatsappIcon from "simple-icons/icons/whatsapp.svg";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ImovelCard, type ImovelResumo } from "@/components/site/ImovelCard";
 import { getDestaques, getSearchSuggestions } from "@/lib/imoveis.functions";
@@ -479,12 +480,16 @@ function HomeWhatsappButton() {
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="flex h-14 items-center gap-2 rounded-full bg-[#1d9b56] px-5 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(10,74,39,0.36)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-1 hover:bg-[#168246] hover:shadow-[0_16px_32px_rgba(10,74,39,0.42)] active:translate-y-0 active:scale-[0.98]"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-[#1d9b56] p-0 text-white shadow-[0_12px_28px_rgba(10,74,39,0.36)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-1 hover:bg-[#168246] hover:shadow-[0_16px_32px_rgba(10,74,39,0.42)] active:translate-y-0 active:scale-[0.98]"
         aria-expanded={open}
         aria-label={open ? "Fechar opções do WhatsApp" : "Abrir opções do WhatsApp"}
+        title={open ? "Fechar opções do WhatsApp" : "Abrir opções do WhatsApp"}
       >
-        {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-6 w-6" />}
-        <span>{open ? "Fechar" : "WhatsApp"}</span>
+        {open ? (
+          <X className="h-5 w-5" />
+        ) : (
+          <img src={whatsappIcon} alt="" className="h-7 w-7 brightness-0 invert" />
+        )}
       </button>
     </div>
   );
